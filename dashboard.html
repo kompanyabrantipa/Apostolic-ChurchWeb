@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Apostolic Church International</title>
+    <link rel="stylesheet" href="css/admin.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Include auth-guard.js before any other scripts -->
+    <script src="js/auth-guard.js"></script>
+    <!-- Include TinyMCE for rich text editing -->
+    <script
+      src="https://cdn.tiny.cloud/1/0ajsi33jj38figx5qk4u2y3lfxu5cmay4up24pv47jodnbou/tinymce/7/tinymce.min.js"
+      referrerpolicy="origin"
+    ></script>
+  </head>
+  <body style="display: none">
+    <!-- Hide body until authenticated -->
+    <div class="admin-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="images/logo.png"
+            alt="Apostolic Church Logo"
+            class="sidebar-logo"
+          />
+          <h3>Admin Portal</h3>
+        </div>
+        <nav class="sidebar-nav">
+          <ul>
+            <li>
+              <a
+                href="#dashboard"
+                class="nav-link active"
+                data-section="dashboard"
+                ><i class="fas fa-tachometer-alt"></i> Dashboard</a
+              >
+            </li>
+            <li>
+              <a href="#blog" class="nav-link" data-section="blog"
+                ><i class="fas fa-blog"></i> Blog Posts</a
+              >
+            </li>
+            <li>
+              <a href="#events" class="nav-link" data-section="events"
+                ><i class="fas fa-calendar-alt"></i> Events</a
+              >
+            </li>
+            <li>
+              <a href="#sermons" class="nav-link" data-section="sermons"
+                ><i class="fas fa-church"></i> Sermons</a
+              >
+            </li>
+            <li>
+              <a href="#settings" class="nav-link" data-section="settings"
+                ><i class="fas fa-cog"></i> Settings</a
+              >
+            </li>
+          </ul>
+        </nav>
+        <div class="sidebar-footer">
+          <button id="logoutBtn" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="content-header">
+          <div class="header-left">
+            <button id="sidebarToggle" class="sidebar-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h2 id="pageTitle">Dashboard</h2>
+          </div>
+          <div class="header-right">
+            <div class="admin-profile">
+              <span id="adminName">Admin</span>
+              <img
+                src="images/admin-avatar.png"
+                alt="Admin"
+                class="admin-avatar"
+              />
+            </div>
+          </div>
+        </header>
+
+        <div class="content-wrapper">
+          <!-- Dashboard Section -->
+          <section id="dashboard" class="content-section active">
+            <div class="dashboard-stats">
+              <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-blog"></i></div>
+                <div class="stat-info">
+                  <h3 id="blogCount">0</h3>
+                  <p>Blog Posts</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="stat-info">
+                  <h3 id="eventCount">0</h3>
+                  <p>Events</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-church"></i></div>
+                <div class="stat-info">
+                  <h3 id="sermonCount">0</h3>
+                  <p>Sermons</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-recent">
+              <div class="recent-section">
+                <div class="section-header">
+                  <h3>Recent Blog Posts</h3>
+                  <a href="#blog" class="view-all" data-section="blog"
+                    >View All</a
+                  >
+                </div>
+                <div id="recentBlogPosts" class="recent-items">
+                  <p class="loading-message">Loading recent blog posts...</p>
+                </div>
+              </div>
+
+              <div class="recent-section">
+                <div class="section-header">
+                  <h3>Upcoming Events</h3>
+                  <a href="#events" class="view-all" data-section="events"
+                    >View All</a
+                  >
+                </div>
+                <div id="upcomingEvents" class="recent-items">
+                  <p class="loading-message">Loading upcoming events...</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Blog Posts Section -->
+          <section id="blog" class="content-section">
+            <div class="section-header">
+              <h3>Manage Blog Posts</h3>
+              <button id="newBlogBtn" class="btn-primary">
+                <i class="fas fa-plus"></i> New Post
+              </button>
+            </div>
+
+            <div class="content-table-wrapper">
+              <table class="content-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="blogTableBody">
+                  <tr>
+                    <td colspan="4" class="loading-cell">
+                      Loading blog posts...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Blog Post Form Modal -->
+            <div id="blogFormModal" class="modal">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3 id="blogFormTitle">Add New Blog Post</h3>
+                  <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <form id="blogForm">
+                    <input type="hidden" id="blogId" />
+
+                    <div class="form-group">
+                      <label for="blogTitle">Title</label>
+                      <input type="text" id="blogTitle" required />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="blogSummary">Summary</label>
+                      <textarea id="blogSummary" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="blogContent">Content</label>
+                      <textarea
+                        id="blogContent"
+                        class="tinymce-editor"
+                      ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="blogImage">Featured Image URL</label>
+                      <input type="text" id="blogImage" />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="blogStatus">Status</label>
+                      <select id="blogStatus" required>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                      </select>
+                    </div>
+
+                    <div class="form-actions">
+                      <button type="button" class="btn-secondary close-modal">
+                        Cancel
+                      </button>
+                      <button type="submit" class="btn-primary">
+                        Save Post
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Events Section -->
+          <section id="events" class="content-section">
+            <div class="section-header">
+              <h3>Manage Events</h3>
+              <button id="newEventBtn" class="btn-primary">
+                <i class="fas fa-plus"></i> New Event
+              </button>
+            </div>
+
+            <div class="content-table-wrapper">
+              <table class="content-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="eventTableBody">
+                  <tr>
+                    <td colspan="5" class="loading-cell">Loading events...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Event Form Modal -->
+            <div id="eventFormModal" class="modal">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3 id="eventFormTitle">Add New Event</h3>
+                  <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <form id="eventForm">
+                    <input type="hidden" id="eventId" />
+
+                    <div class="form-group">
+                      <label for="eventTitle">Title</label>
+                      <input type="text" id="eventTitle" required />
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="eventDate">Date</label>
+                        <input type="date" id="eventDate" required />
+                      </div>
+                      <div class="form-group">
+                        <label for="eventTime">Time</label>
+                        <input type="time" id="eventTime" />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="eventLocation">Location</label>
+                      <input type="text" id="eventLocation" required />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="eventDescription">Description</label>
+                      <textarea
+                        id="eventDescription"
+                        class="tinymce-editor"
+                      ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="eventImage">Image URL</label>
+                      <input type="text" id="eventImage" />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="eventStatus">Status</label>
+                      <select id="eventStatus" required>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                      </select>
+                    </div>
+
+                    <div class="form-actions">
+                      <button type="button" class="btn-secondary close-modal">
+                        Cancel
+                      </button>
+                      <button type="submit" class="btn-primary">
+                        Save Event
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sermons Section -->
+          <section id="sermons" class="content-section">
+            <div class="section-header">
+              <h3>Manage Sermons</h3>
+              <button id="newSermonBtn" class="btn-primary">
+                <i class="fas fa-plus"></i> New Sermon
+              </button>
+            </div>
+
+            <div class="content-table-wrapper">
+              <table class="content-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Speaker</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="sermonTableBody">
+                  <tr>
+                    <td colspan="5" class="loading-cell">Loading sermons...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Sermon Form Modal -->
+            <div id="sermonFormModal" class="modal">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3 id="sermonFormTitle">Add New Sermon</h3>
+                  <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <form id="sermonForm">
+                    <input type="hidden" id="sermonId" />
+
+                    <div class="form-group">
+                      <label for="sermonTitle">Title</label>
+                      <input type="text" id="sermonTitle" required />
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="sermonSpeaker">Speaker</label>
+                        <input type="text" id="sermonSpeaker" required />
+                      </div>
+                      <div class="form-group">
+                        <label for="sermonDate">Date</label>
+                        <input type="date" id="sermonDate" required />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="sermonDescription">Description</label>
+                      <textarea
+                        id="sermonDescription"
+                        class="tinymce-editor"
+                        rows="4"
+                      ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="sermonVideoUrl">Video URL</label>
+                      <input type="url" id="sermonVideoUrl" />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="sermonAudioUrl">Audio URL</label>
+                      <input type="url" id="sermonAudioUrl" />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="sermonThumbnail">Thumbnail URL</label>
+                      <input type="text" id="sermonThumbnail" />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="sermonStatus">Status</label>
+                      <select id="sermonStatus" required>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                      </select>
+                    </div>
+
+                    <div class="form-actions">
+                      <button type="button" class="btn-secondary close-modal">
+                        Cancel
+                      </button>
+                      <button type="submit" class="btn-primary">
+                        Save Sermon
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Settings Section -->
+          <section id="settings" class="content-section">
+            <div class="section-header">
+              <h3>Account Settings</h3>
+            </div>
+
+            <div class="settings-form-container">
+              <form id="passwordForm" class="settings-form">
+                <h4>Change Password</h4>
+
+                <div class="form-group">
+                  <label for="currentPassword">Current Password</label>
+                  <input type="password" id="currentPassword" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <input type="password" id="newPassword" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="confirmPassword">Confirm New Password</label>
+                  <input type="password" id="confirmPassword" required />
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary">
+                    Update Password
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Confirm Action</h3>
+          <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmMessage">Are you sure you want to proceed?</p>
+          <div class="form-actions">
+            <button id="cancelAction" class="btn-secondary">Cancel</button>
+            <button id="confirmAction" class="btn-danger">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <div class="toast-content">
+        <i id="toastIcon" class="fas fa-check-circle"></i>
+        <div class="toast-message">
+          <span id="toastTitle">Success</span>
+          <p id="toastMessage">Action completed successfully</p>
+        </div>
+      </div>
+      <div class="toast-progress"></div>
+    </div>
+
+    <!-- Admin Dashboard JavaScript -->
+    <script src="js/data-service.js"></script>
+    <script src="js/sample-data-generator.js"></script>
+    <script src="js/blog-manager.js"></script>
+    <script src="js/event-manager.js"></script>
+    <script src="js/sermon-manager.js"></script>
+    <script src="js/dashboard-sync-test.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Sermon Archive - Apostolic Church International, Louisville Kentucky
+    </title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="images/logo.png"
+              alt="Apostolic Church International Logo"
+              class="logo-image"
+            />
+            <span class="logo-text">Apostolic Church International</span>
+          </a>
+        </div>
+        <nav>
+          <button class="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <ul class="nav-menu">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="leadership.html">Leadership</a></li>
+            <li class="has-dropdown">
+              <a href="service.html"
+                >Services <i class="fas fa-chevron-down"></i
+              ></a>
+              <ul class="dropdown-menu">
+                <li><a href="service.html">Services Info</a></li>
+                <li><a href="events.html">Events</a></li>
+                <li><a href="calendar.html">Calendar</a></li>
+                <li><a href="blog.html">Blog</a></li>
+              </ul>
+            </li>
+            <li><a href="sermon-archive.html">Sermons</a></li>
+            <li><a href="donate.html">Donate</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-header">
+        <div class="container">
+          <h1>Sermon Archive</h1>
+          <p>Listen to past messages and grow in your faith</p>
+        </div>
+      </section>
+
+      <section class="sermon-upload">
+        <div class="container">
+          <h2>Upload a Sermon</h2>
+          <form id="sermonUploadForm" class="upload-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="sermonTitle">Sermon Title</label>
+                <input type="text" id="sermonTitle" required />
+              </div>
+              <div class="form-group">
+                <label for="sermonSpeaker">Speaker</label>
+                <input type="text" id="sermonSpeaker" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="sermonDate">Date</label>
+                <input type="date" id="sermonDate" required />
+              </div>
+              <div class="form-group">
+                <label for="sermonFile">Sermon File</label>
+                <input
+                  type="file"
+                  id="sermonFile"
+                  accept="audio/*,.pdf"
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="sermonDescription">Description (Optional)</label>
+              <textarea id="sermonDescription" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn">Upload Sermon</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="sermon-list alt-bg">
+        <div class="container">
+          <h2>Recent Sermons</h2>
+          <div class="sermon-filters">
+            <div class="filter-group">
+              <label for="speakerFilter">Filter by Speaker:</label>
+              <select id="speakerFilter">
+                <option value="all">All Speakers</option>
+                <option value="pastor-frempong">
+                  Pastor Martin Kofi Frempong
+                </option>
+                <option value="guest">Guest Speakers</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="sermonSearch">Search:</label>
+              <input
+                type="text"
+                id="sermonSearch"
+                placeholder="Search by title or topic"
+              />
+            </div>
+          </div>
+          <div id="sermonContainer" class="sermon-container">
+            <!-- Sermons will be loaded via JavaScript -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Apostolic Church International</h3>
+            <p>Spreading hope, faith, and love to our community and beyond.</p>
+            <div class="social-links">
+              <a
+                href="https://www.facebook.com/share/17zhkYrQaF/"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-facebook-f"></i
+              ></a>
+              <a
+                href="https://www.instagram.com/apostolicchurchlouisvilleky?igsh=MWUxdHk2MDJrMnNoNg=="
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a
+                href="https://youtube.com/@theapostolicchurchint-loui9461?si=hv4FL_FE-CCdvp4z"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-youtube"></i
+              ></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="service.html">Services</a></li>
+              <li><a href="events.html">Events</a></li>
+              <li><a href="donate.html">Donation</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Service Times</h3>
+            <p>Morning Devotion: 6:00 AM - 6:45 AM</p>
+            <p>Sunday Service: 11:00 AM - 1:15 PM</p>
+            <p>Midweek Service: 7:48 PM - 9:00 PM</p>
+            <a href="service.html" class="btn-small">Learn More</a>
+          </div>
+          <div class="footer-section">
+            <h3>Contact Info</h3>
+            <p>
+              <i class="fas fa-map-marker-alt"></i> 1205 Durett Lane,
+              Louisville, KY 40213
+            </p>
+            <p><i class="fas fa-phone"></i> +1(302) 437-5593</p>
+            <p><i class="fas fa-envelope"></i> louisvilleapostolic@gmail.com</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2023 Apostolic Church USA. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script src="js/sermons.js"></script>
+  </body>
+</html>

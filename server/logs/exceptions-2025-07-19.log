@@ -1,0 +1,39 @@
+2025-07-19 14:20:55 [ERROR]: uncaughtException: listen EADDRINUSE: address already in use :::3001
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1907:16)
+    at listenInCluster (node:net:1964:12)
+    at Server.listen (node:net:2066:7)
+    at startServer (C:\Users\Lenovo\Desktop\Apostolic-2\server\server-mongodb.js:470:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {"error":{"code":"EADDRINUSE","errno":-4091,"syscall":"listen","address":"::","port":3001},"exception":true,"date":"Sat Jul 19 2025 14:20:55 GMT+0100 (West Africa Standard Time)","process":{"pid":14012,"uid":null,"gid":null,"cwd":"C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server","execPath":"C:\\Program Files\\nodejs\\node.exe","version":"v22.11.0","argv":["C:\\Program Files\\nodejs\\node.exe","C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server\\server-mongodb.js"],"memoryUsage":{"rss":81125376,"heapTotal":63209472,"heapUsed":28427144,"external":20789849,"arrayBuffers":18432092}},"os":{"loadavg":[0,0,0],"uptime":482069.265},"trace":[{"column":16,"file":"node:net","function":"Server.setupListenHandle [as _listen2]","line":1907,"method":"setupListenHandle [as _listen2]","native":false},{"column":12,"file":"node:net","function":"listenInCluster","line":1964,"method":null,"native":false},{"column":7,"file":"node:net","function":"Server.listen","line":2066,"method":"listen","native":false},{"column":18,"file":"C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server\\server-mongodb.js","function":"startServer","line":470,"method":null,"native":false},{"column":5,"file":"node:internal/process/task_queues","function":"process.processTicksAndRejections","line":105,"method":"processTicksAndRejections","native":false}],"service":"apostolic-church-backend"}
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1907:16)
+    at listenInCluster (node:net:1964:12)
+    at Server.listen (node:net:2066:7)
+    at startServer (C:\Users\Lenovo\Desktop\Apostolic-2\server\server-mongodb.js:470:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-07-19 14:23:08 [ERROR]: uncaughtException: listen EADDRINUSE: address already in use :::3001
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1907:16)
+    at listenInCluster (node:net:1964:12)
+    at Server.listen (node:net:2066:7)
+    at startServer (C:\Users\Lenovo\Desktop\Apostolic-2\server\server-mongodb.js:470:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {"error":{"code":"EADDRINUSE","errno":-4091,"syscall":"listen","address":"::","port":3001},"exception":true,"date":"Sat Jul 19 2025 14:23:08 GMT+0100 (West Africa Standard Time)","process":{"pid":19572,"uid":null,"gid":null,"cwd":"C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server","execPath":"C:\\Program Files\\nodejs\\node.exe","version":"v22.11.0","argv":["C:\\Program Files\\nodejs\\node.exe","C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server\\server-mongodb.js"],"memoryUsage":{"rss":80826368,"heapTotal":62685184,"heapUsed":28310704,"external":20789732,"arrayBuffers":18431975}},"os":{"loadavg":[0,0,0],"uptime":482202.671},"trace":[{"column":16,"file":"node:net","function":"Server.setupListenHandle [as _listen2]","line":1907,"method":"setupListenHandle [as _listen2]","native":false},{"column":12,"file":"node:net","function":"listenInCluster","line":1964,"method":null,"native":false},{"column":7,"file":"node:net","function":"Server.listen","line":2066,"method":"listen","native":false},{"column":18,"file":"C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server\\server-mongodb.js","function":"startServer","line":470,"method":null,"native":false},{"column":5,"file":"node:internal/process/task_queues","function":"process.processTicksAndRejections","line":105,"method":"processTicksAndRejections","native":false}],"service":"apostolic-church-backend"}
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1907:16)
+    at listenInCluster (node:net:1964:12)
+    at Server.listen (node:net:2066:7)
+    at startServer (C:\Users\Lenovo\Desktop\Apostolic-2\server\server-mongodb.js:470:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-07-19 14:23:35 [ERROR]: uncaughtException: listen EADDRINUSE: address already in use :::3001
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1907:16)
+    at listenInCluster (node:net:1964:12)
+    at Server.listen (node:net:2066:7)
+    at startServer (C:\Users\Lenovo\Desktop\Apostolic-2\server\server-mongodb.js:470:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {"error":{"code":"EADDRINUSE","errno":-4091,"syscall":"listen","address":"::","port":3001},"exception":true,"date":"Sat Jul 19 2025 14:23:35 GMT+0100 (West Africa Standard Time)","process":{"pid":14996,"uid":null,"gid":null,"cwd":"C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server","execPath":"C:\\Program Files\\nodejs\\node.exe","version":"v22.11.0","argv":["C:\\Program Files\\nodejs\\node.exe","C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server\\server-mongodb.js"],"memoryUsage":{"rss":81068032,"heapTotal":63733760,"heapUsed":28344504,"external":20789732,"arrayBuffers":18431975}},"os":{"loadavg":[0,0,0],"uptime":482229.453},"trace":[{"column":16,"file":"node:net","function":"Server.setupListenHandle [as _listen2]","line":1907,"method":"setupListenHandle [as _listen2]","native":false},{"column":12,"file":"node:net","function":"listenInCluster","line":1964,"method":null,"native":false},{"column":7,"file":"node:net","function":"Server.listen","line":2066,"method":"listen","native":false},{"column":18,"file":"C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\server\\server-mongodb.js","function":"startServer","line":470,"method":null,"native":false},{"column":5,"file":"node:internal/process/task_queues","function":"process.processTicksAndRejections","line":105,"method":"processTicksAndRejections","native":false}],"service":"apostolic-church-backend"}
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1907:16)
+    at listenInCluster (node:net:1964:12)
+    at Server.listen (node:net:2066:7)
+    at startServer (C:\Users\Lenovo\Desktop\Apostolic-2\server\server-mongodb.js:470:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

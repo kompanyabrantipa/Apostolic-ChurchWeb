@@ -1,0 +1,2 @@
+2025-07-20 00:21:12 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/favicon.ico","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36","referer":"http://localhost:3001/service.html"}
+2025-07-20 00:21:12 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/favicon.ico","statusCode":304,"duration":"102ms","ip":"::1"}

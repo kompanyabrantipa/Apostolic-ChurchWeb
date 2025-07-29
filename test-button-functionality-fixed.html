@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Functionality Test - After Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .button { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .button:hover { background: #005a87; }
+        .button.success { background: #28a745; }
+        .button.danger { background: #dc3545; }
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .info { background: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .warning { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .test-pass { background: #d4edda; color: #155724; }
+        .test-fail { background: #f8d7da; color: #721c24; }
+        .links { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+        .code { background: #f8f9fa; padding: 5px; border-radius: 3px; font-family: monospace; }
+        .step-by-step { background: #f8f9fa; padding: 15px; border-left: 4px solid #007cba; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Button Functionality Test - After Critical Fix</h1>
+        <p>This tool tests the edit and delete button functionality after fixing the critical JavaScript error.</p>
+        
+        <div class="success">
+            <strong>✅ Critical Fix Applied:</strong>
+            <ul>
+                <li><strong>JavaScript Error Fixed:</strong> Corrected SermonManager.init() → initSermonManager()</li>
+                <li><strong>Manager Initialization:</strong> Fixed EventManager.init() → initEventManager()</li>
+                <li><strong>Blog Manager:</strong> Fixed BlogManager.init() → initBlogManager()</li>
+                <li><strong>Duplicate Calls Removed:</strong> Eliminated duplicate manager initialization</li>
+            </ul>
+            <p><strong>Expected Result:</strong> Edit and delete buttons should now work properly!</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Step 1: Create Test Content</h2>
+        <p>Create test content to verify button functionality.</p>
+        
+        <button class="button success" onclick="createTestContent()">Create Test Content</button>
+        <div id="testContentResult" class="info">Click "Create Test Content" to generate test data.</div>
+    </div>
+
+    <div class="container">
+        <h2>🔍 Step 2: Verify Functions Are Available</h2>
+        <p>Check that all edit and delete functions are now accessible.</p>
+        
+        <button class="button" onclick="verifyFunctions()">Verify Functions</button>
+        <div id="functionVerifyResult" class="info">Click "Verify Functions" to check function availability.</div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Step 3: Manual Testing Instructions</h2>
+        <div class="step-by-step">
+            <h4>🎯 Complete Testing Procedure:</h4>
+            <ol>
+                <li><strong>Open Dashboard:</strong> <a href="http://localhost:3000/dashboard" target="_blank">http://localhost:3000/dashboard</a></li>
+                <li><strong>Verify Content Tables:</strong> Check that blogs, events, and sermons tables load properly</li>
+                <li><strong>Test Edit Buttons:</strong>
+                    <ul>
+                        <li>Click any ✏️ (edit) button in the blogs table</li>
+                        <li>Verify the blog edit modal opens with pre-populated data</li>
+                        <li>Make a change and save - verify the table updates</li>
+                        <li>Repeat for events and sermons tables</li>
+                    </ul>
+                </li>
+                <li><strong>Test Delete Buttons:</strong>
+                    <ul>
+                        <li>Click any 🗑️ (delete) button in the blogs table</li>
+                        <li>Verify the confirmation modal appears</li>
+                        <li>Click "Confirm" - verify the item is removed</li>
+                        <li>Repeat for events and sermons tables</li>
+                    </ul>
+                </li>
+                <li><strong>Test Real-time Sync:</strong>
+                    <ul>
+                        <li>Open <a href="blog.html" target="_blank">blog.html</a> in another tab</li>
+                        <li>Delete a blog from the dashboard</li>
+                        <li>Verify it disappears from blog.html immediately</li>
+                        <li>Repeat for events.html and sermon-archive.html</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔄 Step 4: Test Real-time Synchronization</h2>
+        <p>Verify that changes sync to frontend pages immediately.</p>
+        
+        <div class="links">
+            <a href="http://localhost:3000/dashboard" class="button" target="_blank">Open Dashboard</a>
+            <a href="blog.html" class="button" target="_blank">Blog Page</a>
+            <a href="events.html" class="button" target="_blank">Events Page</a>
+            <a href="sermon-archive.html" class="button" target="_blank">Sermons Page</a>
+        </div>
+        
+        <button class="button" onclick="testSyncFunctionality()">Create Sync Test Content</button>
+        <div id="syncTestResult" class="info">Click "Create Sync Test Content" to generate content for sync testing.</div>
+    </div>
+
+    <div class="container">
+        <h2>✅ Expected Results After Fix</h2>
+        <div class="success">
+            <h4>Edit Button Functionality:</h4>
+            <ul>
+                <li>✅ <strong>Blog Edit:</strong> Modal opens with title, summary, content, status populated</li>
+                <li>✅ <strong>Event Edit:</strong> Modal opens with title, date, time, location, description populated</li>
+                <li>✅ <strong>Sermon Edit:</strong> Modal opens with title, speaker, date, description (TinyMCE) populated</li>
+                <li>✅ <strong>Save Changes:</strong> Updates are saved and table refreshes immediately</li>
+            </ul>
+        </div>
+        
+        <div class="success">
+            <h4>Delete Button Functionality:</h4>
+            <ul>
+                <li>✅ <strong>Confirmation Modal:</strong> Appears with appropriate message for each content type</li>
+                <li>✅ <strong>Content Removal:</strong> Item is removed from dashboard table immediately</li>
+                <li>✅ <strong>Frontend Sync:</strong> Item disappears from frontend pages without refresh</li>
+                <li>✅ <strong>Success Message:</strong> Shows confirmation of successful deletion</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🐛 Troubleshooting</h2>
+        <div class="warning">
+            <h4>If Buttons Still Don't Work:</h4>
+            <ol>
+                <li>Open browser developer tools (F12)</li>
+                <li>Check the Console tab for JavaScript errors</li>
+                <li>Refresh the dashboard page</li>
+                <li>Try creating new test content</li>
+                <li>Verify that functions are defined: type <code>typeof editBlog</code> in console</li>
+            </ol>
+        </div>
+        
+        <div class="info">
+            <h4>Console Commands for Testing:</h4>
+            <ul>
+                <li><code>typeof editBlog</code> - Should return "function"</li>
+                <li><code>typeof deleteBlog</code> - Should return "function"</li>
+                <li><code>typeof editEvent</code> - Should return "function"</li>
+                <li><code>typeof deleteEvent</code> - Should return "function"</li>
+                <li><code>typeof editSermon</code> - Should return "function"</li>
+                <li><code>typeof deleteSermon</code> - Should return "function"</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 Current System Status</h2>
+        <div id="systemStatus" class="info">Loading system status...</div>
+        <button class="button" onclick="checkSystemStatus()">Refresh Status</button>
+    </div>
+
+    <!-- Include required scripts -->
+    <script src="js/data-service.js"></script>
+
+    <script>
+        function createTestContent() {
+            try {
+                if (typeof DataService === 'undefined') {
+                    throw new Error('DataService not available');
+                }
+                
+                const timestamp = new Date().toLocaleTimeString();
+                
+                // Create test blog
+                const testBlog = DataService.create('blogs', {
+                    title: `Test Blog for Button Fix - ${timestamp}`,
+                    summary: 'This blog tests the fixed edit and delete button functionality',
+                    content: '<p>This is a test blog post created after fixing the critical JavaScript error that prevented edit and delete buttons from working.</p><p>You can now edit this content and verify the changes work correctly.</p>',
+                    status: 'published'
+                });
+                
+                // Create test event
+                const testEvent = DataService.create('events', {
+                    title: `Test Event for Button Fix - ${timestamp}`,
+                    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    location: 'Test Location for Button Testing',
+                    description: '<p>This is a test event created after fixing the critical JavaScript error.</p><p>You can now edit this event and verify the functionality works correctly.</p>',
+                    status: 'published'
+                });
+                
+                // Create test sermon
+                const testSermon = DataService.create('sermons', {
+                    title: `Test Sermon for Button Fix - ${timestamp}`,
+                    speaker: 'Test Speaker for Button Testing',
+                    date: new Date().toISOString(),
+                    description: '<p>This is a test sermon created after fixing the critical JavaScript error.</p><p>You can now edit this sermon and verify TinyMCE content editing works correctly.</p>',
+                    status: 'published'
+                });
+                
+                document.getElementById('testContentResult').className = 'test-pass';
+                document.getElementById('testContentResult').innerHTML = `
+                    <h4>✅ Test Content Created Successfully</h4>
+                    <p><strong>Blog:</strong> "${testBlog.title}"</p>
+                    <p><strong>Event:</strong> "${testEvent.title}"</p>
+                    <p><strong>Sermon:</strong> "${testSermon.title}"</p>
+                    <p><strong>Next Step:</strong> Open the dashboard and test the edit and delete buttons on these items.</p>
+                    <div class="links">
+                        <a href="http://localhost:3000/dashboard" class="button" target="_blank">Test Buttons Now</a>
+                    </div>
+                `;
+                
+                checkSystemStatus();
+                
+            } catch (error) {
+                document.getElementById('testContentResult').className = 'test-fail';
+                document.getElementById('testContentResult').textContent = 'Failed to create test content: ' + error.message;
+            }
+        }
+
+        function verifyFunctions() {
+            const requiredFunctions = [
+                'editBlog', 'deleteBlog', 'viewBlog',
+                'editEvent', 'deleteEvent', 'viewEvent',
+                'editSermon', 'deleteSermon', 'viewSermon'
+            ];
+            
+            let results = [];
+            let allExist = true;
+            
+            requiredFunctions.forEach(funcName => {
+                const exists = typeof window[funcName] === 'function';
+                if (!exists) allExist = false;
+                results.push(`${funcName}: ${exists ? '✅ AVAILABLE' : '❌ MISSING'}`);
+            });
+            
+            document.getElementById('functionVerifyResult').className = allExist ? 'test-pass' : 'test-fail';
+            document.getElementById('functionVerifyResult').innerHTML = `
+                <h4>${allExist ? '✅' : '❌'} Function Verification Results</h4>
+                ${results.map(result => `<p>${result}</p>`).join('')}
+                ${allExist ? 
+                    '<p><strong>🎉 All functions are available! Edit and delete buttons should work now.</strong></p>' : 
+                    '<p><strong>⚠️ Some functions are missing. There may still be JavaScript errors.</strong></p>'
+                }
+            `;
+        }
+
+        function testSyncFunctionality() {
+            try {
+                if (typeof DataService === 'undefined') {
+                    throw new Error('DataService not available');
+                }
+                
+                // Create sync test content
+                const syncBlog = DataService.create('blogs', {
+                    title: `Sync Test Blog - ${new Date().toLocaleTimeString()}`,
+                    summary: 'This blog tests real-time sync after button fix',
+                    content: '<p>This blog is created to test the real-time sync functionality after fixing the edit and delete buttons.</p><p>Edit or delete this blog and check if changes appear on the frontend immediately.</p>',
+                    status: 'published'
+                });
+                
+                document.getElementById('syncTestResult').className = 'test-pass';
+                document.getElementById('syncTestResult').innerHTML = `
+                    <h4>🔄 Sync Test Content Created</h4>
+                    <p><strong>Test blog:</strong> "${syncBlog.title}"</p>
+                    <p><strong>Manual sync test steps:</strong></p>
+                    <ol>
+                        <li>Open <a href="blog.html" target="_blank">blog.html</a> in another tab</li>
+                        <li>Open <a href="http://localhost:3000/dashboard" target="_blank">dashboard</a> in another tab</li>
+                        <li>Find the sync test blog in the dashboard</li>
+                        <li>Click the edit button (✏️) and modify the title</li>
+                        <li>Save changes and check if they appear on blog.html immediately</li>
+                        <li>Then click the delete button (🗑️) and confirm deletion</li>
+                        <li>Check if the blog disappears from blog.html immediately</li>
+                    </ol>
+                    <p><strong>✅ Success:</strong> Changes appear on both dashboard and frontend without refresh</p>
+                `;
+                
+                checkSystemStatus();
+                
+            } catch (error) {
+                document.getElementById('syncTestResult').className = 'test-fail';
+                document.getElementById('syncTestResult').textContent = 'Sync test failed: ' + error.message;
+            }
+        }
+
+        function checkSystemStatus() {
+            try {
+                const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+                const events = JSON.parse(localStorage.getItem('events') || '[]');
+                const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+                const lastSync = JSON.parse(localStorage.getItem('lastSync') || '{}');
+                
+                document.getElementById('systemStatus').className = 'info';
+                document.getElementById('systemStatus').innerHTML = `
+                    <h4>📊 System Status After Fix:</h4>
+                    <p><strong>Total Content:</strong> ${blogs.length} blogs, ${events.length} events, ${sermons.length} sermons</p>
+                    <p><strong>Last Sync:</strong> ${lastSync.timestamp ? new Date(lastSync.timestamp).toLocaleString() : 'Never'}</p>
+                    <p><strong>DataService Available:</strong> ${typeof DataService !== 'undefined' ? 'Yes' : 'No'}</p>
+                    
+                    <h4>🎯 Post-Fix Testing Checklist:</h4>
+                    <ul>
+                        <li><strong>Dashboard Loads:</strong> No JavaScript errors in console</li>
+                        <li><strong>Content Tables:</strong> Blogs, events, and sermons display properly</li>
+                        <li><strong>Edit Buttons:</strong> ✏️ icons open modals with pre-populated data</li>
+                        <li><strong>Delete Buttons:</strong> 🗑️ icons show confirmation and remove content</li>
+                        <li><strong>Real-time Sync:</strong> Changes appear on frontend immediately</li>
+                        <li><strong>Error Handling:</strong> Proper success/error messages appear</li>
+                    </ul>
+                    
+                    <h4>🔗 Test Links:</h4>
+                    <div class="links">
+                        <a href="http://localhost:3000/dashboard" class="button" target="_blank">Dashboard</a>
+                        <a href="blog.html" class="button" target="_blank">Blog Page</a>
+                        <a href="events.html" class="button" target="_blank">Events Page</a>
+                        <a href="sermon-archive.html" class="button" target="_blank">Sermons Page</a>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('systemStatus').className = 'error';
+                document.getElementById('systemStatus').textContent = 'Error checking system status: ' + error.message;
+            }
+        }
+
+        // Listen for sync events
+        window.addEventListener('contentSync', function(event) {
+            console.log('🔄 Sync event detected:', event.detail);
+            checkSystemStatus();
+        });
+
+        window.addEventListener('storage', function(event) {
+            if (['blogs', 'events', 'sermons', 'lastSync'].includes(event.key)) {
+                console.log('💾 Storage change detected:', event.key);
+                checkSystemStatus();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+            console.log('🔧 Button Functionality Test Tool loaded - After Critical Fix');
+        });
+    </script>
+</body>
+</html>

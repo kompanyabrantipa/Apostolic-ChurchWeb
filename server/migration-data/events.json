@@ -1,0 +1,42 @@
+[
+  {
+    "id": "sunday-worship-service-weekly",
+    "title": "Sunday Worship Service",
+    "date": "2025-07-22T11:56:15.390Z",
+    "location": "Main Sanctuary - 123 Faith Avenue",
+    "description": "<p>Join us every Sunday at 10:00 AM for an uplifting worship experience filled with contemporary music, heartfelt prayer, and inspiring biblical teaching.</p><p>Our worship team leads us in songs of praise, and Pastor Johnson delivers messages that speak to real-life challenges and victories. Communion is served on the first Sunday of each month.</p><p>Children's ministry is available for ages 2-12, and nursery care is provided for infants and toddlers. Come as you are—all are welcome!</p>",
+    "imageUrl": "/images/sunday-worship.jpg",
+    "status": "published",
+    "createdAt": "2025-06-19T11:56:15.390Z"
+  },
+  {
+    "id": "youth-bible-study-wednesday",
+    "title": "Youth Bible Study & Fellowship",
+    "date": "2025-07-24T11:56:15.390Z",
+    "location": "Youth Center - Lower Level",
+    "description": "<p>Calling all teens and young adults (ages 13-25)! Join us every Wednesday at 7:00 PM for dynamic Bible study, engaging discussions, and fun fellowship activities.</p><p>This week we're exploring 'Living with Purpose' - discovering God's unique plan for your life. We'll dive into scripture, share testimonies, and support each other in our faith journey.</p><p>Pizza and refreshments provided! Bring a friend and experience community like never before.</p>",
+    "imageUrl": "/images/youth-fellowship.jpg",
+    "status": "published",
+    "createdAt": "2025-06-28T11:56:15.390Z"
+  },
+  {
+    "id": "community-food-drive-2024",
+    "title": "Community Food Drive & Distribution",
+    "date": "2025-07-29T11:56:15.390Z",
+    "location": "Church Parking Lot & Fellowship Hall",
+    "description": "<p>Help us serve our community by participating in our monthly food drive and distribution event. We're collecting non-perishable food items, personal care products, and household essentials for local families in need.</p><p>Drop-off times: Saturday 9:00 AM - 12:00 PM. Distribution begins at 1:00 PM for community members who need assistance.</p><p>Volunteers needed for sorting, packing, and distribution. This is a wonderful opportunity for the whole family to serve together and make a tangible difference in our neighborhood.</p><p>Items most needed: canned goods, pasta, rice, cereal, toiletries, and cleaning supplies.</p>",
+    "imageUrl": "/images/food-drive.jpg",
+    "status": "published",
+    "createdAt": "2025-07-05T11:56:15.390Z"
+  },
+  {
+    "id": "marriage-enrichment-retreat-2024",
+    "title": "Marriage Enrichment Retreat",
+    "date": "2025-08-09T11:56:15.390Z",
+    "location": "Mountain View Retreat Center",
+    "description": "<p>Strengthen your marriage and deepen your relationship with this weekend retreat designed for couples at any stage of marriage. Join us for a time of renewal, connection, and spiritual growth.</p><p>The retreat includes interactive workshops on communication, conflict resolution, and building intimacy. You'll also enjoy quiet time together, group discussions with other couples, and inspiring messages about God's design for marriage.</p><p>Registration includes all meals, accommodation, and materials. Childcare arrangements can be made through the church office. Early bird pricing available until next Friday.</p><p>Investment: $150 per couple (scholarships available). Register at the church office or online.</p>",
+    "imageUrl": "/images/marriage-retreat.jpg",
+    "status": "published",
+    "createdAt": "2025-07-12T11:56:15.390Z"
+  }
+]

@@ -1,0 +1,47 @@
+{
+  "name": "apostolic-church-backend-mongodb",
+  "version": "1.0.0",
+  "description": "Backend server for Apostolic Church website with MongoDB database",
+  "main": "server-mongodb.js",
+  "scripts": {
+    "start": "node server-mongodb.js",
+    "dev": "nodemon server-mongodb.js",
+    "migrate": "node scripts/migrate-localstorage-to-mongodb.js",
+    "setup-db": "node scripts/setup-database-mongodb.js",
+    "backup": "node scripts/backup-mongodb.js",
+    "maintenance": "node scripts/maintenance-mongodb.js",
+    "test": "node scripts/test-mongodb-connection.js"
+  },
+  "keywords": ["church", "cms", "api", "express", "mongodb", "mongoose"],
+  "author": "Apostolic Church International",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.10.0",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0",
+    "dotenv": "^16.3.1",
+    "express-validator": "^7.0.1",
+    "cookie-parser": "^1.4.6",
+    "compression": "^1.7.4",
+    "node-cache": "^5.1.2",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "mongodb": {
+    "version": ">=5.0.0",
+    "recommended": "7.0.0"
+  }
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post - Apostolic Church USA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/content-display.css">
+    <!-- Include your other CSS files -->
+</head>
+<body>
+    <!-- Include your header/navigation here -->
+    
+    <section class="blog-post-section">
+        <div class="container">
+            <div id="blog-post-content">
+                <!-- Blog post content will be loaded here -->
+                <div class="loading-spinner">Loading blog post...</div>
+            </div>
+            <div class="blog-post-navigation">
+                <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to All Posts</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Include your footer here -->
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get blog post ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            
+            if (!postId) {
+                document.getElementById('blog-post-content').innerHTML = `
+                    <div class="error-message">No blog post specified. <a href="blog.html">Return to all posts</a>.</div>
+                `;
+                return;
+            }
+            
+            // Fetch the blog post
+            fetch(`/api/blog/public/${postId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Blog post not found');
+                    }
+                    return response.json();
+                })
+                .then(post => {
+                    displayBlogPost(post);
+                    document.title = `${post.title} - Apostolic Church USA`;
+                })
+                .catch(error => {
+                    console.error('Error loading blog post:', error);
+                    document.getElementById('blog-post-content').innerHTML = `
+                        <div class="error-message">Unable to load this blog post. <a href="blog.html">Return to all posts</a>.</div>
+                    `;
+                });
+        });
+        
+        function displayBlogPost(post) {
+            const container = document.getElementById('blog-post-content');
+            const postDate = new Date(post.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            let html = `
+                <article class="blog-post">
+                    <h1 class="blog-post-title">${post.title}</h1>
+                    <div class="blog-post-meta">
+                        <span class="post-date">${postDate}</span>
+                    </div>
+                    ${post.imageUrl ? 
+                        `<div class="blog-post-image">
+                            <img src="${post.imageUrl}" alt="${post.title}">
+                        </div>` : 
+                        ''
+                    }
+                    <div class="blog-post-content">
+                        ${post.content}
+                    </div>
+                </article>
+            `;
+            
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html> 

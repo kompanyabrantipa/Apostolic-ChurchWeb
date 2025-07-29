@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit & Delete Functionality Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .button { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .button:hover { background: #005a87; }
+        .button.success { background: #28a745; }
+        .button.danger { background: #dc3545; }
+        .button.edit { background: #ffc107; color: #212529; }
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .info { background: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .warning { background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .test-pass { background: #d4edda; color: #155724; }
+        .test-fail { background: #f8d7da; color: #721c24; }
+        .links { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+        .code { background: #f8f9fa; padding: 5px; border-radius: 3px; font-family: monospace; }
+        .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin: 15px 0; }
+        .content-item { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #007cba; }
+        .content-item h4 { margin: 0 0 10px 0; color: #007cba; }
+        .content-item p { margin: 5px 0; font-size: 14px; }
+        .button-group { display: flex; gap: 5px; margin-top: 10px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Edit & Delete Functionality Test</h1>
+        <p>This tool tests the edit and delete button functionality for all content types (blogs, events, sermons) after recent fixes.</p>
+        
+        <div class="success">
+            <strong>✅ Recent Fixes Applied:</strong>
+            <ul>
+                <li><strong>Sermon Edit Function:</strong> Fixed TinyMCE content handling and date formatting</li>
+                <li><strong>Delete Functions:</strong> Already using DataService with proper sync events</li>
+                <li><strong>Event Listeners:</strong> Verified all edit/delete buttons have proper event listeners</li>
+                <li><strong>Form Field IDs:</strong> Verified all form fields exist in dashboard.html</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Create Test Content</h2>
+        <p>First, let's create sample content to test the edit and delete functionality.</p>
+        
+        <button class="button success" onclick="createTestContent()">Create Test Content</button>
+        <div id="testContentResult" class="info">Click "Create Test Content" to generate test data for editing and deleting.</div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Current Content Status</h2>
+        <div id="contentStatus" class="info">Loading content status...</div>
+        <button class="button" onclick="refreshContentStatus()">Refresh Status</button>
+    </div>
+
+    <div class="test-section">
+        <h2>✏️ Edit Button Tests</h2>
+        <p>Test the edit functionality for each content type:</p>
+        
+        <div class="info">
+            <h4>Manual Testing Instructions:</h4>
+            <ol>
+                <li>Open the <a href="http://localhost:3000/dashboard" target="_blank">Dashboard</a></li>
+                <li>Look for the <strong>✏️ (edit) icons</strong> in each content table</li>
+                <li>Click any edit button to open the edit modal</li>
+                <li>Verify the modal opens with pre-populated data</li>
+                <li>Test edit buttons for blogs, events, and sermons</li>
+                <li>Make changes and save to verify updates work</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <h4>Expected Edit Behavior:</h4>
+            <ul>
+                <li>✅ <strong>Blog Edit:</strong> Modal opens with title, summary, content, status, image URL populated</li>
+                <li>✅ <strong>Event Edit:</strong> Modal opens with title, date, time, location, description, status populated</li>
+                <li>✅ <strong>Sermon Edit:</strong> Modal opens with title, speaker, date, description (TinyMCE), video/audio URLs populated</li>
+                <li>✅ <strong>All Types:</strong> Form title changes to "Edit [Type]"</li>
+                <li>✅ <strong>All Types:</strong> Saving updates the content and refreshes the table</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🗑️ Delete Button Tests</h2>
+        <p>Test the delete functionality for each content type:</p>
+        
+        <div class="info">
+            <h4>Manual Testing Instructions:</h4>
+            <ol>
+                <li>Open the <a href="http://localhost:3000/dashboard" target="_blank">Dashboard</a></li>
+                <li>Click any <strong>🗑️ (trash) icon</strong> in the content tables</li>
+                <li>Verify confirmation modal appears with appropriate message</li>
+                <li>Click "Confirm" to delete or "Cancel" to abort</li>
+                <li>If confirmed, verify:</li>
+                <ul>
+                    <li>Item is removed from dashboard table</li>
+                    <li>Content count decreases</li>
+                    <li>Item disappears from frontend pages immediately</li>
+                    <li>Success message appears</li>
+                </ul>
+                <li>Test delete buttons for blogs, events, and sermons</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <h4>Expected Delete Behavior:</h4>
+            <ul>
+                <li>✅ <strong>Confirmation Modal:</strong> Shows appropriate message for each content type</li>
+                <li>✅ <strong>Blog Delete:</strong> "Are you sure you want to delete this blog post?"</li>
+                <li>✅ <strong>Event Delete:</strong> "Are you sure you want to delete this event?"</li>
+                <li>✅ <strong>Sermon Delete:</strong> "Are you sure you want to delete this sermon?"</li>
+                <li>✅ <strong>Real-time Sync:</strong> Content disappears from frontend immediately</li>
+                <li>✅ <strong>Success Message:</strong> Shows appropriate success message</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔄 Real-time Sync Verification</h2>
+        <p>Verify that edit and delete operations sync to frontend pages immediately:</p>
+        
+        <div class="links">
+            <a href="blog.html" class="button" target="_blank">Open Blog Page</a>
+            <a href="events.html" class="button" target="_blank">Open Events Page</a>
+            <a href="sermon-archive.html" class="button" target="_blank">Open Sermons Page</a>
+            <a href="http://localhost:3000/dashboard" class="button" target="_blank">Open Dashboard</a>
+        </div>
+        
+        <div class="info">
+            <h4>Sync Test Procedure:</h4>
+            <ol>
+                <li>Open both dashboard and a frontend page (e.g., blog.html)</li>
+                <li>Edit an item from the dashboard and save changes</li>
+                <li>Check that changes appear on the frontend page immediately</li>
+                <li>Delete an item from the dashboard</li>
+                <li>Check that the item disappears from the frontend page immediately</li>
+                <li>No page refresh should be required for either operation</li>
+            </ol>
+        </div>
+
+        <button class="button" onclick="testSyncFunctionality()">Test Sync with Sample Content</button>
+        <div id="syncTestResult" class="info">Click "Test Sync" to create content for sync testing.</div>
+    </div>
+
+    <div class="container">
+        <h2>🐛 Troubleshooting Guide</h2>
+        <div class="warning">
+            <h4>If Edit Buttons Don't Work:</h4>
+            <ul>
+                <li>Check browser console for JavaScript errors</li>
+                <li>Verify the edit modal opens (check for modal display issues)</li>
+                <li>Check if form fields are being populated correctly</li>
+                <li>Verify TinyMCE editors are initialized properly</li>
+            </ul>
+        </div>
+        
+        <div class="error">
+            <h4>If Delete Buttons Don't Work:</h4>
+            <ul>
+                <li>Check if confirmation modal appears</li>
+                <li>Verify DataService is available in browser console</li>
+                <li>Check if content is actually removed from localStorage</li>
+                <li>Verify sync events are being triggered</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 System Status</h2>
+        <div id="systemStatus" class="info">Loading system status...</div>
+        <button class="button" onclick="checkSystemStatus()">Refresh Status</button>
+    </div>
+
+    <!-- Include required scripts -->
+    <script src="js/data-service.js"></script>
+
+    <script>
+        function createTestContent() {
+            try {
+                if (typeof DataService === 'undefined') {
+                    throw new Error('DataService not available');
+                }
+                
+                const timestamp = new Date().toLocaleTimeString();
+                
+                // Create test blog
+                const testBlog = DataService.create('blogs', {
+                    title: `Test Blog for Edit/Delete - ${timestamp}`,
+                    summary: 'This blog is created to test edit and delete functionality',
+                    content: '<p>This is a test blog post created specifically to test the edit and delete button functionality in the admin dashboard.</p><p>You can edit this content and verify the changes appear correctly.</p>',
+                    status: 'published',
+                    imageUrl: 'images/test-blog.jpg'
+                });
+                
+                // Create test event
+                const eventDate = new Date();
+                eventDate.setDate(eventDate.getDate() + 10);
+                
+                const testEvent = DataService.create('events', {
+                    title: `Test Event for Edit/Delete - ${timestamp}`,
+                    date: eventDate.toISOString(),
+                    location: 'Test Location for Editing',
+                    description: '<p>This is a test event created specifically to test the edit and delete button functionality in the admin dashboard.</p><p>You can edit this event and verify the changes work correctly.</p>',
+                    status: 'published',
+                    imageUrl: 'images/test-event.jpg'
+                });
+                
+                // Create test sermon
+                const sermonDate = new Date();
+                sermonDate.setDate(sermonDate.getDate() - 5);
+                
+                const testSermon = DataService.create('sermons', {
+                    title: `Test Sermon for Edit/Delete - ${timestamp}`,
+                    speaker: 'Test Speaker for Editing',
+                    date: sermonDate.toISOString(),
+                    description: '<p>This is a test sermon created specifically to test the edit and delete button functionality in the admin dashboard.</p><p>You can edit this sermon and verify TinyMCE content editing works correctly.</p>',
+                    videoUrl: 'https://www.youtube.com/embed/test',
+                    audioUrl: 'https://example.com/test-audio.mp3',
+                    thumbnailUrl: 'images/test-sermon.jpg',
+                    status: 'published'
+                });
+                
+                document.getElementById('testContentResult').className = 'test-pass';
+                document.getElementById('testContentResult').innerHTML = `
+                    <h4>✅ Test Content Created Successfully</h4>
+                    <p><strong>Blog:</strong> "${testBlog.title}"</p>
+                    <p><strong>Event:</strong> "${testEvent.title}"</p>
+                    <p><strong>Sermon:</strong> "${testSermon.title}"</p>
+                    <p><strong>Next Step:</strong> Open the dashboard and test the edit and delete buttons on these items.</p>
+                    <div class="links">
+                        <a href="http://localhost:3000/dashboard" class="button" target="_blank">Open Dashboard Now</a>
+                    </div>
+                `;
+                
+                refreshContentStatus();
+                checkSystemStatus();
+                
+            } catch (error) {
+                document.getElementById('testContentResult').className = 'test-fail';
+                document.getElementById('testContentResult').textContent = 'Failed to create test content: ' + error.message;
+            }
+        }
+
+        function refreshContentStatus() {
+            try {
+                const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+                const events = JSON.parse(localStorage.getItem('events') || '[]');
+                const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+                
+                const publishedBlogs = blogs.filter(b => b.status === 'published');
+                const publishedEvents = events.filter(e => e.status === 'published');
+                const publishedSermons = sermons.filter(s => s.status === 'published');
+                
+                let statusHTML = `
+                    <h4>📊 Content Summary:</h4>
+                    <div class="content-grid">
+                        <div class="content-item">
+                            <h4>📝 Blogs</h4>
+                            <p><strong>Total:</strong> ${blogs.length}</p>
+                            <p><strong>Published:</strong> ${publishedBlogs.length}</p>
+                            <p><strong>Available for Testing:</strong> ${blogs.length > 0 ? 'Yes' : 'No'}</p>
+                        </div>
+                        <div class="content-item">
+                            <h4>📅 Events</h4>
+                            <p><strong>Total:</strong> ${events.length}</p>
+                            <p><strong>Published:</strong> ${publishedEvents.length}</p>
+                            <p><strong>Available for Testing:</strong> ${events.length > 0 ? 'Yes' : 'No'}</p>
+                        </div>
+                        <div class="content-item">
+                            <h4>🎤 Sermons</h4>
+                            <p><strong>Total:</strong> ${sermons.length}</p>
+                            <p><strong>Published:</strong> ${publishedSermons.length}</p>
+                            <p><strong>Available for Testing:</strong> ${sermons.length > 0 ? 'Yes' : 'No'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                if (blogs.length > 0 || events.length > 0 || sermons.length > 0) {
+                    statusHTML += `
+                        <div class="success">
+                            <strong>✅ Content Available for Testing</strong>
+                            <p>You can now test the edit and delete buttons in the dashboard.</p>
+                        </div>
+                    `;
+                } else {
+                    statusHTML += `
+                        <div class="warning">
+                            <strong>⚠️ No Content Available</strong>
+                            <p>Create test content first to test the functionality.</p>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('contentStatus').innerHTML = statusHTML;
+                
+            } catch (error) {
+                document.getElementById('contentStatus').className = 'error';
+                document.getElementById('contentStatus').textContent = 'Error loading content status: ' + error.message;
+            }
+        }
+
+        function testSyncFunctionality() {
+            try {
+                if (typeof DataService === 'undefined') {
+                    throw new Error('DataService not available');
+                }
+                
+                // Create a test blog for sync testing
+                const syncTestBlog = DataService.create('blogs', {
+                    title: `Sync Test Blog - ${new Date().toLocaleTimeString()}`,
+                    summary: 'This blog is created to test edit/delete sync functionality',
+                    content: '<p>This blog is created to test the real-time sync functionality for edit and delete operations.</p><p>Edit this blog and check if changes appear on the frontend immediately.</p>',
+                    status: 'published'
+                });
+                
+                document.getElementById('syncTestResult').className = 'info';
+                document.getElementById('syncTestResult').innerHTML = `
+                    <h4>🔄 Sync Test Content Created</h4>
+                    <p><strong>Test blog created:</strong> "${syncTestBlog.title}"</p>
+                    <p><strong>Manual verification steps:</strong></p>
+                    <ol>
+                        <li>Open <a href="blog.html" target="_blank">blog.html</a> in another tab</li>
+                        <li>Open <a href="http://localhost:3000/dashboard" target="_blank">dashboard</a> in another tab</li>
+                        <li>Find the sync test blog in the dashboard table</li>
+                        <li>Click the edit button (✏️) and modify the title or content</li>
+                        <li>Save the changes</li>
+                        <li>Check that changes appear on blog.html immediately</li>
+                        <li>Then click the delete button (🗑️) and confirm deletion</li>
+                        <li>Check that the blog disappears from blog.html immediately</li>
+                    </ol>
+                    <p><strong>✅ Success:</strong> Changes appear on both dashboard and frontend without refresh</p>
+                    <p><strong>❌ Failure:</strong> Changes only appear in dashboard or require page refresh</p>
+                `;
+                
+                refreshContentStatus();
+                
+            } catch (error) {
+                document.getElementById('syncTestResult').className = 'test-fail';
+                document.getElementById('syncTestResult').textContent = 'Sync test failed: ' + error.message;
+            }
+        }
+
+        function checkSystemStatus() {
+            try {
+                const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+                const events = JSON.parse(localStorage.getItem('events') || '[]');
+                const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+                const lastSync = JSON.parse(localStorage.getItem('lastSync') || '{}');
+                
+                document.getElementById('systemStatus').className = 'info';
+                document.getElementById('systemStatus').innerHTML = `
+                    <h4>📊 System Status:</h4>
+                    <p><strong>Total Content:</strong> ${blogs.length} blogs, ${events.length} events, ${sermons.length} sermons</p>
+                    <p><strong>Last Sync:</strong> ${lastSync.timestamp ? new Date(lastSync.timestamp).toLocaleString() : 'Never'}</p>
+                    <p><strong>DataService Available:</strong> ${typeof DataService !== 'undefined' ? 'Yes' : 'No'}</p>
+                    
+                    <h4>🎯 Testing Checklist:</h4>
+                    <ul>
+                        <li><strong>Edit Buttons:</strong> Test ✏️ icons in dashboard tables</li>
+                        <li><strong>Delete Buttons:</strong> Test 🗑️ icons in dashboard tables</li>
+                        <li><strong>Modal Population:</strong> Verify edit modals show existing data</li>
+                        <li><strong>TinyMCE Content:</strong> Verify rich text content loads in edit forms</li>
+                        <li><strong>Real-time Sync:</strong> Verify changes appear on frontend immediately</li>
+                        <li><strong>Error Handling:</strong> Check for proper error messages</li>
+                    </ul>
+                    
+                    <h4>🔗 Quick Links:</h4>
+                    <div class="links">
+                        <a href="http://localhost:3000/dashboard" class="button" target="_blank">Dashboard</a>
+                        <a href="blog.html" class="button" target="_blank">Blog Page</a>
+                        <a href="events.html" class="button" target="_blank">Events Page</a>
+                        <a href="sermon-archive.html" class="button" target="_blank">Sermons Page</a>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('systemStatus').className = 'error';
+                document.getElementById('systemStatus').textContent = 'Error checking system status: ' + error.message;
+            }
+        }
+
+        // Listen for sync events
+        window.addEventListener('contentSync', function(event) {
+            console.log('🔄 Sync event detected:', event.detail);
+            refreshContentStatus();
+            checkSystemStatus();
+        });
+
+        window.addEventListener('storage', function(event) {
+            if (['blogs', 'events', 'sermons', 'lastSync'].includes(event.key)) {
+                console.log('💾 Storage change detected:', event.key);
+                refreshContentStatus();
+                checkSystemStatus();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshContentStatus();
+            checkSystemStatus();
+            console.log('🔧 Edit & Delete Functionality Test Tool loaded');
+        });
+    </script>
+</body>
+</html>

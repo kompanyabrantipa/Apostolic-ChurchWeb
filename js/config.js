@@ -6,8 +6,9 @@
  * Never include secret keys, API secrets, or sensitive configuration here
  */
 
-// Environment detection
-const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+// Environment detection - Enhanced for production
+const isProduction = window.location.hostname === 'apostolicchurchlouisville.org' ||
+                     window.location.hostname === 'www.apostolicchurchlouisville.org';
 const isDevelopment = !isProduction;
 
 // Configuration object
@@ -23,10 +24,11 @@ const Config = {
             : 'pk_test_51RoXpfL498oAJ59VBDtpvH9n2mvk3wVUY9Uwd5IcU6xM1T15RRdgvMWP3G5XNG1lMJfs7vEj6uqPHloJdquKRDuy00mhpMZeNj'
     },
     
-    // API Configuration
+    // API Configuration - Production Ready
     api: {
-        baseUrl: isProduction ? 'https://apostolic-church-louisville-assembly.onrender.com/api' : '/api',
-        timeout: 10000
+        baseUrl: isProduction ? 'https://apostolic-church-louisville-assembly.onrender.com/api' : 'http://localhost:3001/api',
+        timeout: 15000, // Increased for production stability
+        retries: 3 // Add retry logic for production
     },
     
     // Feature flags

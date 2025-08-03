@@ -14,40 +14,72 @@ const DataService = {
     },
 
     /**
-     * Make API request with error handling and fallback
+     * Make API request with enhanced error handling and production features
      */
     async apiRequest(endpoint, options = {}) {
         if (!this.config.useApi) {
             throw new Error('API disabled, use localStorage fallback');
         }
 
-        try {
-            const response = await fetch(`${this.config.apiBaseUrl}${endpoint}`, {
-                credentials: 'include', // Include cookies for authentication
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                },
-                ...options
-            });
+        const maxRetries = 3;
+        let lastError;
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-                throw new Error(errorData.message || `HTTP ${response.status}`);
-            }
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`Making API request (attempt ${attempt}/${maxRetries}) to: ${this.config.apiBaseUrl}${endpoint}`);
 
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('API request failed:', error);
-            
-            if (this.config.fallbackToLocalStorage) {
-                console.log('Falling back to localStorage...');
-                throw error; // Let the calling method handle localStorage fallback
+                const response = await fetch(`${this.config.apiBaseUrl}${endpoint}`, {
+                    credentials: 'include', // Include cookies for authentication
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    // Handle specific HTTP errors
+                    if (response.status === 401) {
+                        console.warn('Authentication required - redirecting to login');
+                        if (typeof window !== 'undefined' && window.location.pathname.includes('dashboard')) {
+                            window.location.href = '/login.html';
+                            return;
+                        }
+                    }
+
+                    const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+                    throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log(`API request successful on attempt ${attempt}`);
+                return data;
+            } catch (error) {
+                lastError = error;
+                console.error(`API request attempt ${attempt} failed:`, error.message);
+
+                // Don't retry on authentication errors or final attempt
+                if (error.message.includes('401') || attempt === maxRetries) {
+                    break;
+                }
+
+                // Wait before retry with exponential backoff
+                if (attempt < maxRetries) {
+                    const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+                    console.log(`Retrying in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
             }
-            
-            throw error;
         }
+
+        console.error('All API request attempts failed:', lastError);
+
+        if (this.config.fallbackToLocalStorage) {
+            console.log('Falling back to localStorage...');
+            throw lastError; // Let the calling method handle localStorage fallback
+        }
+
+        throw lastError;
     },
 
     /**

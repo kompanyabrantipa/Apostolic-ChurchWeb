@@ -523,8 +523,8 @@ body {
     background-color: var(--card-color);
     border-radius: 8px;
     width: 90%;
-    max-width: 700px;
-    max-height: 90vh;
+    max-width: 500px;
+    max-height: 85vh;
     overflow-y: auto;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
@@ -546,12 +546,17 @@ body {
 }
 
 .modal-body {
-    padding: 20px;
+    padding: 15px 20px;
 }
 
 /* Forms */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+}
+
+/* Compact form spacing for modal forms */
+.modal .form-group {
+    margin-bottom: 12px;
 }
 
 .form-row {
@@ -601,6 +606,11 @@ textarea {
     justify-content: flex-end;
     gap: 15px;
     margin-top: 30px;
+}
+
+/* Compact form actions for modal forms */
+.modal .form-actions {
+    margin-top: 20px;
 }
 
 /* Settings Section */
@@ -751,6 +761,228 @@ textarea {
 
 .tox-statusbar {
     border-top: 1px solid var(--divider-color) !important;
+}
+
+/* Compact TinyMCE for smaller modals */
+.modal .tox-tinymce {
+    min-height: 250px !important;
+}
+
+.modal .tox-edit-area {
+    min-height: 200px !important;
+}
+
+/* TinyMCE Z-Index Fix for Modal Forms */
+/* Ensure TinyMCE toolbars, dropdowns, and popups appear above modal overlays */
+.tox-tinymce-aux,
+.tox-dialog-wrap,
+.tox-dialog,
+.tox-toolbar,
+.tox-toolbar-overlord,
+.tox-menubar,
+.tox-menu,
+.tox-collection,
+.tox-pop,
+.tox-tooltip,
+.tox-silver-sink,
+.tox-tinymce-inline .tox-toolbar,
+.tox-tinymce-inline .tox-toolbar-overlord {
+    z-index: 2100 !important;
+}
+
+/* Specific fix for TinyMCE inline toolbars */
+.tox-tinymce-inline {
+    z-index: 2100 !important;
+}
+
+/* Fix for TinyMCE dialog overlays */
+.tox-dialog-wrap__backdrop {
+    z-index: 2050 !important;
+}
+
+/* Draggable and Resizable Modal Enhancements */
+/* Enhanced modal functionality for better user experience */
+
+/* Draggable Modal Styles */
+.draggable-modal .modal-content {
+    position: relative;
+    transition: none; /* Disable transitions during drag */
+}
+
+.draggable-modal .modal-header {
+    cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.draggable-modal .modal-header:hover {
+    background-color: rgba(63, 81, 181, 0.05);
+}
+
+.draggable-modal.dragging .modal-content {
+    opacity: 0.9;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+}
+
+/* Prevent text selection during drag */
+.draggable-modal.dragging {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Resizable Modal Styles */
+.resizable-modal .modal-content {
+    min-width: 400px;
+    min-height: 300px;
+    max-width: 95vw;
+    max-height: 95vh;
+    resize: none; /* Disable default browser resize */
+}
+
+/* Resize Handles */
+.resize-handle {
+    position: absolute;
+    background: transparent;
+    z-index: 10;
+}
+
+/* Corner resize handles */
+.resize-handle.nw {
+    top: -5px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    cursor: nw-resize;
+}
+
+.resize-handle.ne {
+    top: -5px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    cursor: ne-resize;
+}
+
+.resize-handle.sw {
+    bottom: -5px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    cursor: sw-resize;
+}
+
+.resize-handle.se {
+    bottom: -5px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    cursor: se-resize;
+}
+
+/* Edge resize handles */
+.resize-handle.n {
+    top: -5px;
+    left: 10px;
+    right: 10px;
+    height: 10px;
+    cursor: n-resize;
+}
+
+.resize-handle.s {
+    bottom: -5px;
+    left: 10px;
+    right: 10px;
+    height: 10px;
+    cursor: s-resize;
+}
+
+.resize-handle.w {
+    left: -5px;
+    top: 10px;
+    bottom: 10px;
+    width: 10px;
+    cursor: w-resize;
+}
+
+.resize-handle.e {
+    right: -5px;
+    top: 10px;
+    bottom: 10px;
+    width: 10px;
+    cursor: e-resize;
+}
+
+/* Visual feedback during resize */
+.resizable-modal.resizing .modal-content {
+    opacity: 0.95;
+    transition: none;
+}
+
+/* Prevent interaction with form elements during resize */
+.resizable-modal.resizing .modal-body {
+    pointer-events: none;
+}
+
+.resizable-modal.resizing .modal-header {
+    pointer-events: none;
+}
+
+/* Restore pointer events after resize */
+.resizable-modal:not(.resizing) .modal-body,
+.resizable-modal:not(.resizing) .modal-header {
+    pointer-events: auto;
+}
+
+/* Enhanced close button - should remain clickable during drag */
+.draggable-modal .close-modal {
+    cursor: pointer;
+    z-index: 20;
+    position: relative;
+}
+
+.draggable-modal .close-modal:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-radius: 50%;
+    padding: 5px;
+}
+
+/* Mobile responsiveness - disable drag/resize on small screens */
+@media (max-width: 768px) {
+    .draggable-modal .modal-header {
+        cursor: default;
+    }
+
+    .resize-handle {
+        display: none;
+    }
+
+    .resizable-modal .modal-content {
+        min-width: 90%;
+        width: 90% !important;
+        height: auto !important;
+        max-height: 90vh;
+    }
+}
+
+/* Enhanced modal positioning */
+.positioned-modal .modal-content {
+    position: absolute;
+    margin: 0;
+}
+
+/* Smooth transitions when not dragging/resizing */
+.modal-content {
+    transition: opacity 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.draggable-modal:not(.dragging) .modal-content,
+.resizable-modal:not(.resizing) .modal-content {
+    transition: opacity 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 /* Sidebar Collapsed State */
@@ -943,6 +1175,121 @@ textarea {
     
     .btn-login {
         padding: 12px;
+    }
+}
+
+/* Media Upload Styling */
+.file-input {
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.file-input:hover {
+    border-color: var(--primary-color);
+    background-color: #f0f8ff;
+}
+
+.file-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.media-preview-container {
+    margin-top: 15px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fafafa;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.media-preview-container img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+}
+
+.media-preview-container video {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.media-preview-container audio {
+    width: 100%;
+    max-width: 300px;
+}
+
+.preview-placeholder {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.media-preview-container.has-media {
+    background-color: #fff;
+    border-color: var(--primary-color);
+}
+
+.media-preview-container .preview-info {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.media-preview-container .remove-preview {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.media-preview-container .remove-preview:hover {
+    background: rgba(255, 0, 0, 1);
+}
+
+/* Responsive media preview */
+@media (max-width: 768px) {
+    .media-preview-container {
+        min-height: 100px;
+        padding: 15px;
+    }
+
+    .media-preview-container img,
+    .media-preview-container video {
+        max-height: 150px;
     }
 }
 

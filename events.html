@@ -38,7 +38,7 @@
             <span></span>
           </button>
           <ul class="nav-menu">
-            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About</a></li>
             <li><a href="leadership.html">Leadership</a></li>
             <li class="has-dropdown">
@@ -46,7 +46,7 @@
                 >Services <i class="fas fa-chevron-down"></i
               ></a>
               <ul class="dropdown-menu">
-                <li><a href="service.html">Services Info</a></li>
+                <li><a href="service.html" class="active">Services Info</a></li>
                 <li><a href="events.html">Events</a></li>
                 <li><a href="calendar.html">Calendar</a></li>
                 <li><a href="blog.html">Blog</a></li>
@@ -278,40 +278,6 @@
       </div>
     </section>
 
-    <!-- Events Calendar -->
-    <section class="events-calendar alt-bg">
-      <div class="container">
-        <div class="section-heading">
-          <h2>Monthly Calendar</h2>
-          <p>Plan ahead with our event schedule</p>
-        </div>
-
-        <div class="calendar-container" data-aos="fade-up">
-          <div class="calendar-header">
-            <h3>October 2023</h3>
-            <div class="calendar-nav">
-              <a href="#" class="calendar-nav-btn"
-                ><i class="fas fa-chevron-left"></i
-              ></a>
-              <a href="#" class="calendar-nav-btn"
-                ><i class="fas fa-chevron-right"></i
-              ></a>
-            </div>
-          </div>
-
-          <div class="calendar-body">
-            <!-- Calendar would be implemented with JavaScript -->
-            <p class="calendar-placeholder">
-              Interactive calendar coming soon. In the meantime, check our
-              events listing above.
-            </p>
-          </div>
-
-          <a href="#" class="btn-small">Download Full Calendar</a>
-        </div>
-      </div>
-    </section>
-
     <!-- Join Us CTA -->
     <section class="service-cta">
       <div class="service-cta-decoration"></div>
@@ -328,14 +294,6 @@
             <a href="contact.html" class="btn btn-secondary">Volunteer</a>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Events Section -->
-    <section class="events-section">
-      <div class="container">
-        <h2 class="section-title">Upcoming Events</h2>
-        <div class="events-container"></div>
       </div>
     </section>
 
@@ -388,7 +346,7 @@
           <div class="footer-section">
             <h3>Contact Info</h3>
             <p>
-              <i class="fas fa-map-marker-alt"></i> 1205 Durett Lane,
+              <i class="fas fa-map-marker-alt"></i> 1205 Durrett Lane,
               Louisville, KY 40213
             </p>
             <p><i class="fas fa-phone"></i> +1(302) 437-5593</p>
@@ -404,5 +362,6 @@
     <!-- JavaScript -->
     <script src="js/script.js"></script>
     <script src="js/events.js"></script>
+    <script src="js/event-sync.js"></script>
   </body>
 </html>

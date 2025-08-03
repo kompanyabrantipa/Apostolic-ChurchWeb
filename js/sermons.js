@@ -79,21 +79,91 @@ function createSermonHTML(sermon) {
         month: 'long',
         day: 'numeric'
     });
-    
+
+    // Create media display for sermon
+    const mediaDisplay = createSermonMediaDisplay(sermon);
+
     return `
         <div class="sermon-card" data-id="${sermon.id}">
-            <h3 class="sermon-title">${sermon.title}</h3>
-            <div class="sermon-meta">
-                <span><i class="fas fa-user"></i> ${sermon.speaker}</span>
-                <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
-            </div>
-            <div class="sermon-actions">
-                ${sermon.audioUrl ? `<a href="${sermon.audioUrl}" class="btn btn-sm"><i class="fas fa-headphones"></i> Listen</a>` : ''}
-                ${sermon.videoUrl ? `<a href="${sermon.videoUrl}" class="btn btn-sm"><i class="fas fa-video"></i> Watch</a>` : ''}
-                <a href="sermon-detail.html?id=${sermon.id}" class="btn btn-sm"><i class="fas fa-info-circle"></i> Details</a>
+            ${mediaDisplay}
+            <div class="sermon-card-content">
+                <h3 class="sermon-title">${sermon.title}</h3>
+                <div class="sermon-meta">
+                    <span><i class="fas fa-user"></i> ${sermon.speaker}</span>
+                    <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
+                </div>
+                <div class="sermon-actions">
+                    ${sermon.audioUrl ? `<a href="${sermon.audioUrl}" class="btn btn-sm"><i class="fas fa-headphones"></i> Listen</a>` : ''}
+                    ${sermon.videoUrl ? `<a href="${sermon.videoUrl}" class="btn btn-sm"><i class="fas fa-video"></i> Watch</a>` : ''}
+                    <a href="sermon-detail.html?id=${sermon.id}" class="btn btn-sm"><i class="fas fa-info-circle"></i> Details</a>
+                </div>
             </div>
         </div>
     `;
+}
+
+/**
+ * Create media display HTML for sermon cards
+ * @param {Object} sermon - The sermon object
+ * @returns {string} HTML for media display
+ */
+function createSermonMediaDisplay(sermon) {
+    // Priority: thumbnailUrl > videoUrl > audioUrl > default
+    let mediaUrl = sermon.thumbnailUrl;
+    let mediaType = 'image';
+
+    if (!mediaUrl && sermon.videoUrl) {
+        mediaUrl = sermon.videoUrl;
+        mediaType = 'video';
+    } else if (!mediaUrl && sermon.audioUrl) {
+        mediaUrl = sermon.audioUrl;
+        mediaType = 'audio';
+    }
+
+    if (!mediaUrl) {
+        return '';
+    }
+
+    // Check file type if not explicitly set
+    if (mediaType === 'image') {
+        const videoExtensions = ['.mp4', '.webm', '.ogg', '.avi', '.mov'];
+        const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a'];
+
+        if (videoExtensions.some(ext => mediaUrl.toLowerCase().includes(ext)) || mediaUrl.startsWith('data:video/')) {
+            mediaType = 'video';
+        } else if (audioExtensions.some(ext => mediaUrl.toLowerCase().includes(ext)) || mediaUrl.startsWith('data:audio/')) {
+            mediaType = 'audio';
+        }
+    }
+
+    switch (mediaType) {
+        case 'video':
+            return `
+                <div class="card-media">
+                    <video src="${mediaUrl}" class="media-thumb" controls preload="metadata">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            `;
+        case 'audio':
+            return `
+                <div class="card-media audio-media">
+                    <div class="audio-placeholder">
+                        <i class="fas fa-music"></i>
+                        <span>Audio Sermon</span>
+                    </div>
+                    <audio src="${mediaUrl}" controls class="audio-player">
+                        Your browser does not support the audio tag.
+                    </audio>
+                </div>
+            `;
+        default:
+            return `
+                <div class="card-media">
+                    <img src="${mediaUrl}" alt="Sermon Thumbnail" class="media-thumb" loading="lazy" />
+                </div>
+            `;
+    }
 }
 
 // Make functions available globally

@@ -204,6 +204,16 @@ function initTinyMCE() {
             height: 300,
             plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            // Z-index configuration to ensure TinyMCE appears above modals
+            skin_url: false, // Use default skin
+            content_css: false, // Use default content CSS
+            // Set base z-index for TinyMCE components to appear above modals (modal z-index: 2000)
+            setup: function(editor) {
+                editor.on('init', function() {
+                    // Ensure TinyMCE toolbars and dropdowns appear above modal overlays
+                    console.log('TinyMCE editor initialized with z-index fix for modal compatibility');
+                });
+            }
         });
     }
 }
@@ -276,12 +286,15 @@ function initBlogManager() {
             document.getElementById('blogForm').reset();
             document.getElementById('blogId').value = '';
             document.getElementById('blogFormTitle').textContent = 'Add New Blog Post';
-            
+
             // Reset TinyMCE editor
             if (tinymce.get('blogContent')) {
                 tinymce.get('blogContent').setContent('');
             }
-            
+
+            // Clear media previews
+            clearAllMediaPreviews();
+
             // Show modal
             document.getElementById('blogFormModal').style.display = 'block';
         });
@@ -290,33 +303,86 @@ function initBlogManager() {
     // Add event listener for blog form submission
     const blogForm = document.getElementById('blogForm');
     if (blogForm) {
-        blogForm.addEventListener('submit', function(e) {
+        blogForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log('=== BLOG FORM SUBMISSION STARTED ===');
 
             const blogId = document.getElementById('blogId').value;
-            const title = document.getElementById('blogTitle').value;
-            const summary = document.getElementById('blogSummary').value;
-            const content = tinymce.get('blogContent').getContent();
-            const imageUrl = document.getElementById('blogImage').value;
+            const title = document.getElementById('blogTitle').value.trim();
+            const summary = document.getElementById('blogSummary').value.trim();
+
+            // Get content from TinyMCE editor with fallback
+            let content = '';
+            if (tinymce.get('blogContent')) {
+                content = tinymce.get('blogContent').getContent();
+            } else {
+                // Fallback to textarea value if TinyMCE is not initialized
+                content = document.getElementById('blogContent').value || '';
+                console.warn('TinyMCE editor not found, using textarea fallback');
+            }
+
+            let imageUrl = document.getElementById('blogImage').value.trim();
             const status = document.getElementById('blogStatus').value;
+
+            console.log('Form data collected:', {
+                blogId: blogId || 'new',
+                title: title,
+                summaryLength: summary.length,
+                contentLength: content.length,
+                imageUrl: imageUrl || 'none',
+                status: status
+            });
+
+            // Basic validation
+            if (!title) {
+                showToast('error', 'Title is required');
+                return;
+            }
+
+            if (!content || content.trim() === '') {
+                showToast('error', 'Content is required');
+                return;
+            }
+
+            // Handle file upload - convert to data URL if file is selected
+            const imageFile = window.MediaUploadManager ? window.MediaUploadManager.getFileData('blogImageFile') : null;
+            console.log('Blog form submission - Image file:', imageFile ? 'File selected' : 'No file', 'Image URL:', imageUrl);
+
+            if (imageFile && !imageUrl) {
+                try {
+                    console.log('Converting image file to data URL...');
+                    imageUrl = await convertFileToDataURL(imageFile);
+                    console.log('Image file converted successfully');
+                } catch (error) {
+                    console.error('Error converting image file:', error);
+                    showToast('error', 'Error processing image file: ' + error.message);
+                    return;
+                }
+            }
 
             try {
                 if (blogId) {
                     // Update existing blog using DataService
                     if (typeof DataService !== 'undefined' && DataService.update) {
-                        const updatedBlog = DataService.update('blogs', blogId, {
-                            title,
-                            summary,
-                            content,
-                            imageUrl,
-                            status,
-                            updatedAt: new Date().toISOString()
-                        });
+                        try {
+                            const updatedBlog = await DataService.update('blogs', blogId, {
+                                title,
+                                summary,
+                                content,
+                                imageUrl,
+                                status,
+                                updatedAt: new Date().toISOString()
+                            });
 
-                        if (updatedBlog) {
-                            showToast('success', 'Blog post updated successfully');
-                        } else {
-                            showToast('error', 'Failed to update blog post');
+                            if (updatedBlog) {
+                                showToast('success', 'Blog post updated successfully');
+                            } else {
+                                showToast('error', 'Failed to update blog post');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error updating blog:', error);
+                            showToast('error', 'Failed to update blog post: ' + error.message);
                             return;
                         }
                     } else {
@@ -334,26 +400,41 @@ function initBlogManager() {
                                 status,
                                 updatedAt: new Date().toISOString()
                             };
-                            localStorage.setItem('blogs', JSON.stringify(blogs));
+                            try {
+                                localStorage.setItem('blogs', JSON.stringify(blogs));
+                            } catch (error) {
+                                if (error.name === 'QuotaExceededError') {
+                                    showToast('error', 'Storage quota exceeded. Please try with a smaller image or clear browser data.');
+                                } else {
+                                    showToast('error', 'Failed to save blog post: ' + error.message);
+                                }
+                                return;
+                            }
                             showToast('success', 'Blog post updated successfully');
                         }
                     }
                 } else {
                     // Create new blog using DataService
                     if (typeof DataService !== 'undefined' && DataService.create) {
-                        const newBlog = DataService.create('blogs', {
-                            title,
-                            summary,
-                            content,
-                            imageUrl,
-                            status,
-                            createdAt: new Date().toISOString()
-                        });
+                        try {
+                            const newBlog = await DataService.create('blogs', {
+                                title,
+                                summary,
+                                content,
+                                imageUrl,
+                                status,
+                                createdAt: new Date().toISOString()
+                            });
 
-                        if (newBlog) {
-                            showToast('success', 'Blog post created successfully');
-                        } else {
-                            showToast('error', 'Failed to create blog post');
+                            if (newBlog) {
+                                showToast('success', 'Blog post created successfully');
+                            } else {
+                                showToast('error', 'Failed to create blog post');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error creating blog:', error);
+                            showToast('error', 'Failed to create blog post: ' + error.message);
                             return;
                         }
                     } else {
@@ -370,10 +451,21 @@ function initBlogManager() {
                             createdAt: new Date().toISOString()
                         };
                         blogs.push(newBlog);
-                        localStorage.setItem('blogs', JSON.stringify(blogs));
+                        try {
+                            localStorage.setItem('blogs', JSON.stringify(blogs));
+                        } catch (error) {
+                            if (error.name === 'QuotaExceededError') {
+                                showToast('error', 'Storage quota exceeded. Please try with a smaller image or clear browser data.');
+                            } else {
+                                showToast('error', 'Failed to save blog post: ' + error.message);
+                            }
+                            return;
+                        }
                         showToast('success', 'Blog post created successfully');
                     }
                 }
+
+                console.log('=== BLOG FORM SUBMISSION COMPLETED SUCCESSFULLY ===');
 
                 // Close modal
                 document.getElementById('blogFormModal').style.display = 'none';
@@ -576,12 +668,15 @@ function initEventManager() {
             document.getElementById('eventForm').reset();
             document.getElementById('eventId').value = '';
             document.getElementById('eventFormTitle').textContent = 'Add New Event';
-            
+
             // Reset TinyMCE editor
             if (tinymce.get('eventDescription')) {
                 tinymce.get('eventDescription').setContent('');
             }
-            
+
+            // Clear media previews
+            clearAllMediaPreviews();
+
             // Show modal
             document.getElementById('eventFormModal').style.display = 'block';
         });
@@ -590,7 +685,7 @@ function initEventManager() {
     // Add event listener for event form submission
     const eventForm = document.getElementById('eventForm');
     if (eventForm) {
-        eventForm.addEventListener('submit', function(e) {
+        eventForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const eventId = document.getElementById('eventId').value;
@@ -599,8 +694,20 @@ function initEventManager() {
             const time = document.getElementById('eventTime').value;
             const location = document.getElementById('eventLocation').value;
             const description = tinymce.get('eventDescription').getContent();
-            const imageUrl = document.getElementById('eventImage').value;
+            let imageUrl = document.getElementById('eventImage').value;
             const status = document.getElementById('eventStatus').value;
+
+            // Handle file upload - convert to data URL if file is selected
+            const imageFile = window.MediaUploadManager ? window.MediaUploadManager.getFileData('eventImageFile') : null;
+            if (imageFile && !imageUrl) {
+                try {
+                    imageUrl = await convertFileToDataURL(imageFile);
+                } catch (error) {
+                    console.error('Error converting image/video file:', error);
+                    showToast('error', 'Error processing media file');
+                    return;
+                }
+            }
 
             // Create ISO date string
             const dateTime = date + (time ? 'T' + time + ':00' : 'T00:00:00');
@@ -609,20 +716,26 @@ function initEventManager() {
                 if (eventId) {
                     // Update existing event using DataService
                     if (typeof DataService !== 'undefined' && DataService.update) {
-                        const updatedEvent = DataService.update('events', eventId, {
-                            title,
-                            date: dateTime,
-                            location,
-                            description,
-                            imageUrl,
-                            status,
-                            updatedAt: new Date().toISOString()
-                        });
+                        try {
+                            const updatedEvent = await DataService.update('events', eventId, {
+                                title,
+                                date: dateTime,
+                                location,
+                                description,
+                                imageUrl,
+                                status,
+                                updatedAt: new Date().toISOString()
+                            });
 
-                        if (updatedEvent) {
-                            showToast('success', 'Event updated successfully');
-                        } else {
-                            showToast('error', 'Failed to update event');
+                            if (updatedEvent) {
+                                showToast('success', 'Event updated successfully');
+                            } else {
+                                showToast('error', 'Failed to update event');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error updating event:', error);
+                            showToast('error', 'Failed to update event: ' + error.message);
                             return;
                         }
                     } else {
@@ -648,20 +761,26 @@ function initEventManager() {
                 } else {
                     // Create new event using DataService
                     if (typeof DataService !== 'undefined' && DataService.create) {
-                        const newEvent = DataService.create('events', {
-                            title,
-                            date: dateTime,
-                            location,
-                            description,
-                            imageUrl,
-                            status,
-                            createdAt: new Date().toISOString()
-                        });
+                        try {
+                            const newEvent = await DataService.create('events', {
+                                title,
+                                date: dateTime,
+                                location,
+                                description,
+                                imageUrl,
+                                status,
+                                createdAt: new Date().toISOString()
+                            });
 
-                        if (newEvent) {
-                            showToast('success', 'Event created successfully');
-                        } else {
-                            showToast('error', 'Failed to create event');
+                            if (newEvent) {
+                                showToast('success', 'Event created successfully');
+                            } else {
+                                showToast('error', 'Failed to create event');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error creating event:', error);
+                            showToast('error', 'Failed to create event: ' + error.message);
                             return;
                         }
                     } else {
@@ -692,6 +811,20 @@ function initEventManager() {
 
                 // Reload dashboard data
                 loadDashboardData();
+
+                // Trigger sync event for real-time updates across tabs
+                try {
+                    window.dispatchEvent(new CustomEvent('eventsUpdated', {
+                        detail: {
+                            action: eventId ? 'updated' : 'created',
+                            eventId: eventId || 'new',
+                            timestamp: new Date().toISOString()
+                        }
+                    }));
+                    console.log('Event sync triggered for cross-tab communication');
+                } catch (syncError) {
+                    console.warn('Failed to trigger event sync:', syncError);
+                }
 
             } catch (error) {
                 console.error('Error saving event:', error);
@@ -878,6 +1011,20 @@ function deleteEvent(id) {
                 // Reload dashboard data
                 loadDashboardData();
 
+                // Trigger additional sync event for real-time updates
+                try {
+                    window.dispatchEvent(new CustomEvent('eventsUpdated', {
+                        detail: {
+                            action: 'deleted',
+                            eventId: id,
+                            timestamp: new Date().toISOString()
+                        }
+                    }));
+                    console.log('Event deletion sync triggered for cross-tab communication');
+                } catch (syncError) {
+                    console.warn('Failed to trigger event deletion sync:', syncError);
+                }
+
                 showToast('success', 'Event deleted successfully');
             }
         } catch (error) {
@@ -904,12 +1051,15 @@ function initSermonManager() {
             document.getElementById('sermonForm').reset();
             document.getElementById('sermonId').value = '';
             document.getElementById('sermonFormTitle').textContent = 'Add New Sermon';
-            
+
             // Reset TinyMCE editor if used
             if (tinymce.get('sermonDescription')) {
                 tinymce.get('sermonDescription').setContent('');
             }
-            
+
+            // Clear media previews
+            clearAllMediaPreviews();
+
             // Show modal
             document.getElementById('sermonFormModal').style.display = 'block';
         });
@@ -918,7 +1068,7 @@ function initSermonManager() {
     // Add event listener for sermon form submission
     const sermonForm = document.getElementById('sermonForm');
     if (sermonForm) {
-        sermonForm.addEventListener('submit', function(e) {
+        sermonForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const sermonId = document.getElementById('sermonId').value;
@@ -926,31 +1076,58 @@ function initSermonManager() {
             const speaker = document.getElementById('sermonSpeaker').value;
             const date = document.getElementById('sermonDate').value;
             const description = document.getElementById('sermonDescription').value;
-            const videoUrl = document.getElementById('sermonVideoUrl').value;
-            const audioUrl = document.getElementById('sermonAudioUrl').value;
-            const thumbnailUrl = document.getElementById('sermonThumbnail').value;
+            let videoUrl = document.getElementById('sermonVideoUrl').value;
+            let audioUrl = document.getElementById('sermonAudioUrl').value;
+            let thumbnailUrl = document.getElementById('sermonThumbnail').value;
             const status = document.getElementById('sermonStatus').value;
+
+            // Handle file uploads - convert to data URLs if files are selected
+            const videoFile = window.MediaUploadManager ? window.MediaUploadManager.getFileData('sermonVideoFile') : null;
+            const audioFile = window.MediaUploadManager ? window.MediaUploadManager.getFileData('sermonAudioFile') : null;
+            const thumbnailFile = window.MediaUploadManager ? window.MediaUploadManager.getFileData('sermonThumbnailFile') : null;
+
+            try {
+                if (videoFile && !videoUrl) {
+                    videoUrl = await convertFileToDataURL(videoFile);
+                }
+                if (audioFile && !audioUrl) {
+                    audioUrl = await convertFileToDataURL(audioFile);
+                }
+                if (thumbnailFile && !thumbnailUrl) {
+                    thumbnailUrl = await convertFileToDataURL(thumbnailFile);
+                }
+            } catch (error) {
+                console.error('Error converting media files:', error);
+                showToast('error', 'Error processing media files');
+                return;
+            }
 
             try {
                 if (sermonId) {
                     // Update existing sermon using DataService
                     if (typeof DataService !== 'undefined' && DataService.update) {
-                        const updatedSermon = DataService.update('sermons', sermonId, {
-                            title,
-                            speaker,
-                            date,
-                            description,
-                            videoUrl,
-                            audioUrl,
-                            thumbnailUrl,
-                            status,
-                            updatedAt: new Date().toISOString()
-                        });
+                        try {
+                            const updatedSermon = await DataService.update('sermons', sermonId, {
+                                title,
+                                speaker,
+                                date,
+                                description,
+                                videoUrl,
+                                audioUrl,
+                                thumbnailUrl,
+                                status,
+                                updatedAt: new Date().toISOString()
+                            });
 
-                        if (updatedSermon) {
-                            showToast('success', 'Sermon updated successfully');
-                        } else {
-                            showToast('error', 'Failed to update sermon');
+                            if (updatedSermon) {
+                                showToast('success', 'Sermon updated successfully');
+                            } else {
+                                showToast('error', 'Failed to update sermon');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error updating sermon:', error);
+                            showToast('error', 'Failed to update sermon: ' + error.message);
                             return;
                         }
                     } else {
@@ -978,22 +1155,28 @@ function initSermonManager() {
                 } else {
                     // Create new sermon using DataService
                     if (typeof DataService !== 'undefined' && DataService.create) {
-                        const newSermon = DataService.create('sermons', {
-                            title,
-                            speaker,
-                            date,
-                            description,
-                            videoUrl,
-                            audioUrl,
-                            thumbnailUrl,
-                            status,
-                            createdAt: new Date().toISOString()
-                        });
+                        try {
+                            const newSermon = await DataService.create('sermons', {
+                                title,
+                                speaker,
+                                date,
+                                description,
+                                videoUrl,
+                                audioUrl,
+                                thumbnailUrl,
+                                status,
+                                createdAt: new Date().toISOString()
+                            });
 
-                        if (newSermon) {
-                            showToast('success', 'Sermon created successfully');
-                        } else {
-                            showToast('error', 'Failed to create sermon');
+                            if (newSermon) {
+                                showToast('success', 'Sermon created successfully');
+                            } else {
+                                showToast('error', 'Failed to create sermon');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error creating sermon:', error);
+                            showToast('error', 'Failed to create sermon: ' + error.message);
                             return;
                         }
                     } else {
@@ -1492,6 +1675,35 @@ function addSampleData() {
     }
     
     console.log('Sample data added to localStorage');
+}
+
+// Helper function to convert file to data URL
+function convertFileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+        try {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                resolve(e.target.result);
+            };
+            reader.onerror = function(error) {
+                reject(error);
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+// Helper function to clear all media previews when forms are reset
+function clearAllMediaPreviews() {
+    try {
+        if (window.MediaUploadManager && typeof window.MediaUploadManager.clearAllPreviews === 'function') {
+            window.MediaUploadManager.clearAllPreviews();
+        }
+    } catch (error) {
+        console.error('Error clearing media previews:', error);
+    }
 }
 
 // REMOVED: Orphaned TinyMCE initialization code that was causing syntax errors

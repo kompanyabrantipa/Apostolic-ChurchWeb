@@ -16,6 +16,8 @@
     />
     <!-- Stripe.js for secure payments -->
     <script src="https://js.stripe.com/v3/"></script>
+    <!-- Configuration -->
+    <script src="js/config.js"></script>
   </head>
   <body>
     <header>
@@ -355,9 +357,14 @@
                         <div class="form-group">
                           <label for="card-element">Card Information</label>
                           <div id="card-element" class="form-control"></div>
+                          <div class="secure-payment-indicator">
+                            <i class="fas fa-lock"></i>
+                            Your payment information is encrypted and secure
+                          </div>
                         </div>
                       </div>
                       <div id="card-errors" role="alert"></div>
+                      <div class="stripe-branding"></div>
                     </form>
                   </div>
 
@@ -458,7 +465,7 @@
           <div class="footer-section">
             <h3>Contact Info</h3>
             <p>
-              <i class="fas fa-map-marker-alt"></i> 1205 Durett Lane,
+              <i class="fas fa-map-marker-alt"></i> 1205 Durrett Lane,
               Louisville, KY 40213
             </p>
             <p><i class="fas fa-phone"></i> +1(302) 437-5593</p>
@@ -470,6 +477,7 @@
         </div>
       </div>
     </footer>
+    <script src="js/script.js"></script>
     <script src="js/donate.js"></script>
   </body>
 </html>

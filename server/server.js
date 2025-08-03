@@ -12,6 +12,9 @@ const authRoutes = require('./routes/auth');
 const blogRoutes = require('./routes/blogs');
 const eventRoutes = require('./routes/events');
 const sermonRoutes = require('./routes/sermons');
+const configRoutes = require('./routes/config');
+const paymentRoutes = require('./routes/payments');
+const webhookRoutes = require('./routes/webhooks');
 
 // Create Express app
 const app = express();
@@ -68,6 +71,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/sermons', sermonRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {

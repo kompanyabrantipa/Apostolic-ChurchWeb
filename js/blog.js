@@ -71,14 +71,13 @@ function createBlogPostHTML(blog) {
     const author = blog.author || 'Church Staff';
     const comments = blog.comments || 0;
     const excerpt = blog.summary || blog.content?.substring(0, 150) || '';
-    const imageUrl = blog.imageUrl || 'img/blog/placeholder.jpg';
-    
+
+    // Create media display - prioritize uploaded media over default placeholder
+    const mediaDisplay = createBlogMediaDisplay(blog.imageUrl, blog.title, category);
+
     return `
         <article class="blog-post">
-            <div class="post-image">
-                <img src="${imageUrl}" alt="${blog.title}">
-                <span class="category-badge">${category}</span>
-            </div>
+            ${mediaDisplay}
             <div class="post-content">
                 <h3>${blog.title}</h3>
                 <div class="post-meta">
@@ -91,4 +90,39 @@ function createBlogPostHTML(blog) {
             </div>
         </article>
     `;
-} 
+}
+
+/**
+ * Create media display HTML for blog cards
+ * @param {string} imageUrl - The image URL
+ * @param {string} title - The blog title for alt text
+ * @param {string} category - The blog category
+ * @returns {string} HTML for media display
+ */
+function createBlogMediaDisplay(imageUrl, title, category) {
+    // Use uploaded image if available, otherwise use default placeholder
+    const mediaUrl = imageUrl || 'images/blog-placeholder.jpg';
+
+    // Check if it's a video file (though blogs typically use images)
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.avi', '.mov'];
+    const isVideo = videoExtensions.some(ext => mediaUrl.toLowerCase().includes(ext)) ||
+                   mediaUrl.startsWith('data:video/');
+
+    if (isVideo) {
+        return `
+            <div class="card-media post-image">
+                <video src="${mediaUrl}" class="media-thumb" controls preload="metadata">
+                    Your browser does not support the video tag.
+                </video>
+                <span class="category-badge">${category}</span>
+            </div>
+        `;
+    } else {
+        return `
+            <div class="card-media post-image">
+                <img src="${mediaUrl}" alt="${title}" class="media-thumb" loading="lazy" />
+                <span class="category-badge">${category}</span>
+            </div>
+        `;
+    }
+}

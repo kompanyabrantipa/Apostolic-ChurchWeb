@@ -1,4 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // EmailJS Configuration
+    // Replace these with your actual EmailJS credentials
+    const EMAILJS_CONFIG = {
+        serviceID: 'your_service_id',        // Replace with your EmailJS service ID
+        templateID: 'your_template_id',      // Replace with your EmailJS template ID
+        publicKey: 'your_public_key'         // Replace with your EmailJS public key
+    };
+
+    // Initialize EmailJS with public key
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init(EMAILJS_CONFIG.publicKey);
+        console.log('EmailJS initialized successfully');
+    } else {
+        console.error('EmailJS library not loaded');
+    }
+
     // FAQ Accordion Functionality
     const faqItems = document.querySelectorAll('.faq-item');
     
@@ -34,56 +50,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 formDataObj[key] = value;
             });
             
-            // Perform validation
-            const required = ['firstName', 'lastName', 'email', 'subject', 'message'];
-            let isValid = true;
-            
-            required.forEach(field => {
-                const input = document.getElementById(field);
-                if (!formDataObj[field] || formDataObj[field].trim() === '') {
-                    input.style.borderColor = '#dc3545';
-                    isValid = false;
-                } else {
-                    input.style.borderColor = '';
-                }
-            });
-            
-            if (!isValid) {
-                formStatus.className = 'form-status error';
-                formStatus.style.display = 'block';
-                formStatus.textContent = 'Please fill out all required fields.';
+            // Enhanced form validation
+            const validationResult = validateForm(formDataObj);
+
+            if (!validationResult.isValid) {
+                // Highlight invalid fields
+                validationResult.errors.forEach(error => {
+                    const input = document.getElementById(error.field);
+                    if (input) {
+                        input.style.borderColor = '#dc3545';
+                        input.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+                    }
+                });
+
+                // Show error message
+                showFormMessage(validationResult.message, 'error');
                 return;
             }
-            
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(formDataObj.email)) {
-                document.getElementById('email').style.borderColor = '#dc3545';
-                formStatus.className = 'form-status error';
-                formStatus.style.display = 'block';
-                formStatus.textContent = 'Please enter a valid email address.';
-                return;
-            }
-            
-            // Simulate form submission
-            formStatus.textContent = 'Sending message...';
-            formStatus.className = 'form-status';
-            formStatus.style.display = 'block';
-            
-            // This would be replaced with actual form submission logic
-            setTimeout(() => {
-                // Reset form
-                contactForm.reset();
-                
-                // Show success message
-                formStatus.className = 'form-status success';
-                formStatus.textContent = 'Your message has been sent successfully! We\'ll get back to you soon.';
-                
-                // Clear success message after 5 seconds
-                setTimeout(() => {
-                    formStatus.style.display = 'none';
-                }, 5000);
-            }, 1500);
+
+            // Clear any previous error styling
+            clearFormErrors();
+
+            // Send email via EmailJS
+            sendEmailViaEmailJS(formDataObj, contactForm);
         });
     }
     
@@ -108,6 +97,224 @@ document.addEventListener('DOMContentLoaded', function() {
             formStatus.style.display = 'none';
         });
     });
+
+    // Enhanced Form Validation Functions
+    function validateForm(formData) {
+        const errors = [];
+        const required = ['firstName', 'lastName', 'email', 'subject', 'message'];
+
+        // Check required fields
+        required.forEach(field => {
+            if (!formData[field] || formData[field].trim() === '') {
+                errors.push({
+                    field: field,
+                    message: `${getFieldLabel(field)} is required`
+                });
+            }
+        });
+
+        // Enhanced email validation
+        if (formData.email && formData.email.trim() !== '') {
+            const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+            if (!emailRegex.test(formData.email.trim())) {
+                errors.push({
+                    field: 'email',
+                    message: 'Please enter a valid email address'
+                });
+            }
+        }
+
+        // Phone validation (if provided)
+        if (formData.phone && formData.phone.trim() !== '') {
+            const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+            const cleanPhone = formData.phone.replace(/[\s\-\(\)\.]/g, '');
+            if (!phoneRegex.test(cleanPhone) || cleanPhone.length < 10) {
+                errors.push({
+                    field: 'phone',
+                    message: 'Please enter a valid phone number'
+                });
+            }
+        }
+
+        return {
+            isValid: errors.length === 0,
+            errors: errors,
+            message: errors.length > 0 ? errors[0].message : ''
+        };
+    }
+
+    function getFieldLabel(fieldName) {
+        const labels = {
+            firstName: 'First Name',
+            lastName: 'Last Name',
+            email: 'Email Address',
+            phone: 'Phone Number',
+            subject: 'Subject',
+            message: 'Message'
+        };
+        return labels[fieldName] || fieldName;
+    }
+
+    function showFormMessage(message, type) {
+        const formStatus = document.getElementById('formStatus');
+        if (formStatus) {
+            formStatus.className = `form-status ${type}`;
+            formStatus.style.display = 'block';
+            formStatus.textContent = message;
+        }
+    }
+
+    function clearFormErrors() {
+        const formInputs = document.querySelectorAll('.contact-form input, .contact-form textarea, .contact-form select');
+        formInputs.forEach(input => {
+            input.style.borderColor = '';
+            input.style.boxShadow = '';
+        });
+
+        const formStatus = document.getElementById('formStatus');
+        if (formStatus) {
+            formStatus.style.display = 'none';
+        }
+    }
+
+    // EmailJS Integration Function with Enhanced Error Handling
+    function sendEmailViaEmailJS(formData, form) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+
+        // Show loading state
+        setLoadingState(true, submitButton);
+        showFormMessage('Sending your message...', 'loading');
+
+        // Prepare email template parameters
+        const templateParams = {
+            from_name: `${formData.firstName} ${formData.lastName}`,
+            from_email: formData.email,
+            phone: formData.phone || 'Not provided',
+            subject: formData.subject,
+            message: formData.message,
+            subscribe: formData.subscribe ? 'Yes' : 'No',
+            timestamp: new Date().toLocaleString(),
+            reply_to: formData.email
+        };
+
+        // Comprehensive error checking
+        if (!validateEmailJSConfiguration()) {
+            handleEmailError('Email service configuration error. Please contact us directly.', submitButton, originalButtonText);
+            return;
+        }
+
+        // Check network connectivity
+        if (!navigator.onLine) {
+            handleEmailError('No internet connection detected. Please check your connection and try again.', submitButton, originalButtonText);
+            return;
+        }
+
+        // Send email using EmailJS with timeout
+        const emailPromise = emailjs.send(EMAILJS_CONFIG.serviceID, EMAILJS_CONFIG.templateID, templateParams);
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Request timeout')), 15000); // 15 second timeout
+        });
+
+        Promise.race([emailPromise, timeoutPromise])
+            .then(function(response) {
+                console.log('Email sent successfully:', response);
+                handleEmailSuccess(form, submitButton, originalButtonText);
+            })
+            .catch(function(error) {
+                console.error('Email sending failed:', error);
+                handleEmailError(getErrorMessage(error), submitButton, originalButtonText);
+            });
+    }
+
+    function validateEmailJSConfiguration() {
+        // Check if EmailJS is loaded
+        if (typeof emailjs === 'undefined') {
+            console.error('EmailJS library not loaded');
+            return false;
+        }
+
+        // Check if configuration is set up (not using placeholder values)
+        if (EMAILJS_CONFIG.serviceID === 'your_service_id' ||
+            EMAILJS_CONFIG.templateID === 'your_template_id' ||
+            EMAILJS_CONFIG.publicKey === 'your_public_key') {
+            console.error('EmailJS configuration not set up properly');
+            return false;
+        }
+
+        return true;
+    }
+
+    function getErrorMessage(error) {
+        if (error.message === 'Request timeout') {
+            return 'Request timed out. Please try again or contact us directly.';
+        }
+
+        if (error.status) {
+            switch (error.status) {
+                case 400:
+                    return 'Invalid request. Please check your information and try again.';
+                case 401:
+                    return 'Authentication failed. Please contact us directly.';
+                case 403:
+                    return 'Service access denied. Please contact us directly.';
+                case 404:
+                    return 'Email service not found. Please contact us directly.';
+                case 429:
+                    return 'Too many requests. Please wait a moment and try again.';
+                case 500:
+                    return 'Server error. Please try again later or contact us directly.';
+                default:
+                    return 'Network error occurred. Please try again or contact us directly.';
+            }
+        }
+
+        return 'Failed to send message. Please try again or contact us directly.';
+    }
+
+    function setLoadingState(isLoading, button) {
+        if (isLoading) {
+            button.disabled = true;
+            button.innerHTML = '<span>Sending...</span><i class="fas fa-spinner fa-spin"></i>';
+            button.style.opacity = '0.7';
+        } else {
+            button.disabled = false;
+            button.style.opacity = '1';
+        }
+    }
+
+    function handleEmailSuccess(form, button, originalButtonText) {
+        // Reset form
+        form.reset();
+
+        // Reset button
+        setLoadingState(false, button);
+        button.innerHTML = originalButtonText;
+
+        // Show success message
+        showFormMessage('Your message has been sent successfully! We\'ll get back to you soon.', 'success');
+
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+            const formStatus = document.getElementById('formStatus');
+            if (formStatus) {
+                formStatus.style.display = 'none';
+            }
+        }, 5000);
+    }
+
+    function handleEmailError(errorMessage, button, originalButtonText) {
+        // Reset button
+        setLoadingState(false, button);
+        button.innerHTML = originalButtonText;
+
+        // Show comprehensive error message with multiple contact options
+        const fallbackMessage = `${errorMessage}\n\n📧 Alternative Contact Methods:\n\n• Email: louisvilleapostolic@gmail.com\n• Phone: +1(302) 437-5593\n• Visit: 1205 Durette Lane, Louisville, KY\n• Office Hours: Mon-Fri 9AM-5PM, Sat 10AM-2PM\n\nWe apologize for the inconvenience and look forward to hearing from you!`;
+        showFormMessage(fallbackMessage, 'error');
+
+        // Log error for debugging
+        console.error('Contact form error:', errorMessage);
+    }
 });
 
 // Initialize Google Maps

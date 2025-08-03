@@ -1,35 +1,93 @@
-// Initialize Stripe
-const stripe = Stripe('pk_test_sample'); // Replace with your actual Stripe publishable key
-const elements = stripe.elements();
+// Initialize Stripe with enhanced configuration
+// Using environment-based configuration for security
+const stripe = Stripe(window.Config?.stripe?.publishableKey || 'pk_test_51RoXpfL498oAJ59VBDtpvH9n2mvk3wVUY9Uwd5IcU6xM1T15RRdgvMWP3G5XNG1lMJfs7vEj6uqPHloJdquKRDuy00mhpMZeNj');
+const elements = stripe.elements({
+    fonts: [{
+        cssSrc: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap'
+    }]
+});
 
-// Create card element with custom styling
+// Create card element with enhanced styling to match form design
 const card = elements.create('card', {
     style: {
         base: {
-            color: '#333',
+            color: '#333333',
             fontFamily: '"Open Sans", sans-serif',
             fontSmoothing: 'antialiased',
             fontSize: '16px',
+            lineHeight: '24px',
+            fontWeight: '400',
             '::placeholder': {
-                color: '#aab7c4'
+                color: '#999999'
             },
             ':-webkit-autofill': {
-                color: '#fce883'
+                color: '#333333'
             }
         },
         invalid: {
             color: '#dc3545',
             iconColor: '#dc3545'
+        },
+        complete: {
+            color: '#28a745',
+            iconColor: '#28a745'
         }
-    }
+    },
+    hidePostalCode: false
 });
+
+// Global variables for payment processing
+let paymentIntentClientSecret = null;
+let currentPaymentMethod = null;
 
 // Donation page initialization
 document.addEventListener('DOMContentLoaded', function() {
-    // Mount the Stripe card element
+    // Mount the Stripe card element with enhanced error handling
     const cardElement = document.getElementById('card-element');
     if (cardElement) {
-        card.mount('#card-element');
+        try {
+            card.mount('#card-element');
+            console.log('Stripe card element mounted successfully');
+        } catch (error) {
+            console.error('Error mounting Stripe card element:', error);
+            // Show user-friendly error message
+            cardElement.innerHTML = '<div style="color: #dc3545; padding: 10px;">Unable to load payment form. Please refresh the page.</div>';
+        }
+
+        // Handle real-time validation errors from the card Element
+        card.on('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+
+            // Debug logging to help identify input issues
+            console.log('Stripe card element change event:', {
+                error: event.error,
+                complete: event.complete,
+                empty: event.empty,
+                brand: event.brand
+            });
+
+            if (event.error) {
+                displayError.textContent = event.error.message;
+                displayError.style.display = 'block';
+                cardElement.classList.add('error');
+            } else {
+                displayError.textContent = '';
+                displayError.style.display = 'none';
+                cardElement.classList.remove('error');
+
+                // Add visual feedback for complete card input
+                if (event.complete) {
+                    cardElement.classList.add('complete');
+                } else {
+                    cardElement.classList.remove('complete');
+                }
+            }
+        });
+
+        // Add ready event handler to ensure element is fully loaded
+        card.on('ready', function() {
+            console.log('Stripe card element is ready for input');
+        });
     }
 
     // Initialize counter animations
@@ -67,7 +125,117 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize donation completion
     initDonationCompletion();
+
+    // Initialize alternative payment methods
+    initializeAlternativePaymentMethods();
 });
+
+// Enhanced payment processing functions
+async function createPaymentIntent(amount, currency = 'usd', metadata = {}) {
+    try {
+        // Make real API call to create payment intent
+        const response = await makeServerRequest('/create-payment-intent', {
+            amount: amount, // Send amount in dollars (server will convert to cents)
+            currency: currency,
+            metadata: metadata
+        });
+
+        console.log('✅ Payment Intent created:', response.payment_intent_id);
+        return response;
+    } catch (error) {
+        console.error('❌ Error creating payment intent:', error);
+        throw new Error(error.message || 'Failed to initialize payment. Please try again.');
+    }
+}
+
+// Real server request for payment processing
+async function makeServerRequest(endpoint, data) {
+    try {
+        const response = await fetch(`/api/payments${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || `Server error: ${response.status}`);
+        }
+
+        if (!result.success) {
+            throw new Error(result.message || 'Server request failed');
+        }
+
+        return result.data;
+    } catch (error) {
+        console.error('Server request error:', error);
+        throw error;
+    }
+}
+
+// Email validation utility
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Enhanced payment confirmation function
+async function confirmPayment(clientSecret, billingDetails) {
+    try {
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: card,
+                billing_details: billingDetails
+            }
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        return paymentIntent;
+    } catch (error) {
+        console.error('Payment confirmation error:', error);
+        throw error;
+    }
+}
+
+// Future payment methods integration (Apple Pay, Google Pay, etc.)
+function initializeAlternativePaymentMethods() {
+    // Check if Apple Pay is available
+    if (window.ApplePaySession && ApplePaySession.canMakePayments()) {
+        // Apple Pay is available - could add Apple Pay button here
+        console.log('Apple Pay is available');
+    }
+
+    // Check if Google Pay is available
+    if (window.google && window.google.payments) {
+        // Google Pay is available - could add Google Pay button here
+        console.log('Google Pay is available');
+    }
+
+    // Placeholder for future payment method integrations
+    // This modular approach allows easy addition of new payment methods
+}
+
+// Recurring donation setup (for future implementation)
+function setupRecurringDonation(paymentMethodId, amount, frequency) {
+    // This would typically create a subscription on your server
+    console.log('Setting up recurring donation:', {
+        paymentMethodId,
+        amount,
+        frequency
+    });
+
+    // Return promise for consistent API
+    return Promise.resolve({
+        subscription_id: 'sub_' + Math.random().toString(36).substr(2, 9),
+        status: 'active'
+    });
+}
 
 // Counter animation for impact numbers
 function initCounters() {
@@ -242,45 +410,70 @@ function initFormSubmission() {
                 showError('Please fill out all required fields');
                 return;
             }
+
+            // Validate email format
+            if (!isValidEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
             
             // Show loading state
             const submitButton = cardForm.querySelector('.btn-donate');
             setLoadingState(submitButton, true);
             
             try {
-                // Create payment method with Stripe
-                const { paymentMethod, error } = await stripe.createPaymentMethod({
-                    type: 'card',
-                    card: card,
-                    billing_details: {
-                        name: cardName,
-                        email: email
-                    }
+                // Step 1: Create payment intent
+                const paymentIntentData = await createPaymentIntent(amount, 'usd', {
+                    fund: fund,
+                    frequency: frequency,
+                    donor_email: email,
+                    donor_name: cardName
                 });
-                
-                if (error) {
-                    throw error;
+
+                // Step 2: Confirm payment with card
+                const billingDetails = {
+                    name: cardName,
+                    email: email
+                };
+
+                const paymentIntent = await confirmPayment(paymentIntentData.client_secret, billingDetails);
+
+                // Step 3: Handle successful payment
+                if (paymentIntent.status === 'succeeded') {
+                    // Show success message with payment confirmation
+                    const frequencyText = frequency === 'monthly' ? 'monthly' : frequency === 'weekly' ? 'weekly' : '';
+                    const successMessage = `Thank you for your ${frequencyText} donation of $${amount}! Your payment has been processed successfully.`;
+                    const confirmationMessage = `Payment confirmation: ${paymentIntent.id}`;
+                    showSuccess(successMessage + '<br><small style="opacity: 0.8;">' + confirmationMessage + '</small>');
+
+                    // Log successful donation with real payment data
+                    console.log('✅ Real payment processed successfully:', {
+                        paymentIntentId: paymentIntent.id,
+                        amount: amount,
+                        fund: fund,
+                        frequency: frequency,
+                        email: email,
+                        status: paymentIntent.status,
+                        created: paymentIntent.created,
+                        currency: paymentIntent.currency
+                    });
+
+                    // Reset form after delay
+                    setTimeout(() => {
+                        cardForm.reset();
+                        card.clear();
+                        // Reset step navigation if needed
+                        if (typeof navigateToStep === 'function') {
+                            navigateToStep('1');
+                        }
+                    }, 3000);
+                } else {
+                    throw new Error('Payment was not completed successfully');
                 }
-                
-                // In a real app, you would send this to your server
-                console.log('Donation data:', {
-                    paymentMethodId: paymentMethod.id,
-                    amount,
-                    fund,
-                    frequency,
-                    email
-                });
-                
-                // Show success and reset form
-                const frequencyText = frequency === 'monthly' ? 'monthly' : frequency === 'weekly' ? 'weekly' : '';
-                showSuccess(`Thank you for your ${frequencyText} donation of $${amount}!`);
-                setTimeout(() => {
-                    cardForm.reset();
-                    card.clear();
-                }, 3000);
-                
+
             } catch (error) {
-                showError(error.message);
+                console.error('Payment error:', error);
+                showError(error.message || 'An error occurred while processing your payment. Please try again.');
             } finally {
                 setLoadingState(submitButton, false);
             }
@@ -296,22 +489,60 @@ function initFormSubmission() {
     }
 }
 
-// Show error message
+// Enhanced error message display
 function showError(message) {
-    const errorElement = document.getElementById('card-errors');
-    if (!errorElement) return;
-    
-    errorElement.textContent = message;
-    errorElement.className = 'error-message';
-    
-    setTimeout(() => {
-        errorElement.textContent = '';
-        errorElement.className = '';
-    }, 5000);
+    // Clear any existing messages
+    clearMessages();
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'form-status error';
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+
+    // Find the best place to show the error
+    const cardErrors = document.getElementById('card-errors');
+    const form = document.querySelector('#card-form') || document.querySelector('.contribution-card');
+
+    if (cardErrors && message.toLowerCase().includes('card')) {
+        cardErrors.textContent = message;
+        cardErrors.style.display = 'block';
+    } else if (form) {
+        form.insertBefore(errorDiv, form.firstChild);
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => errorDiv.remove(), 7000);
+    }
 }
 
-// Show success message
+// Enhanced success message display
 function showSuccess(message) {
+    // Clear any existing messages
+    clearMessages();
+
+    const successDiv = document.createElement('div');
+    successDiv.className = 'form-status success';
+    successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+
+    const form = document.querySelector('#card-form') || document.querySelector('.contribution-card');
+    if (form) {
+        form.insertBefore(successDiv, form.firstChild);
+        successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => successDiv.remove(), 10000);
+    }
+}
+
+// Clear all messages
+function clearMessages() {
+    const existingMessages = document.querySelectorAll('.form-status');
+    existingMessages.forEach(msg => msg.remove());
+
+    const cardErrors = document.getElementById('card-errors');
+    if (cardErrors) {
+        cardErrors.textContent = '';
+        cardErrors.style.display = 'none';
+    }
+}
+
+// Original showSuccess function (keeping for compatibility)
+function showSuccessOriginal(message) {
     const errorElement = document.getElementById('card-errors');
     if (!errorElement) return;
     

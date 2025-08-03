@@ -8016,24 +8016,57 @@ footer::before {
 /* Sermon Filters */
 .sermon-filters {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 40px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--gray-light);
+    gap: 30px;
+    margin-bottom: 50px;
+    padding: 25px 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .filter-group {
     display: flex;
-    gap: 15px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
-.sermon-filter {
-    padding: 10px 15px;
-    border: 1px solid var(--gray-light);
-    border-radius: 5px;
+.filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0;
+}
+
+.sermon-filter,
+.filter-group select,
+.filter-group input {
+    padding: 12px 16px;
+    border: 2px solid var(--gray-light);
+    border-radius: 8px;
     font-size: 0.95rem;
-    min-width: 150px;
+    min-width: 180px;
+    transition: var(--transition);
+    background: white;
+}
+
+.sermon-filter:focus,
+.filter-group select:focus,
+.filter-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(58, 91, 191, 0.1);
+}
+
+/* Sermon Container */
+.sermon-container {
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .sermon-search {
@@ -8041,22 +8074,38 @@ footer::before {
 }
 
 .sermon-search input {
-    padding: 10px 45px 10px 15px;
-    border: 1px solid var(--gray-light);
-    border-radius: 5px;
-    width: 250px;
+    padding: 12px 45px 12px 16px;
+    border: 2px solid var(--gray-light);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 250px;
     font-size: 0.95rem;
+    transition: var(--transition);
+}
+
+.sermon-search input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(58, 91, 191, 0.1);
 }
 
 .sermon-search button {
     position: absolute;
-    right: 5px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
     background: transparent;
     border: none;
     color: var(--text-light);
     cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.sermon-search button:hover {
+    color: var(--primary-color);
+    background: rgba(58, 91, 191, 0.1);
 }
 
 /* Featured Sermon */
@@ -8229,25 +8278,63 @@ footer::before {
 
 /* Sermon List */
 .sermon-list {
-    margin-bottom: 40px;
+    padding: 80px 0;
+    background-color: var(--light-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.sermon-list::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(90, 120, 215, 0.03) 0%, rgba(255, 255, 255, 0) 70%);
+    z-index: 0;
+}
+
+.sermon-list .container {
+    position: relative;
+    z-index: 2;
+    max-width: 1000px;
+}
+
+.sermon-list h2 {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .sermon-card {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     display: grid;
     grid-template-columns: auto 1fr auto;
-    gap: 20px;
+    gap: 25px;
     align-items: center;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    border-top: 4px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.sermon-card:nth-child(even) {
+    border-top-color: var(--secondary-color);
 }
 
 .sermon-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .sermon-info {
@@ -8454,10 +8541,28 @@ footer::before {
 
 /* Responsive Sermon Archive Layout */
 @media (max-width: 992px) {
+    .sermon-list .container {
+        max-width: 100%;
+    }
+
     .sermon-filters {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
+        align-items: center;
+        gap: 25px;
+        padding: 20px 25px;
+        margin-bottom: 40px;
+    }
+
+    .filter-group {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .sermon-filter,
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        min-width: auto;
     }
     
     .featured-sermon {
@@ -8488,12 +8593,35 @@ footer::before {
 }
 
 @media (max-width: 768px) {
+    .sermon-list {
+        padding: 60px 0;
+    }
+
+    .sermon-list h2 {
+        font-size: 2.2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .sermon-filters {
+        padding: 20px;
+        margin-bottom: 35px;
+        gap: 20px;
+    }
+
     .filter-group {
         flex-wrap: wrap;
+        max-width: 100%;
     }
-    
+
     .sermon-card {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .sermon-container {
+        max-width: 100%;
     }
     
     .sermon-card-image {
@@ -8525,22 +8653,46 @@ footer::before {
 }
 
 @media (max-width: 576px) {
+    .sermon-list {
+        padding: 50px 0;
+    }
+
+    .sermon-list h2 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .sermon-filters {
+        padding: 15px;
+        margin-bottom: 30px;
+        gap: 15px;
+    }
+
     .sermon-search input {
         width: 100%;
+        max-width: none;
     }
-    
+
+    .sermon-card {
+        padding: 18px;
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+
     .sermon-meta {
         flex-direction: column;
         gap: 5px;
     }
-    
+
     .sermon-actions {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        gap: 10px;
     }
-    
+
     .sermon-actions .btn-small {
         width: 100%;
+        max-width: 200px;
     }
 }
 
@@ -8850,18 +9002,40 @@ footer::before {
     .post-content {
         padding: 25px;
     }
-    
+
     .post-content h2 {
         font-size: 1.8rem;
     }
-    
+
     .post-meta {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .category-badge {
         font-size: 0.8rem;
+    }
+
+    /* Enhanced mobile donation form styling */
+    #card-element {
+        padding: 12px;
+        min-height: 45px;
+    }
+
+    .secure-payment-indicator {
+        font-size: 0.8rem;
+        padding: 8px;
+        margin-top: 10px;
+    }
+
+    .form-status {
+        font-size: 0.9rem;
+        padding: 12px;
+    }
+
+    .btn-donate.loading::after {
+        width: 18px;
+        height: 18px;
     }
 }
 
@@ -10607,6 +10781,60 @@ footer::before {
     border: 2px solid var(--donation-border);
     border-radius: 8px;
     background: #fff;
+    transition: var(--transition);
+}
+
+/* Enhanced Stripe Card Element Styling */
+#card-element {
+    padding: 15px;
+    border: 2px solid var(--donation-border);
+    border-radius: 8px;
+    background: #fff;
+    transition: var(--transition);
+    min-height: 50px;
+}
+
+#card-element:focus-within {
+    border-color: var(--donation-primary);
+    box-shadow: 0 0 0 3px rgba(81, 66, 252, 0.1);
+}
+
+#card-element.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+#card-element.complete {
+    border-color: #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+/* Ensure Stripe Elements iframe is properly displayed */
+#card-element .StripeElement {
+    width: 100%;
+    padding: 0;
+}
+
+#card-element iframe {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 20px !important;
+}
+
+/* Card Errors Styling */
+#card-errors {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid #dc3545;
+    display: none;
+}
+
+#card-errors:not(:empty) {
+    display: block;
 }
 
 /* Payment Methods */
@@ -10958,17 +11186,23 @@ footer::before {
 .contact-info {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 25px;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .info-card {
     background: #fff;
     border-radius: var(--border-radius);
-    padding: 30px;
+    padding: 35px 40px;
     box-shadow: var(--shadow-soft);
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 .info-card:hover {
@@ -10977,17 +11211,18 @@ footer::before {
 }
 
 .info-icon {
-    font-size: 2rem;
-    margin-bottom: 15px;
+    font-size: 2.2rem;
+    margin-bottom: 20px;
     color: var(--donation-primary);
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     background: rgba(81, 66, 252, 0.1);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .info-card:hover .info-icon {
@@ -10997,23 +11232,55 @@ footer::before {
 }
 
 .info-card h3 {
-    margin-bottom: 15px;
-    font-size: 1.3rem;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
     color: var(--donation-dark);
+    font-weight: 600;
 }
 
 .info-card p {
     color: #666;
-    line-height: 1.6;
-    margin-bottom: 15px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    flex-grow: 1;
+}
+
+.info-card .btn-text {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+/* Specific styling for Email Us card to handle long email addresses */
+.email-card .email-content {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    font-size: 0.95rem !important;
+    line-height: 1.7 !important;
+    white-space: normal;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+/* Ensure email card has adequate width */
+.email-card {
+    min-width: 0; /* Allow flexbox shrinking */
+    overflow: hidden; /* Prevent content overflow */
 }
 
 .social-connect {
     grid-column: span 2;
     background: var(--donation-light);
     border-radius: var(--border-radius);
-    padding: 30px;
+    padding: 35px 40px;
     text-align: center;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .social-connect h3 {
@@ -11163,24 +11430,154 @@ footer::before {
 
 .form-status {
     margin-top: 20px;
-    padding: 15px;
+    padding: 15px 20px;
     border-radius: 8px;
     display: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.form-status.loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left-color: var(--donation-primary);
+    color: #495057;
+}
+
+.form-status.loading::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--donation-primary);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 .form-status.success {
-    display: block;
-    background-color: rgba(40, 167, 69, 0.1);
-    color: #28a745;
-    border: 1px solid rgba(40, 167, 69, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-left-color: #28a745;
+    color: #155724;
+}
+
+.form-status.success::before {
+    content: '✓';
+    width: 20px;
+    height: 20px;
+    background: #28a745;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
 }
 
 .form-status.error {
-    display: block;
-    background-color: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-    border: 1px solid rgba(220, 53, 69, 0.2);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-left-color: #dc3545;
+    color: #721c24;
+    white-space: pre-line;
 }
+
+.form-status.error::before {
+    content: '⚠';
+    width: 20px;
+    height: 20px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Button Loading States */
+.btn-donate.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn-donate.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Payment Security Indicators */
+.secure-payment-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(40, 167, 69, 0.05);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #28a745;
+}
+
+.secure-payment-indicator i {
+    font-size: 1rem;
+}
+
+/* Stripe Branding */
+.stripe-branding {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.stripe-branding::before {
+    content: 'Powered by';
+}
+
+.stripe-branding::after {
+    content: 'Stripe';
+    font-weight: 600;
+    color: #635bff;
+}
+
+
 
 /* Map Section Styles */
 .map-section {
@@ -11384,16 +11781,29 @@ footer::before {
     .contact-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .contact-info {
         order: 2;
+        gap: 25px;
+        max-width: 700px;
     }
-    
+
+    .info-card {
+        padding: 32px 35px;
+        min-height: 190px;
+    }
+
+    /* Email card adjustments for tablet */
+    .email-card .email-content {
+        font-size: 0.92rem !important;
+        line-height: 1.65 !important;
+    }
+
     .contact-form-container {
         order: 1;
         margin-bottom: 50px;
     }
-    
+
     .map-container {
         height: 400px;
     }
@@ -11406,52 +11816,87 @@ footer::before {
     .contact-cta {
         padding: 70px 0;
     }
-    
+
     .contact-info {
         grid-template-columns: 1fr;
+        gap: 25px;
+        max-width: 500px;
     }
-    
+
+    .info-card {
+        padding: 30px 25px;
+        min-height: 180px;
+    }
+
     .social-connect {
         grid-column: 1;
     }
-    
+
     .form-row {
         flex-direction: column;
     }
-    
+
     .contact-form .form-group.half {
         width: 100%;
     }
-    
+
     .contact-cta h2 {
         font-size: 2rem;
     }
-    
+
     .cta-buttons {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .faq-question h3 {
         font-size: 1.1rem;
     }
 }
 
 @media (max-width: 576px) {
-    .contact-form-container,
-    .info-card {
+    .contact-form-container {
         padding: 25px 20px;
     }
-    
+
+    .info-card {
+        padding: 25px 20px;
+        min-height: 160px;
+    }
+
+    .info-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    .info-card p {
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin-bottom: 15px;
+    }
+
+    /* Enhanced email handling for mobile */
+    .email-card .email-content {
+        font-size: 0.9rem !important;
+        line-height: 1.6 !important;
+        word-break: break-all;
+        overflow-wrap: anywhere;
+    }
+
+    .contact-info {
+        gap: 20px;
+        max-width: 400px;
+    }
+
     .map-card {
         padding: 20px;
         margin: 0 20px;
     }
-    
+
     .contact-cta h2 {
         font-size: 1.8rem;
     }
-    
+
     .map-container {
         height: 300px;
     }
@@ -11533,41 +11978,45 @@ footer::before {
     .contact-cta {
         padding: 70px 0;
     }
-    
+
     .contact-info {
         grid-template-columns: 1fr;
+        gap: 25px;
+        max-width: 500px;
     }
-    
+
     .info-card {
         text-align: center;
+        padding: 30px 25px;
+        min-height: 180px;
     }
-    
+
     .info-icon {
         margin-left: auto;
         margin-right: auto;
     }
-    
+
     .social-connect {
         grid-column: 1;
     }
-    
+
     .form-row {
         flex-direction: column;
     }
-    
+
     .contact-form .form-group.half {
         width: 100%;
     }
-    
+
     .contact-cta h2 {
         font-size: 2rem;
     }
-    
+
     .cta-buttons {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .faq-question h3 {
         font-size: 1.1rem;
     }

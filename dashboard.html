@@ -206,6 +206,22 @@
                     </div>
 
                     <div class="form-group">
+                      <label for="blogImageFile">Or Upload Image File</label>
+                      <input
+                        type="file"
+                        id="blogImageFile"
+                        accept="image/*"
+                        class="file-input"
+                      />
+                      <div
+                        class="media-preview-container"
+                        id="blogImagePreview"
+                      >
+                        <div class="preview-placeholder">No image selected</div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
                       <label for="blogStatus">Status</label>
                       <select id="blogStatus" required>
                         <option value="draft">Draft</option>
@@ -301,6 +317,24 @@
                     </div>
 
                     <div class="form-group">
+                      <label for="eventImageFile"
+                        >Or Upload Image/Video File</label
+                      >
+                      <input
+                        type="file"
+                        id="eventImageFile"
+                        accept="image/*,video/*"
+                        class="file-input"
+                      />
+                      <div
+                        class="media-preview-container"
+                        id="eventImagePreview"
+                      >
+                        <div class="preview-placeholder">No media selected</div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
                       <label for="eventStatus">Status</label>
                       <select id="eventStatus" required>
                         <option value="draft">Draft</option>
@@ -392,13 +426,65 @@
                     </div>
 
                     <div class="form-group">
+                      <label for="sermonVideoFile">Or Upload Video File</label>
+                      <input
+                        type="file"
+                        id="sermonVideoFile"
+                        accept="video/*"
+                        class="file-input"
+                      />
+                      <div
+                        class="media-preview-container"
+                        id="sermonVideoPreview"
+                      >
+                        <div class="preview-placeholder">No video selected</div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
                       <label for="sermonAudioUrl">Audio URL</label>
                       <input type="url" id="sermonAudioUrl" />
                     </div>
 
                     <div class="form-group">
+                      <label for="sermonAudioFile">Or Upload Audio File</label>
+                      <input
+                        type="file"
+                        id="sermonAudioFile"
+                        accept="audio/*"
+                        class="file-input"
+                      />
+                      <div
+                        class="media-preview-container"
+                        id="sermonAudioPreview"
+                      >
+                        <div class="preview-placeholder">No audio selected</div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
                       <label for="sermonThumbnail">Thumbnail URL</label>
                       <input type="text" id="sermonThumbnail" />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="sermonThumbnailFile"
+                        >Or Upload Thumbnail Image</label
+                      >
+                      <input
+                        type="file"
+                        id="sermonThumbnailFile"
+                        accept="image/*"
+                        class="file-input"
+                      />
+                      <div
+                        class="media-preview-container"
+                        id="sermonThumbnailPreview"
+                      >
+                        <div class="preview-placeholder">
+                          No thumbnail selected
+                        </div>
+                      </div>
                     </div>
 
                     <div class="form-group">
@@ -492,10 +578,12 @@
     <!-- Admin Dashboard JavaScript -->
     <script src="js/data-service.js"></script>
     <script src="js/sample-data-generator.js"></script>
-    <script src="js/blog-manager.js"></script>
-    <script src="js/event-manager.js"></script>
-    <script src="js/sermon-manager.js"></script>
-    <script src="js/dashboard-sync-test.js"></script>
+    <!-- blog-manager.js removed - conflicts with admin.js blog functionality -->
+    <!-- event-manager.js removed - conflicts with admin.js event functionality -->
+    <!-- sermon-manager.js removed - conflicts with admin.js sermon functionality -->
+    <!-- dashboard-sync-test.js removed - tests removed managers -->
+    <script src="js/media-upload.js"></script>
+    <script src="js/modal-enhancements.js"></script>
     <script src="js/admin.js"></script>
   </body>
 </html>

@@ -16,6 +16,9 @@ const authRoutes = require('./routes-mongodb/auth');
 const blogRoutes = require('./routes-mongodb/blogs');
 const eventRoutes = require('./routes-mongodb/events');
 const sermonRoutes = require('./routes-mongodb/sermons');
+const configRoutes = require('./routes/config');
+const paymentRoutes = require('./routes-mongodb/payments');
+const webhookRoutes = require('./routes-mongodb/webhooks');
 
 // Import MongoDB models for stats
 const Blog = require('./models-mongodb/Blog');
@@ -184,6 +187,9 @@ app.use('/api/sermons',
   invalidateCacheMiddleware(['/api/sermons']),
   sermonRoutes
 );
+app.use('/api/config', configRoutes);
+app.use('/api/payments', paymentRoutes); // No caching for payment endpoints
+app.use('/api/webhooks', webhookRoutes); // No caching for webhook endpoints
 
 // Health check endpoint with MongoDB-specific information
 app.get('/api/health', async (req, res) => {

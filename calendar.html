@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Church Calendar - Apostolic Church International, Louisville Kentucky</title>
+    <title>
+      Church Calendar - Apostolic Church International, Louisville Kentucky
+    </title>
     <link rel="stylesheet" href="css/style.css" />
     <link
       rel="stylesheet"
@@ -339,7 +341,7 @@
             <span></span>
           </button>
           <ul class="nav-menu">
-            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About</a></li>
             <li><a href="leadership.html">Leadership</a></li>
             <li class="has-dropdown">
@@ -347,7 +349,7 @@
                 >Services <i class="fas fa-chevron-down"></i
               ></a>
               <ul class="dropdown-menu">
-                <li><a href="service.html">Services Info</a></li>
+                <li><a href="service.html" class="active">Services Info</a></li>
                 <li><a href="events.html">Events</a></li>
                 <li><a href="calendar.html">Calendar</a></li>
                 <li><a href="blog.html">Blog</a></li>
@@ -461,12 +463,24 @@
             <h3>Apostolic Church International, Louisville Assembly</h3>
             <p>Spreading hope, faith, and love to our community and beyond.</p>
             <div class="social-links">
-              <a href="https://www.facebook.com/share/17zhkYrQaF/" class="social-icon" target="_blank"
+              <a
+                href="https://www.facebook.com/share/17zhkYrQaF/"
+                class="social-icon"
+                target="_blank"
                 ><i class="fab fa-facebook-f"></i
               ></a>
-              <a href="https://www.instagram.com/apostolicchurchlouisvilleky?igsh=MWUxdHk2MDJrMnNoNg==" class="social-icon" target="_blank"><i class="fab fa-instagram"></i
+              <a
+                href="https://www.instagram.com/apostolicchurchlouisvilleky?igsh=MWUxdHk2MDJrMnNoNg=="
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-instagram"></i
               ></a>
-              <a href="https://youtube.com/@theapostolicchurchint-loui9461?si=hv4FL_FE-CCdvp4z" class="social-icon" target="_blank"><i class="fab fa-youtube"></i></a>
+              <a
+                href="https://youtube.com/@theapostolicchurchint-loui9461?si=hv4FL_FE-CCdvp4z"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-youtube"></i
+              ></a>
             </div>
           </div>
           <div class="footer-section">
@@ -480,17 +494,17 @@
               <li><a href="contact.html">Contact</a></li>
             </ul>
           </div>
-                          <div class="footer-section">
-                    <h3>Service Times</h3>
-                    <p>Morning Devotion: 6:00 AM - 6:45 AM</p>
-                    <p>Sunday Service: 11:00 AM - 1:15 PM</p>
-                    <p>Friday Service: 7:45 PM - 9:00 PM</p>
-                    <a href="service.html" class="btn-small">Learn More</a>
-                </div>
+          <div class="footer-section">
+            <h3>Service Times</h3>
+            <p>Morning Devotion: 6:00 AM - 6:45 AM</p>
+            <p>Sunday Service: 11:00 AM - 1:15 PM</p>
+            <p>Friday Service: 7:45 PM - 9:00 PM</p>
+            <a href="service.html" class="btn-small">Learn More</a>
+          </div>
           <div class="footer-section">
             <h3>Contact Info</h3>
             <p>
-              <i class="fas fa-map-marker-alt"></i> 1205 Durett Lane,
+              <i class="fas fa-map-marker-alt"></i> 1205 Durrett Lane,
               Louisville, KY 40213
             </p>
             <p><i class="fas fa-phone"></i> +1(302) 437-5593</p>
@@ -504,6 +518,7 @@
     </footer>
 
     <script src="js/script.js"></script>
+    <script src="js/event-sync.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         // Toggle between calendar and list view
@@ -588,44 +603,84 @@
           let currentMonth = currentDate.getMonth();
           let currentYear = currentDate.getFullYear();
 
-          // Sample events data - same as in initCalendar
-          const events = [
-            {
-              date: new Date(2023, 9, 15),
-              title: "Praise & Worship Night",
-              type: "worship",
-              time: "6:00 PM",
-              location: "Main Sanctuary",
-            },
-            {
-              date: new Date(2023, 9, 21),
-              title: "Men's Breakfast",
-              type: "fellowship",
-              time: "8:00 AM",
-              location: "Fellowship Hall",
-            },
-            {
-              date: new Date(2023, 9, 25),
-              title: "Youth Game Night",
-              type: "youth",
-              time: "7:48 PM",
-              location: "Youth Center",
-            },
-            {
-              date: new Date(2023, 9, 28),
-              title: "Fall Harvest Festival",
-              type: "special",
-              time: "4:00 PM",
-              location: "Church Grounds",
-            },
-            {
-              date: new Date(2023, 9, 30),
-              title: "Prayer Meeting",
-              type: "prayer",
-              time: "6:30 PM",
-              location: "Prayer Room",
-            },
-          ];
+          // Load events from localStorage (admin-uploaded events)
+          let events = [];
+          try {
+            const storedEvents = JSON.parse(
+              localStorage.getItem("events") || "[]"
+            );
+            const publishedEvents = storedEvents.filter(
+              (event) => event.status === "published"
+            );
+
+            // Convert to the format expected by the list view
+            events = publishedEvents.map((event) => {
+              const eventDate = new Date(event.date);
+              return {
+                date: eventDate,
+                title: event.title,
+                type: event.category || "general",
+                time: eventDate.toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                }),
+                location: event.location || "Church Location",
+              };
+            });
+
+            // Add sample events if no admin events exist (fallback)
+            if (events.length === 0) {
+              events = [
+                {
+                  date: new Date(2023, 9, 15),
+                  title: "Praise & Worship Night",
+                  type: "worship",
+                  time: "6:00 PM",
+                  location: "Main Sanctuary",
+                },
+                {
+                  date: new Date(2023, 9, 21),
+                  title: "Men's Breakfast",
+                  type: "fellowship",
+                  time: "8:00 AM",
+                  location: "Fellowship Hall",
+                },
+                {
+                  date: new Date(2023, 9, 25),
+                  title: "Youth Game Night",
+                  type: "youth",
+                  time: "7:48 PM",
+                  location: "Youth Center",
+                },
+                {
+                  date: new Date(2023, 9, 28),
+                  title: "Fall Harvest Festival",
+                  type: "special",
+                  time: "4:00 PM",
+                  location: "Church Grounds",
+                },
+                {
+                  date: new Date(2023, 9, 30),
+                  title: "Prayer Meeting",
+                  type: "prayer",
+                  time: "6:30 PM",
+                  location: "Prayer Room",
+                },
+              ];
+            }
+          } catch (error) {
+            console.error("Error loading events for list view:", error);
+            // Use sample events as fallback
+            events = [
+              {
+                date: new Date(2023, 9, 15),
+                title: "Praise & Worship Night",
+                type: "worship",
+                time: "6:00 PM",
+                location: "Main Sanctuary",
+              },
+            ];
+          }
 
           // Filter events if needed
           let filteredEvents = events;
@@ -723,6 +778,12 @@
             e.preventDefault();
             alert("Calendar download functionality would be implemented here.");
           });
+
+        // Make generateEventList globally accessible for event sync
+        window.updateEventList = generateEventList;
+
+        // Initialize event list
+        generateEventList();
       });
     </script>
   </body>

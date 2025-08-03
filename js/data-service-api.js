@@ -7,7 +7,7 @@
 const DataService = {
     // Configuration
     config: {
-        apiBaseUrl: '/api', // API base URL
+        apiBaseUrl: (typeof window !== 'undefined' && window.Config?.api?.baseUrl) || '/api', // Use Config if available
         useApi: true, // Set to false to use localStorage only
         fallbackToLocalStorage: true, // Fallback to localStorage if API fails
         enableSync: true // Enable real-time sync events

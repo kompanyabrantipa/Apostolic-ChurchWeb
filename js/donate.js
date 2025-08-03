@@ -151,7 +151,8 @@ async function createPaymentIntent(amount, currency = 'usd', metadata = {}) {
 // Real server request for payment processing
 async function makeServerRequest(endpoint, data) {
     try {
-        const response = await fetch(`/api/payments${endpoint}`, {
+        const apiBaseUrl = (typeof window !== 'undefined' && window.Config?.api?.baseUrl) || '/api';
+        const response = await fetch(`${apiBaseUrl}/payments${endpoint}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -25,7 +25,7 @@ const Config = {
     
     // API Configuration
     api: {
-        baseUrl: isProduction ? '/api' : '/api',
+        baseUrl: isProduction ? 'https://apostolic-church-louisville-assembly.onrender.com/api' : '/api',
         timeout: 10000
     },
     

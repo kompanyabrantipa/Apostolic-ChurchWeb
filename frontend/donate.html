@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Donate - Apostolic Church International, Louisville Assembly</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/donation.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Stripe.js for secure payments -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <!-- Configuration -->
+    <script src="js/config.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="images/logo.png"
+              alt="Apostolic Church International, Louisville Assembly Logo"
+              class="logo-image"
+            />
+            <span class="logo-text">Apostolic Church International, Louisville Assembly</span>
+          </a>
+        </div>
+        <nav>
+          <button class="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <ul class="nav-menu">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="leadership.html">Leadership</a></li>
+            <li class="has-dropdown">
+              <a href="service.html"
+                >Services <i class="fas fa-chevron-down"></i
+              ></a>
+              <ul class="dropdown-menu">
+                <li><a href="service.html">Services Info</a></li>
+                <li><a href="events.html">Events</a></li>
+                <li><a href="calendar.html">Calendar</a></li>
+                <li><a href="blog.html">Blog</a></li>
+              </ul>
+            </li>
+            <li><a href="sermon-archive.html">Sermons</a></li>
+            <li><a href="donate.html">Donate</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <section
+      class="page-header donate-header"
+      style="background-image: url('/images/generosity.jpg')"
+    >
+      <div class="container">
+        <h1>Support Our Ministry</h1>
+        <p>
+          "Every man according as he purposeth in his heart, so let him give;
+          not grudgingly, or of necessity: for God loveth a cheerful giver."
+          <span>2 Corinthians 9:7</span>
+        </p>
+        <a href="#donation-form" class="btn btn-primary smooth-scroll"
+          >Give Now</a
+        >
+      </div>
+    </section>
+
+    <section id="donation-form" class="donation-form-section">
+      <div class="container">
+        <div class="section-heading centered">
+          <h2>Make Your Contribution</h2>
+          <p>Select your giving amount and preferred method below</p>
+        </div>
+
+        <div class="contribution-card">
+          <div class="contribution-header">
+            <div class="contribution-steps">
+              <div class="step active" data-step="1">
+                <span class="step-number">1</span>
+                <span class="step-label">Amount</span>
+              </div>
+              <div class="step" data-step="2">
+                <span class="step-number">2</span>
+                <span class="step-label">Details</span>
+              </div>
+              <div class="step" data-step="3">
+                <span class="step-number">3</span>
+                <span class="step-label">Payment</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contribution-body">
+            <!-- Step 1: Amount Selection -->
+            <div class="contribution-step-content active" id="step-1">
+              <div class="donation-amount">
+                <label class="step-title">Select Amount</label>
+                <div class="amount-buttons">
+                  <button type="button" class="amount-btn" data-amount="50">
+                    $50
+                  </button>
+                  <button type="button" class="amount-btn" data-amount="100">
+                    $100
+                  </button>
+                  <button type="button" class="amount-btn" data-amount="250">
+                    $250
+                  </button>
+                  <button type="button" class="amount-btn" data-amount="500">
+                    $500
+                  </button>
+                  <button type="button" class="amount-btn amount-btn-custom">
+                    Custom
+                  </button>
+                </div>
+                <div class="custom-amount-container hidden">
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input
+                      type="number"
+                      id="customAmount"
+                      placeholder="Enter amount"
+                      min="1"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="donation-fund">
+                <label class="step-title">Select Fund</label>
+                <div class="fund-options">
+                  <div class="fund-option">
+                    <input
+                      type="radio"
+                      id="tithe"
+                      name="fund"
+                      value="tithe"
+                      checked
+                    />
+                    <label for="tithe">
+                      <span class="fund-icon"
+                        ><i class="fas fa-hand-holding-heart"></i
+                      ></span>
+                      <span class="fund-name">Tithe</span>
+                    </label>
+                  </div>
+                  <div class="fund-option">
+                    <input
+                      type="radio"
+                      id="offering"
+                      name="fund"
+                      value="offering"
+                    />
+                    <label for="offering">
+                      <span class="fund-icon"
+                        ><i class="fas fa-globe"></i
+                      ></span>
+                      <span class="fund-name">Offering</span>
+                    </label>
+                  </div>
+                  <div class="fund-option">
+                    <input type="radio" id="youth" name="fund" value="youth" />
+                    <label for="youth">
+                      <span class="fund-icon"
+                        ><i class="fas fa-users"></i
+                      ></span>
+                      <span class="fund-name">Youth Movement</span>
+                    </label>
+                  </div>
+                  <div class="fund-option">
+                    <input
+                      type="radio"
+                      id="childern ministry"
+                      name="fund"
+                      value="childern ministry"
+                    />
+                    <label for="childern ministry">
+                      <span class="fund-icon"
+                        ><i class="fas fa-church"></i
+                      ></span>
+                      <span class="fund-name">Childern's Ministry</span>
+                    </label>
+                  </div>
+                  <div class="fund-option">
+                    <input
+                      type="radio"
+                      id="women's movement"
+                      name="fund"
+                      value="women's movement"
+                    />
+                    <label for="women's movement">
+                      <span class="fund-icon"
+                        ><i class="fas fa-church"></i
+                      ></span>
+                      <span class="fund-name">Women's Movement</span>
+                    </label>
+                  </div>
+                  <div class="fund-option">
+                    <input
+                      type="radio"
+                      id="men's movement"
+                      name="fund"
+                      value="men's movement"
+                    />
+                    <label for="men's movement">
+                      <span class="fund-icon"
+                        ><i class="fas fa-globe"></i
+                      ></span>
+                      <span class="fund-name">Men's Movement</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="donation-frequency">
+                <label class="step-title">Giving Frequency</label>
+                <div class="frequency-switch">
+                  <input
+                    type="radio"
+                    id="one-time"
+                    name="frequency"
+                    value="one-time"
+                    checked
+                  />
+                  <label for="one-time">One Time</label>
+                  <input
+                    type="radio"
+                    id="weekly"
+                    name="frequency"
+                    value="weekly"
+                  />
+                  <label for="weekly">Weekly</label>
+                  <input
+                    type="radio"
+                    id="monthly"
+                    name="frequency"
+                    value="monthly"
+                  />
+                  <label for="monthly">Monthly</label>
+                  <span class="switch-highlight"></span>
+                </div>
+              </div>
+
+              <div class="contribution-summary">
+                <h3>Your Contribution</h3>
+                <div class="summary-row">
+                  <span>Amount:</span>
+                  <span id="summary-amount">$50</span>
+                </div>
+                <div class="summary-row">
+                  <span>Fund:</span>
+                  <span id="summary-fund">Tithe</span>
+                </div>
+                <div class="summary-row">
+                  <span>Frequency:</span>
+                  <span id="summary-frequency">One Time</span>
+                </div>
+              </div>
+
+              <div class="step-buttons">
+                <button type="button" class="btn btn-next" data-next="2">
+                  Continue to Details
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2: Donor Details -->
+            <div class="contribution-step-content" id="step-2">
+              <div class="donor-details">
+                <label class="step-title">Your Information</label>
+                <div class="form-row">
+                  <div class="form-group half">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" required />
+                  </div>
+                  <div class="form-group half">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="address">Street Address</label>
+                    <input type="text" id="address" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group half">
+                    <label for="city">City</label>
+                    <input type="text" id="city" />
+                  </div>
+                  <div class="form-group quarter">
+                    <label for="state">State</label>
+                    <input type="text" id="state" />
+                  </div>
+                  <div class="form-group quarter">
+                    <label for="zip">ZIP Code</label>
+                    <input type="text" id="zip" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="phone">Phone (Optional)</label>
+                    <input type="tel" id="phone" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="step-buttons">
+                <button type="button" class="btn btn-back" data-back="1">
+                  Back
+                </button>
+                <button type="button" class="btn btn-next" data-next="3">
+                  Continue to Payment
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 3: Payment Information -->
+            <div class="contribution-step-content" id="step-3">
+              <div class="payment-methods">
+                <label class="step-title">Payment Method</label>
+                <div class="payment-methods-tabs">
+                  <div class="payment-tab active" data-method="card">
+                    <i class="fas fa-credit-card"></i> Credit Card
+                  </div>
+                </div>
+
+                <div class="payment-forms">
+                  <div class="payment-form active" id="card-method">
+                    <form id="card-form">
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label for="cardName">Name on Card</label>
+                          <input type="text" id="cardName" required />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label for="card-element">Card Information</label>
+                          <div id="card-element" class="form-control"></div>
+                          <div class="secure-payment-indicator">
+                            <i class="fas fa-lock"></i>
+                            Your payment information is encrypted and secure
+                          </div>
+                        </div>
+                      </div>
+                      <div id="card-errors" role="alert"></div>
+                      <div class="stripe-branding"></div>
+                    </form>
+                  </div>
+
+                 
+
+              <div class="final-contribution-summary">
+                <h3>Contribution Summary</h3>
+                <div class="summary-row">
+                  <span>Amount:</span>
+                  <span id="final-summary-amount">$50</span>
+                </div>
+                <div class="summary-row">
+                  <span>Fund:</span>
+                  <span id="final-summary-fund">Tithe</span>
+                </div>
+                <div class="summary-row">
+                  <span>Frequency:</span>
+                  <span id="final-summary-frequency">One Time</span>
+                </div>
+                <div class="summary-row total">
+                  <span>Total:</span>
+                  <span id="final-summary-total">$50</span>
+                </div>
+              </div>
+
+              <div class="step-buttons">
+                <button type="button" class="btn btn-back" data-back="2">
+                  Back
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-donate"
+                  id="complete-donation"
+                >
+                  <span>Complete Donation</span>
+                  <i class="fas fa-heart"></i>
+                </button>
+              </div>
+
+              <div class="secure-notice">
+                <i class="fas fa-lock"></i>
+                <span
+                  >Your transaction is secure. We use industry-standard
+                  encryption to protect your data.</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Apostolic Church International</h3>
+            <p>Spreading hope, faith, and love to our community and beyond.</p>
+            <div class="social-links">
+              <a
+                href="https://www.facebook.com/share/17zhkYrQaF/"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-facebook-f"></i
+              ></a>
+              <a
+                href="https://www.instagram.com/apostolicchurchlouisvilleky?igsh=MWUxdHk2MDJrMnNoNg=="
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a
+                href="https://youtube.com/@theapostolicchurchint-loui9461?si=hv4FL_FE-CCdvp4z"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-youtube"></i
+              ></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="service.html">Services</a></li>
+              <li><a href="events.html">Events</a></li>
+              <li><a href="donate.html">Donation</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Service Times</h3>
+            <p>Morning Devotion: 6:00 AM - 6:45 AM</p>
+            <p>Sunday Service: 11:00 AM - 1:15 PM</p>
+            <p>Midweek Service: 7:48 PM - 9:00 PM</p>
+            <a href="service.html" class="btn-small">Learn More</a>
+          </div>
+          <div class="footer-section">
+            <h3>Contact Info</h3>
+            <p>
+              <i class="fas fa-map-marker-alt"></i> 1205 Durett Lane,
+              Louisville, KY 40213
+            </p>
+            <p><i class="fas fa-phone"></i> +1(302) 437-5593</p>
+            <p><i class="fas fa-envelope"></i> louisvilleapostolic@gmail.com</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2023 Apostolic Church USA. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+    <script src="js/script.js"></script>
+    <script src="js/donate.js"></script>
+  </body>
+</html>

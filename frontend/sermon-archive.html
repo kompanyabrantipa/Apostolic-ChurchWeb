@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Sermon Archive - Apostolic Church International, Louisville Kentucky
+    </title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;1,400&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:root {
+--color-primary: #D4B872;
+--color-secondary: #7C96AB;
+--color-white: #ffffff;
+--color-gray-50: #f9fafb;
+--color-gray-300: #d1d5db;
+--color-gray-400: #9ca3af;
+--color-gray-600: #4b5563;
+--color-gray-700: #374151;
+--color-gray-800: #1f2937;
+}
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: 'Open Sans', sans-serif;
+background-color: var(--color-gray-50);
+min-height: 100vh;
+line-height: 1.5;
+color: var(--color-gray-800);
+}
+:where([class^="ri-"])::before {
+content: "\f3c2";
+}
+.hero-bg {
+background-image: url('https://readdy.ai/api/search-image?query=Peaceful%20church%20interior%20with%20warm%20sunlight%20streaming%20through%20stained%20glass%20windows%2C%20soft%20golden%20hour%20lighting%2C%20empty%20wooden%20pews%20leading%20to%20altar%2C%20serene%20spiritual%20atmosphere%2C%20clean%20modern%20church%20architecture%20with%20traditional%20elements%2C%20warm%20cream%20and%20gold%20tones%2C%20gentle%20shadows%2C%20inspiring%20sacred%20space&width=1920&height=1080&seq=church-hero-001&orientation=landscape');
+background-size: cover;
+background-position: center;
+background-attachment: fixed;
+min-height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+}
+.gradient-overlay {
+background: linear-gradient(135deg, rgba(245, 240, 230, 0.9) 0%, rgba(124, 150, 171, 0.8) 100%);
+position: absolute;
+inset: 0;
+}
+.hero-content {
+position: relative;
+z-index: 10;
+text-align: center;
+max-width: 64rem;
+margin: 0 auto;
+padding: 0 1.5rem;
+}
+h1, h2, h3, h4, h5, h6 {
+font-family: 'Playfair Display', serif;
+}
+.hero-title {
+font-size: clamp(2.5rem, 5vw, 4.5rem);
+font-weight: 600;
+color: var(--color-white);
+margin-bottom: 1.5rem;
+text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+line-height: 1.2;
+}
+.hero-subtitle {
+font-size: clamp(1.5rem, 3vw, 1.875rem);
+color: var(--color-white);
+margin-bottom: 2rem;
+text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.hero-quote {
+font-family: 'Lora', serif;
+font-style: italic;
+font-size: clamp(1.125rem, 2vw, 1.25rem);
+color: rgba(255, 255, 255, 0.9);
+max-width: 36rem;
+margin: 0 auto;
+line-height: 1.6;
+text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.services-section {
+padding: 5rem 1.5rem;
+background: linear-gradient(to bottom, var(--color-gray-50), var(--color-white));
+}
+.container {
+max-width: 72rem;
+margin: 0 auto;
+}
+.section-header {
+text-align: center;
+margin-bottom: 4rem;
+}
+.section-title {
+font-size: clamp(2rem, 4vw, 3rem);
+font-weight: 600;
+color: var(--color-gray-800);
+margin-bottom: 1.5rem;
+}
+.section-description {
+font-size: 1.125rem;
+color: var(--color-gray-600);
+max-width: 36rem;
+margin: 0 auto;
+}
+.cards-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 2rem;
+max-width: 64rem;
+margin: 0 auto;
+}
+.card {
+border-radius: 1rem;
+padding: 2rem;
+text-align: center;
+color: var(--color-white);
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+transition: all 0.3s ease;
+text-decoration: none;
+display: block;
+}
+.card:hover {
+transform: translateY(-4px);
+box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+.youtube-card {
+background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+}
+.facebook-card {
+background: linear-gradient(135deg, #1877F2 0%, #0D5DBF 100%);
+}
+.card-icon {
+width: 4rem;
+height: 4rem;
+margin: 0 auto 1.5rem;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2.5rem;
+}
+.card-title {
+font-size: 1.5rem;
+font-weight: 600;
+margin-bottom: 1rem;
+}
+.card-description {
+color: rgba(255, 255, 255, 0.9);
+margin-bottom: 1.5rem;
+}
+.card-link {
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 500;
+}
+.card-link i {
+margin-left: 0.5rem;
+}
+
+
+</style>
+
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="images/logo.png"
+              alt="Apostolic Church International Logo"
+              class="logo-image"
+            />
+            <span class="logo-text">Apostolic Church International, Louisville Assembly</span>
+          </a>
+        </div>
+        <nav>
+          <button class="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <ul class="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="leadership.html">Leadership</a></li>
+            <li class="has-dropdown">
+              <a href="service.html"
+                >Services <i class="fas fa-chevron-down"></i
+              ></a>
+              <ul class="dropdown-menu">
+                <li><a href="service.html">Services Info</a></li>
+                <li><a href="events.html">Events</a></li>
+                <li><a href="calendar.html">Calendar</a></li>
+                <li><a href="blog.html">Blog</a></li>
+              </ul>
+            </li>
+            <li><a href="sermon-archive.html " class="active">Sermons</a></li>
+            <li><a href="donate.html">Donate</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <section class="page-header">
+        <div class="container">
+          <h1>Sermon Archive</h1>
+          <p>Listen to past messages and grow in your faith</p>
+        </div>
+      </section>
+<section class="services-section">
+<div class="container">
+<div class="section-header">
+<h3 class="section-title">Experience Our Services</h3>
+<p class="section-description">Connect with our community through live streaming or catch up on previous sermons. Choose your preferred platform below.</p>
+</div>
+<div class="cards-grid">
+<a href="https://youtube.com/@theapostolicchurchint-loui9461?si=hv4FL_FE-CCdvp4z" class="card youtube-card">
+<div class="card-icon">
+<i class="ri-youtube-fill"></i>
+</div>
+<h4 class="card-title">Watch on YouTube</h4>
+<p class="card-description">Join thousands of viewers for live services and access our complete sermon library</p>
+<div class="card-link">
+<span>Watch Now</span>
+<i class="ri-arrow-right-line"></i>
+</div>
+</a>
+<a href="https://www.facebook.com/share/17zhkYrQaF/" class="card facebook-card">
+<div class="card-icon">
+<i class="ri-facebook-fill"></i>
+</div>
+<h4 class="card-title">Stream on Facebook</h4>
+<p class="card-description">Connect with our church family and engage with fellow believers during live services</p>
+<div class="card-link">
+<span>Join Stream</span>
+<i class="ri-arrow-right-line"></i>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+      <section class="sermon-list alt-bg">
+        <div class="container">
+          <h2>Recent Sermons</h2>
+          <div class="sermon-filters">
+            <div class="filter-group">
+              <label for="speakerFilter">Filter by Speaker:</label>
+              <select id="speakerFilter">
+                <option value="all">All Speakers</option>
+                <option value="pastor-frempong">
+                  Pastor Martin Kofi Frempong
+                </option>
+                <option value="guest">Guest Speakers</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="sermonSearch">Search:</label>
+              <input
+                type="text"
+                id="sermonSearch"
+                placeholder="Search by title or topic"
+              />
+            </div>
+          </div>
+          <div id="sermonContainer" class="sermon-container">
+            <!-- Sermons will be loaded via JavaScript -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Apostolic Church International</h3>
+            <p>Spreading hope, faith, and love to our community and beyond.</p>
+            <div class="social-links">
+              <a
+                href="https://www.facebook.com/share/17zhkYrQaF/"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-facebook-f"></i
+              ></a>
+              <a
+                href="https://www.instagram.com/apostolicchurchlouisvilleky?igsh=MWUxdHk2MDJrMnNoNg=="
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a
+                href="https://youtube.com/@theapostolicchurchint-loui9461?si=hv4FL_FE-CCdvp4z"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-youtube"></i
+              ></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="service.html">Services</a></li>
+              <li><a href="events.html">Events</a></li>
+              <li><a href="donate.html">Donation</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Service Times</h3>
+            <p>Morning Devotion: 6:00 AM - 6:45 AM</p>
+            <p>Sunday Service: 11:00 AM - 1:15 PM</p>
+            <p>Midweek Service: 7:48 PM - 9:00 PM</p>
+            <a href="service.html" class="btn-small">Learn More</a>
+          </div>
+          <div class="footer-section">
+            <h3>Contact Info</h3>
+            <p>
+              <i class="fas fa-map-marker-alt"></i> 1205 Durrett Lane,
+              Louisville, KY 40213
+            </p>
+            <p><i class="fas fa-phone"></i> +1(302) 437-5593</p>
+            <p><i class="fas fa-envelope"></i> louisvilleapostolic@gmail.com</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2023 Apostolic Church USA. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script src="js/sermons.js"></script>
+  </body>
+</html>

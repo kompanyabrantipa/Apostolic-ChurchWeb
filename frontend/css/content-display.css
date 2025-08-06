@@ -1,0 +1,1097 @@
+
+/* Common styles */
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error-message, .no-content-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    background: #f8f8f8;
+    border-radius: 5px;
+}
+
+.error-message {
+    color: #dc3545;
+    background: #f8d7da;
+}
+
+/* Sermon Cards */
+.sermon-card {
+    display: flex;
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+.sermon-card:hover {
+    transform: translateY(-5px);
+}
+
+.sermon-thumbnail {
+    width: 200px;
+    min-height: 150px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0;
+}
+
+.sermon-thumbnail img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    max-width: none !important;
+    min-width: 100% !important;
+}
+
+.default-thumbnail {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #21214b;
+}
+
+.sermon-content {
+    flex: 1;
+    padding: 20px;
+}
+
+.sermon-content h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #21214b;
+}
+
+.sermon-meta {
+    margin-bottom: 15px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.sermon-speaker {
+    margin-left: 15px;
+}
+
+.sermon-actions {
+    margin-top: 15px;
+}
+
+/* Blog Cards */
+.blog-card {
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    padding: 0 !important;
+    box-sizing: border-box;
+    width: 100%;
+    position: static;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+}
+
+.blog-image {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    left: 0;
+    right: 0;
+    top: 0;
+}
+
+.blog-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center;
+    transition: transform 0.5s ease;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    max-width: none !important;
+    min-width: 100% !important;
+}
+
+.blog-card:hover .blog-image img {
+    transform: scale(1.05);
+}
+
+.blog-content {
+    padding: 20px;
+}
+
+.blog-content h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.blog-content h3 a {
+    color: #21214b;
+    text-decoration: none;
+}
+
+.blog-meta {
+    margin-bottom: 15px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.blog-summary {
+    margin-bottom: 15px;
+}
+
+.blog-actions {
+    margin-top: 15px;
+}
+
+/* Event Cards */
+.event-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "media"
+    "content";
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  width: 100%;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.event-date {
+  background: #21214b;
+  color: #fff;
+  text-align: center;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.event-day {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.event-month {
+  text-transform: uppercase;
+  font-size: 1rem;
+  margin-top: 4px;
+}
+
+.event-time {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.event-content {
+  padding: 25px;
+  flex: 1;
+}
+
+.event-title {
+  font-size: 1.5rem;
+  margin: 0 0 10px;
+  color: #21214b;
+}
+
+.event-meta {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.event-location {
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.event-description {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 15px;
+}
+
+.event-link {
+  font-weight: bold;
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.event-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .event-card {
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "media"
+      "content";
+  }
+
+  .event-date {
+    flex-direction: row;
+    justify-content: space-around;
+    min-width: 100%;
+    padding: 15px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .event-content {
+    padding: 20px;
+  }
+
+  .event-day {
+    font-size: 1.8rem;
+  }
+
+  .event-title {
+    font-size: 1.3rem;
+  }
+}
+
+/* ===== DYNAMIC EVENTS FROM ADMIN PORTAL ===== */
+/* Using exact styling from static events for consistency */
+
+/* Empty state message styling */
+.no-events-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+    font-size: 1.1rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    margin: 40px auto;
+    max-width: 500px;
+}
+
+.error-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: #e74c3c;
+    font-size: 1.1rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    margin: 40px auto;
+    max-width: 500px;
+}
+
+/* ===== SYNC NOTIFICATION STYLES ===== */
+.sync-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 0;
+    min-width: 280px;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideInNotification 0.4s ease-out forwards;
+}
+
+.sync-notification.fade-out {
+    animation: slideOutNotification 0.3s ease-in forwards;
+}
+
+.sync-notification-content {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 12px;
+}
+
+.sync-notification-content i {
+    font-size: 1.2rem;
+    animation: spin 2s linear infinite;
+}
+
+.sync-notification-content span {
+    font-size: 0.95rem;
+    font-weight: 500;
+    flex: 1;
+}
+
+@keyframes slideInNotification {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutNotification {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive notification */
+@media (max-width: 768px) {
+    .sync-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+
+    .sync-notification-content {
+        padding: 14px 16px;
+    }
+
+    .sync-notification-content span {
+        font-size: 0.9rem;
+    }
+}
+
+/* Blog Post */
+.blog-post {
+    background: white;
+    padding: 30px;
+    border-radius: 5px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.blog-post-title {
+    margin-top: 0;
+    color: #21214b;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.blog-post-meta {
+    color: #666;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.blog-post-image {
+    margin: 0 -30px 30px;
+    overflow: hidden;
+    position: relative;
+}
+
+.blog-post-image img {
+    width: 100% !important;
+    max-height: 500px;
+    object-fit: cover !important;
+    object-position: center;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    max-width: none !important;
+    min-width: 100% !important;
+}
+
+.blog-post-content {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.blog-post-content p {
+    margin-bottom: 20px;
+}
+
+.blog-post-navigation {
+    margin-bottom: 50px;
+}
+
+/* ===== UNIVERSAL CARD CONTAINER STYLING ===== */
+/* Ensure all image placeholder containers fill their parent cards completely */
+.card-media,
+.blog-image,
+.sermon-thumbnail,
+.event-card .card-media,
+.blog-card .blog-image,
+.sermon-card .sermon-thumbnail {
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: block !important;
+}
+
+/* Ensure blog and general card-media containers fill width */
+.card-media,
+.blog-image {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+}
+
+/* ===== UNIVERSAL CARD IMAGE STYLING ===== */
+/* Ensure all card images fill containers completely */
+.event-card img,
+.blog-card img,
+.sermon-card img,
+.card-media img,
+.media-thumb,
+.blog-image img,
+.sermon-thumbnail img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    max-width: none !important;
+    min-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* ===== MEDIA DISPLAY STYLES FOR CARDS ===== */
+.card-media {
+    width: 100% !important;
+    overflow: hidden;
+    border-radius: 12px;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    box-sizing: border-box !important;
+    display: block !important;
+    left: 0;
+    right: 0;
+}
+
+.media-thumb {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    display: block;
+    background-color: #f8f9fa;
+}
+
+.media-thumb:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    filter: brightness(1.05) contrast(1.05);
+}
+
+/* Ensure proper image loading states */
+.media-thumb[src=""], .media-thumb:not([src]) {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-thumb[src=""]:before, .media-thumb:not([src]):before {
+    content: '📷';
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+/* Video specific styles */
+.card-media video.media-thumb {
+    background: #000;
+}
+
+.card-media video.media-thumb::-webkit-media-controls-panel {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Audio media styles */
+.audio-media {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.audio-placeholder {
+    color: white;
+    margin-bottom: 15px;
+}
+
+.audio-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.audio-placeholder span {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.audio-player {
+    width: 100%;
+    max-width: 300px;
+    margin-top: 10px;
+}
+
+/* Blog post image compatibility */
+.post-image.card-media {
+    position: relative;
+}
+
+.post-image .category-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+/* Sermon card content wrapper */
+.sermon-card-content {
+    padding: 1rem;
+}
+
+/* Event card media positioning and optimization */
+.event-card .card-media {
+    grid-area: media;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    align-self: stretch;
+    justify-self: stretch;
+}
+
+.event-card .card-media .media-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center;
+    border-radius: 12px 12px 0 0;
+    transition: transform 0.4s ease, filter 0.3s ease;
+    display: block !important;
+    max-width: none !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0;
+    right: 0;
+    position: relative;
+}
+
+.event-card:hover .card-media .media-thumb {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Event card content area */
+.event-card .event-content,
+.event-card .card-content {
+    grid-area: content;
+    padding: 1.5rem;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Ensure event card media fills edge-to-edge */
+.event-card .card-media {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    transform: none !important;
+}
+
+/* Override any potential grid gap or spacing */
+.event-card {
+    gap: 0 !important;
+    grid-gap: 0 !important;
+    grid-row-gap: 0 !important;
+    grid-column-gap: 0 !important;
+}
+
+.event-card .card-media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Ensure no Bootstrap or framework constraints */
+.event-card .card-media .media-thumb,
+.event-card .card-media img {
+    max-width: none !important;
+    flex-shrink: 0 !important;
+    flex-grow: 1 !important;
+}
+
+.event-card .event-card-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    pointer-events: none;
+    width: auto;
+    height: auto;
+}
+
+.event-card .event-date-small {
+    position: relative;
+    top: 15px;
+    right: 15px;
+    background: rgba(33, 33, 75, 0.95);
+    color: #ffffff;
+    padding: 12px 16px;
+    border-radius: 12px;
+    text-align: center;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
+                0 3px 12px rgba(33, 33, 75, 0.5),
+                0 1px 3px rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    min-width: 65px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                 0 1px 2px rgba(0, 0, 0, 1);
+}
+
+.event-card .event-date-small .month {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 0.8px;
+    color: #ffffff;
+    opacity: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                 0 1px 2px rgba(0, 0, 0, 1),
+                 0 0 1px rgba(0, 0, 0, 1);
+}
+
+.event-card .event-date-small .day {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-top: 5px;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                 0 1px 3px rgba(0, 0, 0, 1),
+                 0 0 1px rgba(0, 0, 0, 1);
+}
+
+/* Enhanced visual consistency with blog posts */
+.event-card .card-media::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg, 
+        rgba(0, 0, 0, 0.1) 0%, 
+        rgba(0, 0, 0, 0.05) 50%, 
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.event-card:hover .card-media::before {
+    opacity: 1;
+}
+
+/* Ensure date badge stays above overlay */
+.event-card .event-card-header {
+    z-index: 15;
+}
+
+/* Responsive media styles */
+@media (max-width: 992px) {
+    .media-thumb {
+        height: 180px;
+    }
+
+    .blog-image {
+        height: 180px;
+    }
+
+    .sermon-thumbnail {
+        min-height: 135px;
+    }
+
+    .event-card .card-media {
+        height: 180px;
+        width: 100% !important;
+    }
+
+    .event-card .card-media .media-thumb {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100% !important;
+    }
+
+    /* Ensure all card images maintain full coverage */
+    .event-card img,
+    .blog-card img,
+    .sermon-card img,
+    .card-media img,
+    .media-thumb,
+    .blog-image img,
+    .sermon-thumbnail img {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100% !important;
+    }
+
+    /* Ensure containers fill parent cards completely on tablet */
+    .card-media,
+    .blog-image,
+    .sermon-thumbnail {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .event-card .event-date-small {
+        padding: 10px 14px;
+        min-width: 60px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35),
+                    0 2px 10px rgba(33, 33, 75, 0.4);
+    }
+
+    .event-card .event-date-small .month {
+        font-size: 0.8rem;
+        letter-spacing: 0.6px;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                     0 1px 2px rgba(0, 0, 0, 1),
+                     0 0 1px rgba(0, 0, 0, 1);
+    }
+
+    .event-card .event-date-small .day {
+        font-size: 1.4rem;
+        margin-top: 4px;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                     0 1px 3px rgba(0, 0, 0, 1),
+                     0 0 1px rgba(0, 0, 0, 1);
+    }
+}
+
+@media (max-width: 768px) {
+    .media-thumb {
+        height: 160px;
+    }
+
+    .blog-image {
+        height: 160px;
+    }
+
+    .sermon-thumbnail {
+        min-height: 120px;
+        width: 180px;
+    }
+
+    .event-card .card-media {
+        height: 160px;
+        width: 100% !important;
+    }
+
+    .event-card .card-media .media-thumb {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100% !important;
+    }
+
+    /* Ensure all card images maintain full coverage on mobile */
+    .event-card img,
+    .blog-card img,
+    .sermon-card img,
+    .card-media img,
+    .media-thumb,
+    .blog-image img,
+    .sermon-thumbnail img {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100% !important;
+    }
+
+    /* Ensure containers fill parent cards completely on mobile */
+    .card-media,
+    .blog-image,
+    .sermon-thumbnail {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .audio-media {
+        min-height: 100px;
+        padding: 15px;
+    }
+
+    .audio-placeholder i {
+        font-size: 1.5rem;
+    }
+
+    .event-card .event-date-small {
+        top: 12px;
+        right: 12px;
+        padding: 10px 12px;
+        min-width: 55px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4),
+                    0 2px 8px rgba(33, 33, 75, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .event-card .event-date-small .month {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                     0 1px 2px rgba(0, 0, 0, 1),
+                     0 0 1px rgba(0, 0, 0, 1);
+    }
+
+    .event-card .event-date-small .day {
+        font-size: 1.3rem;
+        margin-top: 4px;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                     0 1px 3px rgba(0, 0, 0, 1),
+                     0 0 1px rgba(0, 0, 0, 1);
+    }
+}
+
+@media (max-width: 480px) {
+    .media-thumb {
+        height: 140px;
+    }
+
+    .blog-image {
+        height: 140px;
+    }
+
+    .sermon-thumbnail {
+        min-height: 105px;
+        width: 160px;
+    }
+
+    .event-card .card-media {
+        height: 140px;
+        width: 100% !important;
+    }
+
+    .event-card .card-media .media-thumb {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100% !important;
+    }
+
+    /* Ensure all card images maintain full coverage on small mobile */
+    .event-card img,
+    .blog-card img,
+    .sermon-card img,
+    .card-media img,
+    .media-thumb,
+    .blog-image img,
+    .sermon-thumbnail img {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100% !important;
+    }
+
+    /* Ensure containers fill parent cards completely on small mobile */
+    .card-media,
+    .blog-image {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .sermon-thumbnail {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .event-card .event-date-small {
+        top: 10px;
+        right: 10px;
+        padding: 6px 8px;
+        min-width: 45px;
+    }
+
+    .event-card .event-date-small .month {
+        font-size: 0.65rem;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                     0 1px 2px rgba(0, 0, 0, 1),
+                     0 0 1px rgba(0, 0, 0, 1);
+    }
+
+    .event-card .event-date-small .day {
+        font-size: 1rem;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9),
+                     0 1px 3px rgba(0, 0, 0, 1),
+                     0 0 1px rgba(0, 0, 0, 1);
+    }
+}
+
+/* Mobile responsive styles for blog cards */
+@media (max-width: 768px) {
+    .blog-card {
+        margin-bottom: 20px;
+        position: static !important;
+        transform: none !important;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .blog-card:hover {
+        transform: none !important;
+    }
+
+    .blog-image {
+        height: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-card {
+        margin-bottom: 15px;
+        position: static !important;
+        transform: none !important;
+    }
+
+    .blog-card:hover {
+        transform: none !important;
+    }
+
+    .blog-image {
+        height: 160px;
+    }
+
+    .blog-content {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 360px) {
+    .blog-card {
+        margin-bottom: 12px;
+        position: static !important;
+        transform: none !important;
+    }
+
+    .blog-card:hover {
+        transform: none !important;
+    }
+
+    .blog-image {
+        height: 140px;
+    }
+
+    .blog-content {
+        padding: 12px;
+    }
+}

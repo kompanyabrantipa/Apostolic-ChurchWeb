@@ -17,7 +17,9 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
-    "seed-admin": "node backend/seedAdmin.js"
+    "seed-admin": "node backend/seedAdmin.js",
+    "start-advanced": "node backend/advanced-server/server.js",
+    "start-mongodb": "node backend/advanced-server/server-mongodb.js"
   },
   "keywords": [
     "church",

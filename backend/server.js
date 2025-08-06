@@ -34,8 +34,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '../')));
+// Serve static files from frontend directory
+app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
@@ -49,12 +49,12 @@ app.use('/api/admin', apiLimiter, adminRoutes);
 
 // Serve admin dashboard for any /dashboard route
 app.get('/dashboard*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dashboard.html'));
+  res.sendFile(path.join(__dirname, '../frontend/dashboard.html'));
 });
 
 // Serve login page
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '../login.html'));
+  res.sendFile(path.join(__dirname, '../frontend/login.html'));
 });
 
 // Error handling middleware

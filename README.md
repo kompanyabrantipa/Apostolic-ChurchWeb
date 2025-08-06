@@ -51,36 +51,47 @@ A complete full-stack admin dashboard system for managing church website content
 
 ```
 Apostolic-2/
-├── backend/
-│   ├── admin/                 # Admin dashboard assets
-│   │   ├── css/
-│   │   │   └── admin.css     # Admin dashboard styles
-│   │   └── js/
-│   │       └── admin.js      # Admin dashboard functionality
-│   ├── data/                 # JSON data storage
-│   │   ├── admins.json       # Admin users
-│   │   ├── blog-posts.json   # Blog posts data
-│   │   ├── events.json       # Events data
-│   │   └── sermons.json      # Sermons data
-│   ├── middleware/           # Express middleware
-│   │   ├── auth.js          # JWT authentication
-│   │   └── validation.js    # Input validation & rate limiting
-│   ├── models/              # Data models
-│   │   └── DataStore.js     # JSON file data operations
-│   ├── routes/              # API routes
-│   │   ├── admin.js         # Admin dashboard API
-│   │   ├── auth.js          # Authentication routes
-│   │   ├── blog.js          # Blog posts API
-│   │   ├── events.js        # Events API
-│   │   ├── sermons.js       # Sermons API
-│   │   └── upload.js        # File upload API
-│   ├── uploads/             # Uploaded images storage
-│   ├── seedAdmin.js         # Admin user creation script
-│   └── server.js            # Main server file
-├── css/                     # Frontend styles
-├── js/                      # Frontend JavaScript
-├── images/                  # Static images
-├── *.html                   # Frontend pages
+├── frontend/                # Client-side files
+│   ├── *.html              # All HTML pages
+│   ├── css/                # Stylesheets
+│   │   ├── style.css       # Main stylesheet
+│   │   ├── admin.css       # Admin dashboard styles
+│   │   └── content-display.css # Content display styles
+│   ├── js/                 # JavaScript files
+│   │   ├── script.js       # Main JavaScript
+│   │   ├── admin.js        # Admin functionality
+│   │   ├── config.js       # Frontend configuration
+│   │   └── *.js            # Other JavaScript modules
+│   ├── images/             # Static images and assets
+│   └── uploads/            # User uploaded content
+├── backend/                # Server-side files
+│   ├── server.js           # Main server file
+│   ├── seedAdmin.js        # Admin user creation script
+│   ├── data/               # JSON data storage
+│   │   ├── admins.json     # Admin users
+│   │   ├── blog-posts.json # Blog posts data
+│   │   ├── events.json     # Events data
+│   │   └── sermons.json    # Sermons data
+│   ├── middleware/         # Express middleware
+│   │   ├── auth.js         # JWT authentication
+│   │   └── validation.js   # Input validation & rate limiting
+│   ├── models/             # Data models
+│   │   └── DataStore.js    # JSON file data operations
+│   ├── routes/             # API routes
+│   │   ├── admin.js        # Admin dashboard API
+│   │   ├── auth.js         # Authentication routes
+│   │   ├── blog.js         # Blog posts API
+│   │   ├── events.js       # Events API
+│   │   ├── sermons.js      # Sermons API
+│   │   └── upload.js       # File upload API
+│   ├── uploads/            # Backend uploaded files
+│   └── advanced-server/    # Advanced server implementation
+│       ├── server.js       # Advanced server with database
+│       ├── server-mongodb.js # MongoDB implementation
+│       ├── config/         # Database configuration
+│       ├── models/         # Database models
+│       ├── routes/         # Advanced API routes
+│       └── scripts/        # Utility scripts
 ├── package.json
 └── README.md
 ```
@@ -114,8 +125,16 @@ npm run seed-admin
 ### 3. Start the Server
 
 ```bash
-# Start the application
+# Start the simple server (default)
 npm start
+# or
+npm run dev
+
+# Start the advanced server with database features
+npm run start-advanced
+
+# Start the MongoDB server implementation
+npm run start-mongodb
 ```
 
 The application will be available at:
@@ -237,8 +256,9 @@ The system is designed for easy migration to MySQL. The `DataStore.js` model can
 ## 🎨 Customization
 
 ### Styling
-- Admin dashboard styles: `backend/admin/css/admin.css`
-- Frontend styles: `css/style.css`
+- Admin dashboard styles: `frontend/css/admin.css`
+- Frontend styles: `frontend/css/style.css`
+- Content display styles: `frontend/css/content-display.css`
 - Responsive design with mobile-first approach
 
 ### Configuration

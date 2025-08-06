@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Church Calendar - Apostolic Church International, Louisville Kentucky
+    </title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Calendar Page Specific Styles */
+      .calendar-page-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+        padding: 40px;
+        margin: 40px 0;
+      }
+
+      .calendar-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--gray-light);
+      }
+
+      .filter-btn {
+        padding: 8px 16px;
+        border-radius: 30px;
+        border: none;
+        background: var(--light-color);
+        color: var(--text-color);
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .filter-btn.active {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .filter-btn i {
+        font-size: 0.9rem;
+      }
+
+      .filter-btn.worship:hover {
+        background: rgba(58, 91, 191, 0.1);
+      }
+
+      .filter-btn.fellowship:hover {
+        background: rgba(245, 182, 66, 0.1);
+      }
+
+      .filter-btn.youth:hover {
+        background: rgba(107, 213, 225, 0.1);
+      }
+
+      .filter-btn.special:hover {
+        background: rgba(233, 60, 60, 0.1);
+      }
+
+      .filter-btn.prayer:hover {
+        background: rgba(124, 83, 195, 0.1);
+      }
+
+      .filter-btn.worship.active {
+        background: var(--primary-color);
+      }
+
+      .filter-btn.fellowship.active {
+        background: var(--secondary-color);
+      }
+
+      .filter-btn.youth.active {
+        background: var(--accent-color);
+      }
+
+      .filter-btn.special.active {
+        background: #e93c3c;
+      }
+
+      .filter-btn.prayer.active {
+        background: #7c53c3;
+      }
+
+      .calendar-view-toggle {
+        display: flex;
+        gap: 10px;
+        margin-left: auto;
+      }
+
+      .view-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: var(--light-color);
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .view-btn.active {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .event-list-view {
+        display: none;
+        margin-top: 30px;
+      }
+
+      .event-list-view.active {
+        display: block;
+      }
+
+      .event-list-item {
+        display: flex;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        background: var(--light-color);
+        transition: all 0.3s ease;
+      }
+
+      .event-list-item:hover {
+        background: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transform: translateY(-3px);
+      }
+
+      .event-list-date {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        flex-shrink: 0;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .event-list-date .month {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--primary-color);
+      }
+
+      .event-list-date .day {
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+
+      .event-list-content {
+        flex-grow: 1;
+      }
+
+      .event-list-item .event-type {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 8px;
+      }
+
+      .event-list-item .event-type.worship {
+        background: var(--primary-color);
+      }
+
+      .event-list-item .event-type.fellowship {
+        background: var(--secondary-color);
+      }
+
+      .event-list-item .event-type.youth {
+        background: var(--accent-color);
+      }
+
+      .event-list-item .event-type.special {
+        background: #e93c3c;
+      }
+
+      .event-list-item .event-type.prayer {
+        background: #7c53c3;
+      }
+
+      .event-list-item h4 {
+        margin: 0 0 10px;
+        font-size: 1.3rem;
+      }
+
+      .event-list-details {
+        display: flex;
+        gap: 20px;
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      .event-list-details span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .calendar-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid var(--gray-light);
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9rem;
+        color: var(--text-light);
+      }
+
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .legend-dot.worship {
+        background: var(--primary-color);
+      }
+
+      .legend-dot.fellowship {
+        background: var(--secondary-color);
+      }
+
+      .legend-dot.youth {
+        background: var(--accent-color);
+      }
+
+      .legend-dot.special {
+        background: #e93c3c;
+      }
+
+      .legend-dot.prayer {
+        background: #7c53c3;
+      }
+
+      /* Enhanced calendar styling for the dedicated page */
+      .calendar-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 6px;
+      }
+
+      .calendar-day {
+        height: 90px;
+      }
+
+      .calendar-day .day-number {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+      }
+
+      @media (max-width: 992px) {
+        .calendar-filters {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .calendar-view-toggle {
+          margin-left: 0;
+          margin-top: 10px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .calendar-page-container {
+          padding: 25px 20px;
+        }
+
+        .calendar-day {
+          height: 70px;
+        }
+
+        .event-list-item {
+          flex-direction: column;
+        }
+
+        .event-list-date {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+
+        .event-list-details {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="images/logo.png"
+              alt="Apostolic Church International Logo"
+              class="logo-image"
+            />
+            <span class="logo-text">Apostolic Church International, Louisville Assembly</span>
+          </a>
+        </div>
+        <nav>
+          <button class="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <ul class="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="leadership.html">Leadership</a></li>
+            <li class="has-dropdown">
+              <a href="service.html"
+                >Services <i class="fas fa-chevron-down"></i
+              ></a>
+              <ul class="dropdown-menu">
+                <li><a href="service.html" class="active">Services Info</a></li>
+                <li><a href="events.html">Events</a></li>
+                <li><a href="calendar.html">Calendar</a></li>
+                <li><a href="blog.html">Blog</a></li>
+              </ul>
+            </li>
+            <li><a href="sermon-archive.html">Sermons</a></li>
+            <li><a href="donate.html">Donate</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-header">
+        <div class="container">
+          <h1>Church Calendar</h1>
+          <p>Stay up to date with all our activities</p>
+        </div>
+      </section>
+
+      <section class="main-content">
+        <div class="container">
+          <div class="calendar-page-container" data-aos="fade-up">
+            <div class="calendar-filters">
+              <button class="filter-btn all active" data-filter="all">
+                <i class="fas fa-calendar-alt"></i> All Events
+              </button>
+              <button class="filter-btn worship" data-filter="worship">
+                <i class="fas fa-music"></i> Worship
+              </button>
+              <button class="filter-btn fellowship" data-filter="fellowship">
+                <i class="fas fa-users"></i> Fellowship
+              </button>
+              <button class="filter-btn youth" data-filter="youth">
+                <i class="fas fa-rocket"></i> Youth
+              </button>
+              <button class="filter-btn special" data-filter="special">
+                <i class="fas fa-star"></i> Special Events
+              </button>
+              <button class="filter-btn prayer" data-filter="prayer">
+                <i class="fas fa-hands-praying"></i> Prayer
+              </button>
+
+              <div class="calendar-view-toggle">
+                <button
+                  class="view-btn active"
+                  id="calendarViewBtn"
+                  title="Calendar View"
+                >
+                  <i class="fas fa-th"></i>
+                </button>
+                <button class="view-btn" id="listViewBtn" title="List View">
+                  <i class="fas fa-list"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="calendar-header">
+              <h3>October 2023</h3>
+              <div class="calendar-nav">
+                <a href="#" class="calendar-nav-btn"
+                  ><i class="fas fa-chevron-left"></i
+                ></a>
+                <a href="#" class="calendar-nav-btn"
+                  ><i class="fas fa-chevron-right"></i
+                ></a>
+              </div>
+            </div>
+
+            <div class="calendar-body">
+              <!-- Calendar will be rendered here via JavaScript -->
+            </div>
+
+            <div class="event-list-view">
+              <!-- List view of events for the current month -->
+            </div>
+
+            <div class="calendar-legend">
+              <div class="legend-item">
+                <span class="legend-dot worship"></span> Worship
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot fellowship"></span> Fellowship
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot youth"></span> Youth
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot special"></span> Special Event
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot prayer"></span> Prayer
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center" data-aos="fade-up">
+            <a href="#" class="btn" id="downloadCalendarBtn">
+              <i class="fas fa-download"></i> Download Calendar
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Apostolic Church International, Louisville Assembly</h3>
+            <p>Spreading hope, faith, and love to our community and beyond.</p>
+            <div class="social-links">
+              <a
+                href="https://www.facebook.com/share/17zhkYrQaF/"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-facebook-f"></i
+              ></a>
+              <a
+                href="https://www.instagram.com/apostolicchurchlouisvilleky?igsh=MWUxdHk2MDJrMnNoNg=="
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a
+                href="https://youtube.com/@theapostolicchurchint-loui9461?si=hv4FL_FE-CCdvp4z"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-youtube"></i
+              ></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="service.html">Services</a></li>
+              <li><a href="events.html">Events</a></li>
+              <li><a href="donate.html">Donation</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Service Times</h3>
+            <p>Morning Devotion: 6:00 AM - 6:45 AM</p>
+            <p>Sunday Service: 11:00 AM - 1:15 PM</p>
+            <p>Friday Service: 7:45 PM - 9:00 PM</p>
+            <a href="service.html" class="btn-small">Learn More</a>
+          </div>
+          <div class="footer-section">
+            <h3>Contact Info</h3>
+            <p>
+              <i class="fas fa-map-marker-alt"></i> 1205 Durrett Lane,
+              Louisville, KY 40213
+            </p>
+            <p><i class="fas fa-phone"></i> +1(302) 437-5593</p>
+            <p><i class="fas fa-envelope"></i> louisvilleapostolic@gmail.com</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2025 Apostolic Church USA. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script src="js/event-sync.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Toggle between calendar and list view
+        const calendarViewBtn = document.getElementById("calendarViewBtn");
+        const listViewBtn = document.getElementById("listViewBtn");
+        const calendarBody = document.querySelector(".calendar-body");
+        const eventListView = document.querySelector(".event-list-view");
+
+        calendarViewBtn.addEventListener("click", function () {
+          calendarViewBtn.classList.add("active");
+          listViewBtn.classList.remove("active");
+          calendarBody.style.display = "block";
+          eventListView.classList.remove("active");
+        });
+
+        listViewBtn.addEventListener("click", function () {
+          listViewBtn.classList.add("active");
+          calendarViewBtn.classList.remove("active");
+          calendarBody.style.display = "none";
+          eventListView.classList.add("active");
+
+          // Generate the list view
+          generateEventList();
+        });
+
+        // Filter events
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        let activeFilter = "all";
+
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            filterButtons.forEach((btn) => btn.classList.remove("active"));
+            this.classList.add("active");
+
+            activeFilter = this.getAttribute("data-filter");
+
+            // Apply filter to calendar or list view
+            if (calendarViewBtn.classList.contains("active")) {
+              filterCalendarEvents(activeFilter);
+            } else {
+              generateEventList(activeFilter);
+            }
+          });
+        });
+
+        function filterCalendarEvents(filter) {
+          const eventDots = document.querySelectorAll(".event-dot");
+          const eventCells = document.querySelectorAll(".has-event");
+
+          if (filter === "all") {
+            eventDots.forEach((dot) => (dot.style.display = "block"));
+            eventCells.forEach((cell) => cell.classList.add("has-event"));
+          } else {
+            eventDots.forEach((dot) => {
+              if (dot.classList.contains(filter)) {
+                dot.style.display = "block";
+              } else {
+                dot.style.display = "none";
+              }
+            });
+
+            // Update the has-event class based on visible dots
+            eventCells.forEach((cell) => {
+              const visibleDots = Array.from(
+                cell.querySelectorAll(".event-dot")
+              ).filter((dot) => dot.style.display !== "none");
+
+              if (visibleDots.length === 0) {
+                cell.classList.remove("has-event");
+              } else {
+                cell.classList.add("has-event");
+              }
+            });
+          }
+        }
+
+        function generateEventList(filter = "all") {
+          const eventListContainer = document.querySelector(".event-list-view");
+          eventListContainer.innerHTML = "";
+
+          let currentDate = new Date();
+          let currentMonth = currentDate.getMonth();
+          let currentYear = currentDate.getFullYear();
+
+          // Load events from localStorage (admin-uploaded events)
+          let events = [];
+          try {
+            const storedEvents = JSON.parse(
+              localStorage.getItem("events") || "[]"
+            );
+            const publishedEvents = storedEvents.filter(
+              (event) => event.status === "published"
+            );
+
+            // Convert to the format expected by the list view
+            events = publishedEvents.map((event) => {
+              const eventDate = new Date(event.date);
+              return {
+                date: eventDate,
+                title: event.title,
+                type: event.category || "general",
+                time: eventDate.toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                }),
+                location: event.location || "Church Location",
+              };
+            });
+
+            // Add sample events if no admin events exist (fallback)
+            if (events.length === 0) {
+              events = [
+                {
+                  date: new Date(2023, 9, 15),
+                  title: "Praise & Worship Night",
+                  type: "worship",
+                  time: "6:00 PM",
+                  location: "Main Sanctuary",
+                },
+                {
+                  date: new Date(2023, 9, 21),
+                  title: "Men's Breakfast",
+                  type: "fellowship",
+                  time: "8:00 AM",
+                  location: "Fellowship Hall",
+                },
+                {
+                  date: new Date(2023, 9, 25),
+                  title: "Youth Game Night",
+                  type: "youth",
+                  time: "7:48 PM",
+                  location: "Youth Center",
+                },
+                {
+                  date: new Date(2023, 9, 28),
+                  title: "Fall Harvest Festival",
+                  type: "special",
+                  time: "4:00 PM",
+                  location: "Church Grounds",
+                },
+                {
+                  date: new Date(2023, 9, 30),
+                  title: "Prayer Meeting",
+                  type: "prayer",
+                  time: "6:30 PM",
+                  location: "Prayer Room",
+                },
+              ];
+            }
+          } catch (error) {
+            console.error("Error loading events for list view:", error);
+            // Use sample events as fallback
+            events = [
+              {
+                date: new Date(2023, 9, 15),
+                title: "Praise & Worship Night",
+                type: "worship",
+                time: "6:00 PM",
+                location: "Main Sanctuary",
+              },
+            ];
+          }
+
+          // Filter events if needed
+          let filteredEvents = events;
+          if (filter !== "all") {
+            filteredEvents = events.filter((event) => event.type === filter);
+          }
+
+          // Sort events by date
+          filteredEvents.sort((a, b) => a.date - b.date);
+
+          if (filteredEvents.length === 0) {
+            const noEvents = document.createElement("p");
+            noEvents.textContent = "No events found for the selected filter.";
+            noEvents.style.textAlign = "center";
+            noEvents.style.padding = "20px";
+            noEvents.style.color = "var(--text-light)";
+            eventListContainer.appendChild(noEvents);
+            return;
+          }
+
+          // Generate list items
+          const monthNames = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ];
+
+          filteredEvents.forEach((event) => {
+            const listItem = document.createElement("div");
+            listItem.className = "event-list-item";
+
+            const dateDiv = document.createElement("div");
+            dateDiv.className = "event-list-date";
+
+            const monthSpan = document.createElement("span");
+            monthSpan.className = "month";
+            monthSpan.textContent = monthNames[event.date.getMonth()]
+              .substring(0, 3)
+              .toUpperCase();
+
+            const daySpan = document.createElement("span");
+            daySpan.className = "day";
+            daySpan.textContent = event.date.getDate();
+
+            dateDiv.appendChild(monthSpan);
+            dateDiv.appendChild(daySpan);
+
+            const contentDiv = document.createElement("div");
+            contentDiv.className = "event-list-content";
+
+            const typeSpan = document.createElement("span");
+            typeSpan.className = `event-type ${event.type}`;
+            typeSpan.textContent =
+              event.type.charAt(0).toUpperCase() + event.type.slice(1);
+
+            const title = document.createElement("h4");
+            title.textContent = event.title;
+
+            const details = document.createElement("div");
+            details.className = "event-list-details";
+
+            const timeSpan = document.createElement("span");
+            timeSpan.innerHTML = `<i class="far fa-clock"></i> ${event.time}`;
+
+            const locationSpan = document.createElement("span");
+            locationSpan.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${event.location}`;
+
+            details.appendChild(timeSpan);
+            details.appendChild(locationSpan);
+
+            contentDiv.appendChild(typeSpan);
+            contentDiv.appendChild(title);
+            contentDiv.appendChild(details);
+
+            listItem.appendChild(dateDiv);
+            listItem.appendChild(contentDiv);
+
+            eventListContainer.appendChild(listItem);
+          });
+        }
+
+        // Download calendar button
+        document
+          .getElementById("downloadCalendarBtn")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+            alert("Calendar download functionality would be implemented here.");
+          });
+
+        // Make generateEventList globally accessible for event sync
+        window.updateEventList = generateEventList;
+
+        // Initialize event list
+        generateEventList();
+      });
+    </script>
+  </body>
+</html>

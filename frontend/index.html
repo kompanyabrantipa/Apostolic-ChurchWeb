@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Apostolic Church International, Louisville Assembly - Louisville, Kentucky
+    </title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Force remove all preview icons except footer social icons */
+      .preview-icon {
+        display: none !important;
+      }
+
+      /* Make sure no hover effects change the icon display */
+      .preview-card:hover .preview-icon {
+        display: none !important;
+      }
+
+      /* Ensure footer social icons are visible */
+      footer .social-links .social-icon i {
+        display: inline-block !important;
+        font-size: 18px;
+        width: 20px;
+        height: 20px;
+        color: #fff;
+      }
+
+      footer .social-links .social-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+      }
+
+      footer .social-links .social-icon:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="images/logo.png"
+              alt="Apostolic Church International, Louisville Assembly Logo"
+              class="logo-image"
+            />
+            <span class="logo-text"
+              >Apostolic Church International, Louisville Assembly</span
+            >
+          </a>
+        </div>
+        <nav>
+          <button class="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <ul class="nav-menu">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="leadership.html">Leadership</a></li>
+            <li class="has-dropdown">
+              <a href="service.html"
+                >Services <i class="fas fa-chevron-down"></i
+              ></a>
+              <ul class="dropdown-menu">
+                <li><a href="service.html">Services Info</a></li>
+                <li><a href="events.html">Events</a></li>
+                <li><a href="calendar.html">Calendar</a></li>
+                <li><a href="blog.html">Blog</a></li>
+              </ul>
+            </li>
+            <li><a href="sermon-archive.html">Sermons</a></li>
+            <li><a href="donate.html">Donate</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Section with Slideshow -->
+      <section class="hero-section">
+        <div class="slideshow-container">
+          <div
+            class="slideshow-slide active"
+            style="background-image: url('images/p1.jpg')"
+          ></div>
+          <div
+            class="slideshow-slide"
+            style="background-image: url('images/p2.jpg')"
+          ></div>
+          <div
+            class="slideshow-slide"
+            style="background-image: url('images/p3.jpg')"
+          ></div>
+          <div
+            class="slideshow-slide"
+            style="background-image: url('images/g1.jpeg')"
+          ></div>
+          <div
+            class="slideshow-slide"
+            style="background-image: url('images/g2.jpeg')"
+          ></div>
+          <div
+            class="slideshow-slide"
+            style="background-image: url('images/g3.jpeg')"
+          ></div>
+        </div>
+        <div class="hero-content">
+          <div class="container">
+            <h1>
+              Welcome to Apostolic Church International, Louisville Assembly
+            </h1>
+            <p>
+              "Take heed to yourself and to the doctrine.Continue in them, for
+              in doing this you will save both yourself and those who hear you"
+              1 Timothy 4:16
+            </p>
+            <div class="hero-buttons">
+              <a href="contact.html" class="btn btn-primary">Connect with Us</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dynamic Preview Section (Replacing Mission Section) -->
+      <section class="preview-section">
+        <div class="container">
+          <div class="section-heading centered">
+            <h2>Experience Apostolic Church</h2>
+            <p>Discover the different ways you can connect and grow with us</p>
+          </div>
+
+          <div class="preview-grid">
+            <div class="preview-card">
+              <div class="preview-image">
+                <img
+                  src="images/WhatsApp Image 2025-05-16 at 21.54.02_9733dd1b.jpg"
+                  alt="Sunday Worship"
+                  style="width: 100%; height: 100%; object-fit: cover"
+                />
+                <div class="preview-overlay"></div>
+              </div>
+              <div class="preview-content">
+                <h3>Worship With Us</h3>
+                <p>
+                  Experience powerful praise and worship in a welcoming
+                  environment where everyone can encounter God's presence.
+                </p>
+                <a href="service.html" class="btn-text"
+                  >Service Times <i class="fas fa-arrow-right"></i
+                ></a>
+              </div>
+            </div>
+
+            <div class="preview-card">
+              <div class="preview-image">
+                <img
+                  src="images/p2.jpg"
+                  alt="Family Ministry"
+                  style="width: 100%; height: 100%; object-fit: cover"
+                />
+                <div class="preview-overlay"></div>
+              </div>
+              <div class="preview-content">
+                <h3>Family Ministry</h3>
+                <p>
+                  Programs for all ages from nursery to youth groups to adult
+                  studies, helping families grow together in faith.
+                </p>
+                <a href="about.html" class="btn-text"
+                  >Learn More <i class="fas fa-arrow-right"></i
+                ></a>
+              </div>
+            </div>
+
+            <div class="preview-card">
+              <div class="preview-image">
+                <img
+                  src="images/WhatsApp Image 2025-05-16 at 17.08.34_f046dfb4.jpg"
+                  alt="Community Outreach"
+                  style="width: 100%; height: 100%; object-fit: cover"
+                />
+                <div class="preview-overlay"></div>
+              </div>
+              <div class="preview-content">
+                <h3>Community Outreach</h3>
+                <p>
+                  Making a difference in our neighborhood through service
+                  projects, food distribution, and support programs.
+                </p>
+                <a href="events.html" class="btn-text"
+                  >Get Involved <i class="fas fa-arrow-right"></i
+                ></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Resources Section (New Alternative) -->
+      <section class="resources-section">
+        <div class="container">
+          <div class="section-heading centered">
+            <h2>Grow Your Faith Journey</h2>
+            <p>
+              Discover tools and resources to strengthen your spiritual walk
+            </p>
+          </div>
+
+          <div class="resources-container">
+            <div class="resource-item">
+              <div class="resource-image">
+                <img
+                  src="images/WhatsApp Image 2025-05-16 at 17.11.05_81dd65c8.jpg"
+                  alt="Bible Study Resources"
+                  style="width: 100%; height: 100%; object-fit: cover"
+                />
+              </div>
+              <div class="resource-details">
+                <h3>Bible Study</h3>
+                <p>
+                  Access study guides, commentary, and tools to deepen your
+                  understanding of Scripture.
+                </p>
+                <a href="service.html" class="btn-primary">Explore Resources</a>
+              </div>
+            </div>
+
+            <div class="resource-item alt">
+              <div class="resource-details">
+                <h3>Prayer Guide</h3>
+                <p>
+                  Develop a more meaningful prayer life with our structured
+                  prayer guides and devotionals.
+                </p>
+                <a href="service.html" class="btn-primary">Download Guide</a>
+              </div>
+              <div class="resource-image">
+                <img
+                  src="images/WhatsApp Image 2025-05-16 at 17.18.14_b1e6e623.jpg"
+                  alt="Prayer Resources"
+                  style="width: 100%; height: 100%; object-fit: cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Upcoming Events Alternative -->
+      <section class="events-section">
+        <div class="container">
+          <div class="section-heading centered">
+            <h2>Join Us For Fellowship</h2>
+            <p>Upcoming opportunities to connect and grow together</p>
+          </div>
+
+          <div class="events-container">
+            <div class="event-item">
+             
+              <div class="event-info">
+                <h3>Morning Devotion - ZOOM</h3>
+                <p class="event-meta">
+                  <i class="fas fa-clock"></i> 6:00 AM - 6:45 AM |
+                  <i class="fas fa-map-marker-alt"></i> Mon-Fri
+                </p>
+                <p class="event-desc">Zoom Meeting ID number: 4494873392</p>
+              </div>
+              <div class="event-action">
+                <a href="service.html" class="btn-primary">Learn More</a>
+              </div>
+            </div>
+
+            <div class="event-item">
+             
+              <div class="event-info">
+                <h3>Friday Night Prayer Meeting</h3>
+                <p class="event-meta">
+                  <i class="fas fa-clock"></i> 7:45 PM - 9:00 PM |
+                  <i class="fas fa-map-marker-alt"></i> Church premises
+                </p>
+                <p class="event-desc">
+                  Prayer and worship to strengthen your faith and understanding.
+                </p>
+              </div>
+              <div class="event-action">
+                <a href="#" class="btn-primary">Learn More</a>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-info">
+                <h3>Sunday Service</h3>
+                <p class="event-meta">
+                  <i class="fas fa-clock"></i> 11:00 AM - 1:45 AM
+                  <i class="fas fa-map-marker-alt"></i> Church premises
+                </p>
+                <p class="event-desc">
+                  An in-depth study of Scripture to strengthen your faith and
+                  understanding
+                </p>
+              </div>
+              <div class="event-action">
+                <a href="#" class="btn-primary">Learn More</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="event-item">
+            <div class="event-info">
+              <h3>Friday Half-All Night Service</h3>
+              <p class="event-meta">
+                <i class="fas fa-clock"></i> 9:00 PM - 12:00 AM
+                <i class="fas fa-map-marker-alt"></i> Church premises
+              </p>
+              <p class="event-desc">
+                Join us fourth friday of every month as we intercede for our church and all families. 
+              </p>
+            </div>
+            <div class="event-action">
+              <a href="service.html" class="btn-primary">Learn More</a>
+            </div>
+          </div>
+        </div>
+
+          <div class="events-footer">
+            <a href="events.html" class="btn">View All Events</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <div class="container">
+          <h2>Join Us This Sunday</h2>
+          <p>Sunday Service: 11:00 AM - 1:15 PM</p>
+          <a href="service.html" class="btn">Join Live service</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Apostolic Church International, Louisville Assembly</h3>
+            <p>Spreading hope, faith, and love to our community and beyond.</p>
+            <div class="social-links">
+              <a
+                href="https://www.facebook.com/share/17zhkYrQaF/"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-facebook-f"></i
+              ></a>
+              <a
+                href="https://www.instagram.com/apostolicchurchlouisvilleky?igsh=MWUxdHk2MDJrMnNoNg=="
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a
+                href="https://youtube.com/@theapostolicchurchint-loui9461?si=hv4FL_FE-CCdvp4z"
+                class="social-icon"
+                target="_blank"
+                ><i class="fab fa-youtube"></i
+              ></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="service.html">Services</a></li>
+              <li><a href="events.html">Events</a></li>
+              <li><a href="donate.html">Donation</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Service Times</h3>
+            <p>Morning Devotion: 6:00 AM - 6:45 AM</p>
+            <p>Sunday Service: 11:00 AM - 1:15 PM</p>
+            <p>Midweek Service: 7:48 PM - 9:00 PM</p>
+            <a href="service.html" class="btn-small">Learn More</a>
+          </div>
+          <div class="footer-section">
+            <h3>Contact Info</h3>
+            <p>
+              <i class="fas fa-map-marker-alt"></i> 1205 Durrett Lane,
+              Louisville, KY 40213
+            </p>
+            <p><i class="fas fa-phone"></i> +1(302) 437-5593</p>
+            <p><i class="fas fa-envelope"></i> louisvilleapostolic@gmail.com</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2023 Apostolic Church USA. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script src="js/content-diagnostic.js"></script>
+    <script src="js/event-sync.js"></script>
+  </body>
+</html>

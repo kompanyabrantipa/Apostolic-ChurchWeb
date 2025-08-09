@@ -121,7 +121,6 @@ function createEventHTML(event) {
                 ${timeDisplay}
                 <p>${description}</p>
                 ${locationDisplay}
-                <a href="event-detail.html?id=${event.id}" class="btn-text">Event Details <i class="fas fa-arrow-right"></i></a>
             </div>
         </article>
     `;

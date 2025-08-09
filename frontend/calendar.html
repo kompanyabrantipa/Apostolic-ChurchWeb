@@ -331,7 +331,9 @@
               alt="Apostolic Church International Logo"
               class="logo-image"
             />
-            <span class="logo-text">Apostolic Church International, Louisville Assembly</span>
+            <span class="logo-text"
+              >Apostolic Church International, Louisville Assembly</span
+            >
           </a>
         </div>
         <nav>
@@ -519,6 +521,7 @@
 
     <script src="js/script.js"></script>
     <script src="js/event-sync.js"></script>
+    <script src="js/event-download.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         // Toggle between calendar and list view
@@ -771,13 +774,8 @@
           });
         }
 
-        // Download calendar button
-        document
-          .getElementById("downloadCalendarBtn")
-          .addEventListener("click", function (e) {
-            e.preventDefault();
-            alert("Calendar download functionality would be implemented here.");
-          });
+        // Download calendar button - functionality now handled by event-download.js
+        // The EventDownloadManager will automatically initialize this button
 
         // Make generateEventList globally accessible for event sync
         window.updateEventList = generateEventList;

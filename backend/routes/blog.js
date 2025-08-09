@@ -36,6 +36,7 @@ router.get('/', authMiddleware, async (req, res) => {
 router.get('/public', async (req, res) => {
   try {
     const posts = await blogStore.getPublic();
+    
     return res.json(posts);
   } catch (error) {
     console.error('Error getting public blog posts:', error);

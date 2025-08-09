@@ -530,11 +530,11 @@
 
 .media-thumb {
     width: 100%;
-    height: 200px;
+    height: 150px;
     object-fit: cover;
     object-position: center;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
     display: block;
     background-color: #f8f9fa;
@@ -572,9 +572,9 @@
 /* Audio media styles */
 .audio-media {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
+    padding: 15px;
     text-align: center;
-    min-height: 120px;
+    min-height: 90px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -625,7 +625,7 @@
 
 /* Sermon card content wrapper */
 .sermon-card-content {
-    padding: 1rem;
+    padding: 0.75rem;
 }
 
 /* Event card media positioning and optimization */
@@ -803,7 +803,7 @@
 /* Responsive media styles */
 @media (max-width: 992px) {
     .media-thumb {
-        height: 180px;
+        height: 135px;
     }
 
     .blog-image {
@@ -876,7 +876,7 @@
 
 @media (max-width: 768px) {
     .media-thumb {
-        height: 160px;
+        height: 120px;
     }
 
     .blog-image {
@@ -962,7 +962,7 @@
 
 @media (max-width: 480px) {
     .media-thumb {
-        height: 140px;
+        height: 105px;
     }
 
     .blog-image {

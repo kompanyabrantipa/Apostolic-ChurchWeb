@@ -1652,26 +1652,8 @@ function addSampleData() {
     }
     
     if (!localStorage.getItem('sermons')) {
-        // Sample sermons
-        const sampleSermons = [
-            {
-                id: '1',
-                title: 'Walking in Faith',
-                speaker: 'Pastor Johnson',
-                date: '2023-06-04T10:00:00Z',
-                description: 'A sermon about walking by faith and not by sight',
-                status: 'published'
-            },
-            {
-                id: '2',
-                title: 'The Power of Prayer',
-                speaker: 'Elder Smith',
-                date: '2023-05-28T10:00:00Z',
-                description: 'Understanding the importance and power of prayer in our daily lives',
-                status: 'published'
-            }
-        ];
-        localStorage.setItem('sermons', JSON.stringify(sampleSermons));
+        // DISABLED: No sample sermons to prevent unwanted content creation
+        localStorage.setItem('sermons', JSON.stringify([]));
     }
     
     console.log('Sample data added to localStorage');

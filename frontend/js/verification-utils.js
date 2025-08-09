@@ -348,24 +348,8 @@ window.testWithSampleData = function() {
         }
     ];
     
-    const sampleSermons = [
-        {
-            id: 'test-sermon-1',
-            title: 'Test Sermon 1',
-            speaker: 'Test Speaker',
-            date: new Date().toISOString(),
-            description: 'This is a test sermon',
-            status: 'published'
-        },
-        {
-            id: 'test-sermon-2',
-            title: 'Test Sermon 2',
-            speaker: 'Test Speaker 2',
-            date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-            description: 'This is another test sermon',
-            status: 'published'
-        }
-    ];
+    // DISABLED: No sample sermons to prevent unwanted content creation
+    const sampleSermons = [];
     
     const sampleEvents = [
         {
@@ -428,24 +412,8 @@ window.testWithBrokenData = function() {
         }
     ];
     
-    const sampleSermons = [
-        {
-            id: 'test-sermon-1',
-            title: 'Test Sermon 1',
-            // Missing speaker
-            date: new Date().toISOString(),
-            description: 'This is a test sermon',
-            status: 'published'
-        },
-        {
-            id: 'test-sermon-2',
-            // Missing title
-            speaker: 'Test Speaker 2',
-            date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-            description: 'This is another test sermon',
-            status: 'published'
-        }
-    ];
+    // DISABLED: No broken test sermons to prevent unwanted content creation
+    const sampleSermons = [];
     
     const sampleEvents = [
         {

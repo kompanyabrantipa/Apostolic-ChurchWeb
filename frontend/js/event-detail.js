@@ -75,6 +75,9 @@ function displayEventDetail(event) {
                 <button class="btn btn-primary" onclick="addToCalendar('${event.title}', '${event.date}', '${event.location}')">
                     <i class="fas fa-calendar-plus"></i> Add to Calendar
                 </button>
+                <button class="btn btn-secondary download-event-btn" onclick="downloadCurrentEvent('${event.id}')">
+                    <i class="fas fa-download"></i> Download Event
+                </button>
             </div>
         </article>
         <div class="event-navigation">
@@ -112,5 +115,22 @@ function showError(message) {
                 </div>
             </div>
         `;
+    }
+}
+
+function downloadCurrentEvent(eventId) {
+    try {
+        // Get event from localStorage
+        const events = JSON.parse(localStorage.getItem('events') || '[]');
+        const event = events.find(e => e.id === eventId && e.status === 'published');
+
+        if (event && window.eventDownloadManager) {
+            window.eventDownloadManager.generateAndDownloadICS(event);
+        } else {
+            alert('Unable to download event. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error downloading event:', error);
+        alert('Unable to download event. Please try again.');
     }
 }

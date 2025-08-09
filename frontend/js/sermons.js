@@ -95,7 +95,6 @@ function createSermonHTML(sermon) {
                 <div class="sermon-actions">
                     ${sermon.audioUrl ? `<a href="${sermon.audioUrl}" class="btn btn-sm"><i class="fas fa-headphones"></i> Listen</a>` : ''}
                     ${sermon.videoUrl ? `<a href="${sermon.videoUrl}" class="btn btn-sm"><i class="fas fa-video"></i> Watch</a>` : ''}
-                    <a href="sermon-detail.html?id=${sermon.id}" class="btn btn-sm"><i class="fas fa-info-circle"></i> Details</a>
                 </div>
             </div>
         </div>

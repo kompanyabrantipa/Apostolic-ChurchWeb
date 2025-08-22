@@ -12,8 +12,8 @@ router.get('/client', (req, res) => {
     const clientConfig = {
       environment: process.env.NODE_ENV || 'development',
       stripe: {
-        // Only expose publishable key (safe for client-side)
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_51RoXpfL498oAJ59VBDtpvH9n2mvk3wVUY9Uwd5IcU6xM1T15RRdgvMWP3G5XNG1lMJfs7vEj6uqPHloJdquKRDuy00mhpMZeNj'
+        // LIVE publishable key (safe for client-side) - PRODUCTION READY
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_live_51RoXpfL498oAJ59Vyd2YKh5B79oLSZkIbYTyxtOXbwr5SEWFlTbLWWiOAOAUBBLim9nT9YRZ6yvwyjhKTJ2wWRaF00SQehdjew'
       },
       api: {
         baseUrl: '/api',
@@ -62,7 +62,8 @@ router.get('/client.js', (req, res) => {
     const clientConfig = {
       environment: process.env.NODE_ENV || 'development',
       stripe: {
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_51RoXpfL498oAJ59VBDtpvH9n2mvk3wVUY9Uwd5IcU6xM1T15RRdgvMWP3G5XNG1lMJfs7vEj6uqPHloJdquKRDuy00mhpMZeNj'
+        // LIVE publishable key - PRODUCTION READY
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_live_51RoXpfL498oAJ59Vyd2YKh5B79oLSZkIbYTyxtOXbwr5SEWFlTbLWWiOAOAUBBLim9nT9YRZ6yvwyjhKTJ2wWRaF00SQehdjew'
       },
       api: {
         baseUrl: '/api',

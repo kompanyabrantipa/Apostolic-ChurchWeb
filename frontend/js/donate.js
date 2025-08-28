@@ -1,7 +1,6 @@
 // Initialize Stripe with enhanced configuration
 // Using environment-based configuration for security
-// LIVE KEY FALLBACK - Production ready
-const stripe = Stripe(window.Config?.stripe?.publishableKey || 'pk_live_51RoXpfL498oAJ59Vyd2YKh5B79oLSZkIbYTyxtOXbwr5SEWFlTbLWWiOAOAUBBLim9nT9YRZ6yvwyjhKTJ2wWRaF00SQehdjew');
+const stripe = Stripe(window.Config?.stripe?.publishableKey || 'pk_test_51RoXpfL498oAJ59VBDtpvH9n2mvk3wVUY9Uwd5IcU6xM1T15RRdgvMWP3G5XNG1lMJfs7vEj6uqPHloJdquKRDuy00mhpMZeNj');
 const elements = stripe.elements({
     fonts: [{
         cssSrc: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap'
@@ -40,89 +39,6 @@ const card = elements.create('card', {
 // Global variables for payment processing
 let paymentIntentClientSecret = null;
 let currentPaymentMethod = null;
-
-// API Configuration
-const API_BASE_URL = window.Config?.api?.baseUrl || '/api';
-
-/**
- * API Utility Functions for Payment Processing
- */
-
-// Create payment intent on the backend
-async function createPaymentIntent(donationData) {
-    try {
-        console.log('🔄 Creating payment intent...', donationData);
-
-        const response = await fetch(`${API_BASE_URL}/payments/create-intent`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                amount: parseFloat(donationData.amount),
-                currency: 'usd',
-                metadata: {
-                    fund: donationData.fund,
-                    frequency: donationData.frequency,
-                    donor_name: `${donationData.firstName} ${donationData.lastName}`,
-                    donor_email: donationData.email,
-                    donor_phone: donationData.phone || '',
-                    donor_address: donationData.address || '',
-                    donor_city: donationData.city || '',
-                    donor_state: donationData.state || '',
-                    donor_zip: donationData.zip || ''
-                }
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('✅ Payment intent created:', data);
-
-        if (!data.success || !data.data?.client_secret) {
-            throw new Error(data.message || 'Invalid response from payment server');
-        }
-
-        return data.data;
-    } catch (error) {
-        console.error('❌ Error creating payment intent:', error);
-        throw error;
-    }
-}
-
-// Confirm payment status with backend
-async function confirmPaymentStatus(paymentIntentId) {
-    try {
-        console.log('🔄 Confirming payment status...', paymentIntentId);
-
-        const response = await fetch(`${API_BASE_URL}/payments/confirm`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                payment_intent_id: paymentIntentId
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('✅ Payment status confirmed:', data);
-
-        return data;
-    } catch (error) {
-        console.error('❌ Error confirming payment status:', error);
-        throw error;
-    }
-}
 
 // Donation page initialization
 document.addEventListener('DOMContentLoaded', function() {
@@ -981,159 +897,70 @@ function initDonationCompletion() {
     }
 }
 
-// Process card payment - Complete end-to-end payment processing
-async function processCardPayment() {
+// Process card payment
+function processCardPayment() {
     // Validate card form
     const cardName = document.getElementById('cardName').value;
     if (!cardName) {
         showMessage('Please enter the name on your card', 'error');
         return;
     }
-
-    // Get and validate donation amount
-    const amount = document.getElementById('final-summary-amount').textContent.replace('$', '');
-    if (!isValidDonationAmount(amount)) {
-        showMessage('Invalid donation amount. Please enter an amount between $0.50 and $10,000.', 'error');
-        return;
-    }
-
-    // Validate email
-    const email = document.getElementById('email').value;
-    if (!email || !isValidEmail(email)) {
-        showMessage('Please enter a valid email address', 'error');
-        return;
-    }
-
+    
     // Show loading state
     const submitButton = document.getElementById('complete-donation');
     submitButton.disabled = true;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-    try {
-        // Get donation information
-        const amount = document.getElementById('final-summary-amount').textContent.replace('$', '');
-        const fund = document.getElementById('final-summary-fund').textContent;
-        const frequency = document.getElementById('final-summary-frequency').textContent;
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
-        const email = document.getElementById('email').value;
-        const address = document.getElementById('address').value;
-        const city = document.getElementById('city').value;
-        const state = document.getElementById('state').value;
-        const zip = document.getElementById('zip').value;
-        const phone = document.getElementById('phone').value;
-
-        // Prepare donation data
-        const donationData = {
-            amount,
-            fund,
-            frequency,
-            firstName,
-            lastName,
-            email,
-            address,
-            city,
-            state,
-            zip,
-            phone
-        };
-
-        console.log('🔄 Starting payment process...', donationData);
-
-        // Step 1: Create Payment Intent on backend
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating payment...';
-        const paymentIntentData = await createPaymentIntent(donationData);
-        paymentIntentClientSecret = paymentIntentData.client_secret;
-
-        console.log('✅ Payment intent created, confirming payment...');
-
-        // Step 2: Confirm payment with Stripe using the client secret
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming payment...';
-        const confirmResult = await stripe.confirmCardPayment(paymentIntentClientSecret, {
-            payment_method: {
-                card: card,
-                billing_details: {
-                    name: cardName,
-                    email: email,
-                    address: {
-                        line1: address,
-                        city: city,
-                        state: state,
-                        postal_code: zip
-                    }
-                }
-            }
-        });
-
-        if (confirmResult.error) {
-            // Payment failed - use enhanced error mapping
-            console.error('❌ Payment confirmation failed:', confirmResult.error);
-            const userFriendlyMessage = getStripeErrorMessage(confirmResult.error);
-            throw new Error(userFriendlyMessage);
+    
+    // Get donation information
+    const amount = document.getElementById('final-summary-amount').textContent.replace('$', '');
+    const fund = document.getElementById('final-summary-fund').textContent;
+    const frequency = document.getElementById('final-summary-frequency').textContent;
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
+    
+    // Create payment method with Stripe
+    stripe.createPaymentMethod({
+        type: 'card',
+        card: card,
+        billing_details: {
+            name: cardName,
+            email: email
         }
-
-        // Step 3: Verify payment status with backend
-        console.log('✅ Payment confirmed, verifying status...');
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying payment...';
-
-        const paymentIntent = confirmResult.paymentIntent;
-        if (paymentIntent.status === 'succeeded') {
-            // Payment successful - verify with backend
-            try {
-                await confirmPaymentStatus(paymentIntent.id);
-            } catch (verificationError) {
-                console.warn('⚠️ Payment succeeded but verification failed:', verificationError);
-                // Continue with success flow since payment actually succeeded
-            }
-
-            // Show success message
-            console.log('🎉 Payment completed successfully!');
-            showMessage(
-                `🎉 Thank you! Your ${frequency.toLowerCase()} donation of $${amount} to our ${fund} fund has been processed successfully. You will receive a confirmation email shortly.`,
-                'success'
-            );
-
-            // Reset form after 5 seconds
-            setTimeout(() => {
-                resetDonationForm();
-            }, 5000);
-
+    }).then(function(result) {
+        if (result.error) {
+            // Show error and restore button
+            showMessage(result.error.message, 'error');
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<span>Complete Donation</span><i class="fas fa-heart"></i>';
         } else {
-            // Payment requires additional action or failed
-            throw new Error(`Payment ${paymentIntent.status}. Please try again or contact support.`);
+            // In a real application, you would send the payment method ID to your server
+            // For demo purposes, we'll just show success
+            showMessage(`Thank you for your ${frequency.toLowerCase()} donation of ${amount} to our ${fund} fund!`, 'success');
+            
+            // Reset form after 3 seconds
+            setTimeout(() => {
+                // Reset to step 1
+                navigateToStep('1');
+                
+                // Reset form fields
+                document.getElementById('firstName').value = '';
+                document.getElementById('lastName').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('address').value = '';
+                document.getElementById('city').value = '';
+                document.getElementById('state').value = '';
+                document.getElementById('zip').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('cardName').value = '';
+                card.clear();
+                
+                // Reset buttons
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<span>Complete Donation</span><i class="fas fa-heart"></i>';
+            }, 3000);
         }
-
-    } catch (error) {
-        // Handle all errors with enhanced error processing
-        console.error('❌ Payment processing error:', error);
-
-        let errorMessage = 'Payment failed. Please try again.';
-
-        // Check if it's a Stripe error object
-        if (error.code || error.type) {
-            errorMessage = getStripeErrorMessage(error);
-        } else if (error.message) {
-            // Check for common network and API errors
-            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                errorMessage = 'Network error. Please check your internet connection and try again.';
-            } else if (error.message.includes('timeout')) {
-                errorMessage = 'Request timed out. Please try again.';
-            } else if (error.message.includes('HTTP error! status: 500')) {
-                errorMessage = 'Server error. Please try again in a few moments.';
-            } else if (error.message.includes('HTTP error! status: 400')) {
-                errorMessage = 'Invalid request. Please check your information and try again.';
-            } else {
-                errorMessage = error.message;
-            }
-        }
-
-        showMessage(errorMessage, 'error');
-
-    } finally {
-        // Always restore button state
-        submitButton.disabled = false;
-        submitButton.innerHTML = '<span>Complete Donation</span><i class="fas fa-heart"></i>';
-    }
+    });
 }
 
 // Process PayPal payment
@@ -1154,153 +981,25 @@ function processBankTransfer() {
     }, 3000);
 }
 
-// Reset donation form to initial state
-function resetDonationForm() {
-    console.log('🔄 Resetting donation form...');
-
-    // Reset to step 1
-    navigateToStep('1');
-
-    // Reset form fields
-    document.getElementById('firstName').value = '';
-    document.getElementById('lastName').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('address').value = '';
-    document.getElementById('city').value = '';
-    document.getElementById('state').value = '';
-    document.getElementById('zip').value = '';
-    document.getElementById('phone').value = '';
-    document.getElementById('cardName').value = '';
-
-    // Clear Stripe card element
-    if (card) {
-        card.clear();
-    }
-
-    // Reset global variables
-    paymentIntentClientSecret = null;
-    currentPaymentMethod = null;
-
-    // Clear any messages
-    const errorElement = document.getElementById('card-errors');
-    if (errorElement) {
-        errorElement.textContent = '';
-        errorElement.className = '';
-    }
-
-    // Reset button state
-    const submitButton = document.getElementById('complete-donation');
-    if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.innerHTML = '<span>Complete Donation</span><i class="fas fa-heart"></i>';
-    }
-
-    console.log('✅ Donation form reset complete');
-}
-
 // Show message to the user
 function showMessage(message, type) {
     const errorElement = document.getElementById('card-errors');
     if (!errorElement) return;
-
+    
     errorElement.textContent = message;
     errorElement.className = type === 'success' ? 'success-message' : 'error-message';
-
-    // Clear message after 10 seconds if it's a success message
+    
+    // Clear message after 5 seconds if it's a success message
     if (type === 'success') {
         setTimeout(() => {
             errorElement.textContent = '';
             errorElement.className = '';
-        }, 10000);
+        }, 5000);
     }
 }
 
-// Enhanced validation helpers
+// Email validation helper
 function isValidEmail(email) {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
-}
-
-// Validate donation amount
-function isValidDonationAmount(amount) {
-    const numAmount = parseFloat(amount);
-    return !isNaN(numAmount) && numAmount >= 0.50 && numAmount <= 10000;
-}
-
-// Enhanced error message mapping for Stripe errors
-function getStripeErrorMessage(error) {
-    const errorCode = error.code || error.type;
-    const errorMessage = error.message || '';
-
-    console.log('🔍 Processing Stripe error:', { code: errorCode, message: errorMessage });
-
-    switch (errorCode) {
-        case 'card_declined':
-            if (errorMessage.includes('generic_decline')) {
-                return 'Your card was declined. Please contact your bank or try a different card.';
-            } else if (errorMessage.includes('insufficient_funds')) {
-                return 'Insufficient funds. Please check your account balance or use a different card.';
-            } else if (errorMessage.includes('lost_card') || errorMessage.includes('stolen_card')) {
-                return 'This card has been reported as lost or stolen. Please use a different card.';
-            } else if (errorMessage.includes('expired_card')) {
-                return 'Your card has expired. Please use a different card.';
-            } else if (errorMessage.includes('incorrect_cvc')) {
-                return 'The security code (CVC) is incorrect. Please check and try again.';
-            } else if (errorMessage.includes('processing_error')) {
-                return 'A processing error occurred. Please try again in a few moments.';
-            } else if (errorMessage.includes('incorrect_number')) {
-                return 'The card number is incorrect. Please check and try again.';
-            }
-            return 'Your card was declined. Please try a different card or contact your bank.';
-
-        case 'expired_card':
-            return 'Your card has expired. Please use a different card.';
-
-        case 'incorrect_cvc':
-            return 'The security code (CVC) is incorrect. Please check and try again.';
-
-        case 'incorrect_number':
-            return 'The card number is incorrect. Please check and try again.';
-
-        case 'invalid_expiry_month':
-        case 'invalid_expiry_year':
-            return 'The expiration date is invalid. Please check and try again.';
-
-        case 'processing_error':
-            return 'A processing error occurred. Please try again in a few moments.';
-
-        case 'rate_limit':
-            return 'Too many requests. Please wait a moment and try again.';
-
-        case 'api_connection_error':
-        case 'api_error':
-            return 'Unable to connect to payment processor. Please check your internet connection and try again.';
-
-        case 'authentication_required':
-            return 'Your bank requires additional authentication. Please complete the authentication and try again.';
-
-        case 'amount_too_large':
-            return 'The donation amount is too large. Please enter a smaller amount.';
-
-        case 'amount_too_small':
-            return 'The minimum donation amount is $0.50. Please enter a larger amount.';
-
-        default:
-            // Return the original message if we don't have a specific mapping
-            return errorMessage || 'An unexpected error occurred. Please try again.';
-    }
-}
-
-// Network connectivity check
-async function checkNetworkConnectivity() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/health`, {
-            method: 'GET',
-            timeout: 5000
-        });
-        return response.ok;
-    } catch (error) {
-        console.warn('⚠️ Network connectivity check failed:', error);
-        return false;
-    }
-}
+} 

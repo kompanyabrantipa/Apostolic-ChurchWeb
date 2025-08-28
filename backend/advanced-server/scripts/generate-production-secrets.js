@@ -235,8 +235,8 @@ FROM_NAME=Apostolic Church International
 
 # Stripe API Keys (SECURE - LIVE PRODUCTION KEYS)
 # WARNING: These are LIVE keys - handle with extreme care and never commit to version control
-STRIPE_PUBLISHABLE_KEY=pk_live_51RoXpfL498oAJ59Vyd2YKh5B79oLSZkIbYTyxtOXbwr5SEWFlTbLWWiOAOAUBBLim9nT9YRZ6yvwyjhKTJ2wWRaF00SQehdjew
-STRIPE_SECRET_KEY=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
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
 
 # Stripe Webhook Configuration
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here

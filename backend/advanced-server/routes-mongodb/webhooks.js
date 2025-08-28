@@ -93,7 +93,6 @@ router.post('/stripe', express.raw({ type: 'application/json' }), async (req, re
 /**
  * @route   GET /api/webhooks/test
  * @desc    Test webhook endpoint configuration
- * @access  Public (for testing only)
  */
 router.get('/test', (req, res) => {
   res.json({

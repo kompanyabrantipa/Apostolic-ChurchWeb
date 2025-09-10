@@ -1,0 +1,11 @@
+{
+    "workbench.editor.alwaysShowEditorActions": true,
+    "workbench.editor.autoLockGroups": {
+        "default": true,
+        "workbench.editorinputs.searchEditorInput": true,
+        "application.ruleEditor": true,
+        "aicoder.qoder.textEditor": true,
+        "jupyter-notebook": true,
+        "imagePreview.previewEditor": true
+    }
+}

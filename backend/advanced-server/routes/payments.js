@@ -13,122 +13,61 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
  * @access  Public
  */
 router.post('/create-payment-intent', [
-  // Validation middleware
   body('amount').isFloat({ min: 1 }).withMessage('Amount must be at least $1'),
   body('currency').optional().isIn(['usd']).withMessage('Currency must be USD'),
   body('metadata').optional().isObject().withMessage('Metadata must be an object'),
-  body('metadata.fund').optional().isString().withMessage('Fund must be a string'),
-  body('metadata.frequency').optional().isString().withMessage('Frequency must be a string'),
-  body('metadata.donor_email').optional().isEmail().withMessage('Donor email must be valid'),
-  body('metadata.donor_name').optional().isString().withMessage('Donor name must be a string')
 ], async (req, res) => {
   try {
-    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: errors.array()
-      });
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
     }
 
     const { amount, currency = 'usd', metadata = {} } = req.body;
-
-    // Convert amount to cents (Stripe expects amounts in smallest currency unit)
     const amountInCents = Math.round(amount * 100);
 
-    // Validate amount
-    if (amountInCents < 50) { // Minimum $0.50 for Stripe
-      return res.status(400).json({
-        success: false,
-        message: 'Amount must be at least $0.50'
-      });
+    if (amountInCents < 50) {
+      return res.status(400).json({ success: false, message: 'Amount must be at least $0.50' });
     }
 
-    // Create payment intent with Stripe
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
-      currency: currency,
+      currency,
       metadata: {
-        // Add church-specific metadata
         church_name: 'Apostolic Church International',
         fund: metadata.fund || 'General Fund',
         frequency: metadata.frequency || 'one-time',
         donor_email: metadata.donor_email || '',
         donor_name: metadata.donor_name || '',
-        created_at: new Date().toISOString()
+        donation_source: 'website',
+        created_at: new Date().toISOString(),
       },
-      automatic_payment_methods: {
-        enabled: true,
-      },
-      // Add description for Stripe dashboard
-      description: `Donation to ${metadata.fund || 'General Fund'} - ${metadata.frequency || 'one-time'}`
+      automatic_payment_methods: { enabled: true },
+      description: `Donation to ${metadata.fund || 'General Fund'} - ${metadata.frequency || 'one-time'}`,
     });
 
-    // Log successful payment intent creation (for debugging)
     console.log(`✅ Payment Intent created: ${paymentIntent.id} for $${amount}`);
 
-    // Return client secret and payment intent details
     res.json({
       success: true,
       message: 'Payment intent created successfully',
       data: {
         client_secret: paymentIntent.client_secret,
         payment_intent_id: paymentIntent.id,
-        amount: amount,
-        currency: currency,
-        status: paymentIntent.status
-      }
+        amount,
+        currency,
+        status: paymentIntent.status,
+      },
     });
 
   } catch (error) {
     console.error('❌ Error creating payment intent:', error);
 
-    // Handle specific Stripe errors
-    if (error.type === 'StripeCardError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Card error: ' + error.message,
-        error_type: 'card_error'
-      });
-    } else if (error.type === 'StripeRateLimitError') {
-      return res.status(429).json({
-        success: false,
-        message: 'Too many requests made to the API too quickly',
-        error_type: 'rate_limit_error'
-      });
-    } else if (error.type === 'StripeInvalidRequestError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid parameters: ' + error.message,
-        error_type: 'invalid_request_error'
-      });
-    } else if (error.type === 'StripeAPIError') {
-      return res.status(500).json({
-        success: false,
-        message: 'An error occurred with our API',
-        error_type: 'api_error'
-      });
-    } else if (error.type === 'StripeConnectionError') {
-      return res.status(500).json({
-        success: false,
-        message: 'A network error occurred',
-        error_type: 'connection_error'
-      });
-    } else if (error.type === 'StripeAuthenticationError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication with Stripe failed',
-        error_type: 'authentication_error'
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        message: 'An unexpected error occurred while processing payment',
-        error_type: 'unknown_error'
-      });
-    }
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'An unexpected error occurred while processing payment',
+      error_type: error.type || 'unknown_error',
+    });
   }
 });
 
@@ -143,16 +82,10 @@ router.post('/confirm-payment', [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: errors.array()
-      });
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
     }
 
     const { payment_intent_id } = req.body;
-
-    // Retrieve payment intent from Stripe
     const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
 
     console.log(`✅ Payment Intent retrieved: ${paymentIntent.id} - Status: ${paymentIntent.status}`);
@@ -163,65 +96,45 @@ router.post('/confirm-payment', [
       data: {
         payment_intent_id: paymentIntent.id,
         status: paymentIntent.status,
-        amount: paymentIntent.amount / 100, // Convert back to dollars
+        amount: paymentIntent.amount / 100, // convert back to dollars
         currency: paymentIntent.currency,
-        metadata: paymentIntent.metadata
-      }
+        metadata: paymentIntent.metadata,
+      },
     });
 
   } catch (error) {
     console.error('❌ Error retrieving payment intent:', error);
-    
-    res.status(500).json({
-      success: false,
-      message: 'Failed to retrieve payment status',
-      error_type: 'retrieval_error'
-    });
+    res.status(500).json({ success: false, message: 'Failed to retrieve payment status', error_type: 'retrieval_error' });
   }
 });
 
 /**
  * @route   GET /api/payments/test
- * @desc    Test Stripe connection and configuration
- * @access  Public (for testing only)
+ * @desc    Test Stripe connection (dev only)
+ * @access  Public
  */
 router.get('/test', async (req, res) => {
-  try {
-    // Test Stripe connection by creating a minimal payment intent
-    const testPaymentIntent = await stripe.paymentIntents.create({
-      amount: 100, // $1.00
-      currency: 'usd',
-      metadata: {
-        test: 'true',
-        church_name: 'Apostolic Church International'
-      }
-    });
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ success: false, message: 'Test route disabled in production' });
+  }
 
-    // Immediately cancel the test payment intent
+  try {
+    const testPaymentIntent = await stripe.paymentIntents.create({
+      amount: 100,
+      currency: 'usd',
+      metadata: { test: 'true', church_name: 'Apostolic Church International' }
+    });
     await stripe.paymentIntents.cancel(testPaymentIntent.id);
 
     res.json({
       success: true,
       message: 'Stripe connection test successful',
-      data: {
-        stripe_connected: true,
-        test_payment_intent_created: true,
-        test_payment_intent_cancelled: true,
-        stripe_account: testPaymentIntent.client_secret ? 'Valid' : 'Invalid'
-      }
+      data: { stripe_connected: true, test_payment_intent_created: true, test_payment_intent_cancelled: true }
     });
 
   } catch (error) {
     console.error('❌ Stripe connection test failed:', error);
-    
-    res.status(500).json({
-      success: false,
-      message: 'Stripe connection test failed: ' + error.message,
-      data: {
-        stripe_connected: false,
-        error_type: error.type || 'unknown'
-      }
-    });
+    res.status(500).json({ success: false, message: 'Stripe connection test failed: ' + error.message });
   }
 });
 

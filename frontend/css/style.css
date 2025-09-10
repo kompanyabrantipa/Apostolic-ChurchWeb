@@ -1,8 +1,8 @@
 /* Enhanced Global Styles */
 :root {
-    --primary-color: #3a5bbf;
-    --primary-light: #5a78d7;
-    --primary-dark: #2a4395;
+    --primary-color: #4f51e1;
+    --primary-light: #6738d5;
+    --primary-dark: #453ddb;
     --secondary-color: #f5b642;
     --secondary-light: #ffd176;
     --secondary-dark: #d99618;
@@ -19,12 +19,12 @@
     --box-shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.15);
     --transition: all 0.3s ease;
     --border-radius: 15px;
-    --donation-primary: #28a745;
+    --donation-primary: #393bd3;
     --donation-secondary: #e0e0e0;
     --donation-light: #f8f9fa;
     --donation-dark: #333;
     --donation-border: #ccc;
-    --donation-gradient: linear-gradient(to right, #28a745, #e0e0e0);
+    --donation-gradient: linear-gradient(to right, #3134cd, #8659f0);
 }
 
 * {
@@ -3698,9 +3698,9 @@ footer::before {
 
 /* Enhanced Global Styles */
 :root {
-    --primary-color: #3a5bbf;
-    --primary-light: #5a78d7;
-    --primary-dark: #2a4395;
+    --primary-color: #6366f1;
+    --primary-light: #8b5cf6;
+    --primary-dark: #4f46e5;
     --secondary-color: #f5b642;
     --secondary-light: #ffd176;
     --secondary-dark: #d99618;
@@ -3717,12 +3717,12 @@ footer::before {
     --box-shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.15);
     --transition: all 0.3s ease;
     --border-radius: 15px;
-    --donation-primary: #28a745;
+    --donation-primary: #6366f1;
     --donation-secondary: #e0e0e0;
     --donation-light: #f8f9fa;
     --donation-dark: #333;
     --donation-border: #ccc;
-    --donation-gradient: linear-gradient(to right, #28a745, #e0e0e0);
+    --donation-gradient: linear-gradient(to right, #6366f1, #8b5cf6);
 }
 
 * {
@@ -10744,9 +10744,10 @@ footer::before {
 
 .amount-btn:hover,
 .amount-btn.active {
-    background: var(--donation-primary);
-    color: #fff;
-    border-color: var(--donation-primary);
+    background: var(--donation-primary, #28a745) !important;
+    color: #fff !important;
+    border-color: var(--donation-primary, #28a745) !important;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
 }
 
 .custom-amount-container {
@@ -12601,4 +12602,29 @@ footer::before {
     background-color: #4235db;
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(81, 66, 252, 0.3);
+}
+
+/* Enhanced donation form active states for better visibility */
+.amount-btn.active {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: 3px solid var(--primary-color) !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
+    font-weight: 700 !important;
+}
+
+/* Fund option active state enhancement */
+.fund-option input:checked + label {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    border-color: var(--primary-color) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
+    transform: scale(1.02) !important;
+}
+
+/* Frequency active state enhancement */
+.frequency-switch input:checked + label {
+    color: #fff !important;
+    font-weight: 700 !important;
 }

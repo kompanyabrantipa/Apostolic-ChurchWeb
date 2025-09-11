@@ -24,7 +24,7 @@ const Config = {
 
   // API Configuration
   api: {
-    baseUrl: isProduction ? '/api' : 'http://localhost:3001/api',
+    baseUrl: isProduction ? 'https://api.apostolicchurchlouisville.org/api' : 'http://localhost:3001/api',
     timeout: 10000
   },
 

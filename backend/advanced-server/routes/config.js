@@ -16,7 +16,7 @@ router.get('/client', (req, res) => {
         publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_51RoXpfL498oAJ59VBDtpvH9n2mvk3wVUY9Uwd5IcU6xM1T15RRdgvMWP3G5XNG1lMJfs7vEj6uqPHloJdquKRDuy00mhpMZeNj'
       },
       api: {
-        baseUrl: '/api',
+        baseUrl: process.env.NODE_ENV === 'production' ? 'https://api.apostolicchurchlouisville.org/api' : '/api',
         timeout: 10000
       },
       features: {
@@ -65,7 +65,7 @@ router.get('/client.js', (req, res) => {
         publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_51RoXpfL498oAJ59VBDtpvH9n2mvk3wVUY9Uwd5IcU6xM1T15RRdgvMWP3G5XNG1lMJfs7vEj6uqPHloJdquKRDuy00mhpMZeNj'
       },
       api: {
-        baseUrl: '/api',
+        baseUrl: process.env.NODE_ENV === 'production' ? 'https://api.apostolicchurchlouisville.org/api' : '/api',
         timeout: 10000
       },
       features: {

@@ -38,25 +38,23 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration
-const corsOptions = {
+
+const allowedOrigins = [
+  'https://apostolicchurchlouisville.org', 
+  'https://www.apostolicchurchlouisville.org'  
+];
+app.use(cors({
   origin: function (origin, callback) {
-    const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
-    
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // allow requests with no origin (like mobile apps, curl)
     if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
+
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
-  },
-  credentials: true, // Allow cookies to be sent
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
-};
-
-app.use(cors(corsOptions));
+  }
+}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

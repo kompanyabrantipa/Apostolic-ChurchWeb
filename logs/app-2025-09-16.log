@@ -1,0 +1,10 @@
+2025-09-16 15:17:51 [INFO]: Health Check {"service":"apostolic-church-backend","status":"healthy","environment":"production","https":false,"caching":false,"backups":false}
+2025-09-16 15:17:51 [INFO]: Production services initialized successfully {"service":"apostolic-church-backend"}
+2025-09-16 15:19:13 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"}
+2025-09-16 15:19:13 [ERROR]: Application Error {"service":"apostolic-church-backend","error":"ENOENT: no such file or directory, stat 'C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\backend\\index.html'","method":"GET","url":"/","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"}
+Error: ENOENT: no such file or directory, stat 'C:\Users\Lenovo\Desktop\Apostolic-2\backend\index.html'
+2025-09-16 15:19:13 [WARN]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/","statusCode":500,"duration":"56ms","contentLength":"51","ip":"::1"}
+2025-09-16 15:19:13 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/favicon.ico","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36","referer":"http://localhost:3001/"}
+2025-09-16 15:19:13 [ERROR]: Application Error {"service":"apostolic-church-backend","error":"ENOENT: no such file or directory, stat 'C:\\Users\\Lenovo\\Desktop\\Apostolic-2\\backend\\index.html'","method":"GET","url":"/favicon.ico","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"}
+Error: ENOENT: no such file or directory, stat 'C:\Users\Lenovo\Desktop\Apostolic-2\backend\index.html'
+2025-09-16 15:19:13 [WARN]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/favicon.ico","statusCode":500,"duration":"6ms","contentLength":"51","ip":"::1"}

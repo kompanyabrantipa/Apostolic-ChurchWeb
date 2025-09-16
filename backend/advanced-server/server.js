@@ -20,7 +20,7 @@ const webhookRoutes = require('./routes/webhooks');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// routes before body paser
+// routes before body
 app.use('/api/webhooks', webhookRoutes);
 
 // Security middleware

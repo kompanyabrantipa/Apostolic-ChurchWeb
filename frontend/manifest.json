@@ -1,0 +1,72 @@
+{
+  "name": "Apostolic Church International, Louisville Assembly",
+  "short_name": "Apostolic Church Louisville",
+  "description": "Official website of Apostolic Church International, Louisville Assembly - Spreading hope, faith, and love to our community and beyond.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#6366f1",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "images/logo.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["religion", "community", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Donate",
+      "short_name": "Donate",
+      "description": "Support our ministry",
+      "url": "/donate.html",
+      "icons": [
+        {
+          "src": "images/logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Service Times",
+      "short_name": "Services",
+      "description": "View our service schedule",
+      "url": "/service.html",
+      "icons": [
+        {
+          "src": "images/logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Contact Us",
+      "short_name": "Contact",
+      "description": "Get in touch with us",
+      "url": "/contact.html",
+      "icons": [
+        {
+          "src": "images/logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

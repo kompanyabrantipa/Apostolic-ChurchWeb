@@ -20,6 +20,8 @@ const webhookRoutes = require('./routes/webhooks');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.use('/api/webhooks', webhookRoutes);
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: false, // Disable for development (enable in production)
@@ -71,7 +73,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/sermons', sermonRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/webhooks', webhookRoutes);
+
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {

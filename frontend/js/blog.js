@@ -49,55 +49,110 @@ function loadBlogPosts(loadMore = false) {
     console.log('Found blog container:', postsGrid.className);
 
     try {
-        // Get blogs from localStorage
-        const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+        // Use DataService to get blogs from API
+        if (typeof DataService !== 'undefined' && DataService.getPublished) {
+            DataService.getPublished('blogs').then(publishedBlogs => {
+                // Sort by date (newest first)
+                publishedBlogs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
-        // Filter published blogs only and sort by date (newest first)
-        const publishedBlogs = blogs
-            .filter(blog => blog.status === 'published')
-            .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                if (publishedBlogs.length === 0) {
+                    postsGrid.innerHTML = '<div class="no-content">No blog posts available at this time.</div>';
+                    updateLoadMoreButton(false, false);
+                    return;
+                }
 
-        if (publishedBlogs.length === 0) {
-            postsGrid.innerHTML = '<div class="no-content">No blog posts available at this time.</div>';
-            updateLoadMoreButton(false, false);
-            return;
-        }
+                // Store all posts for pagination
+                blogPagination.allPosts = publishedBlogs;
 
-        // Store all posts for pagination
-        blogPagination.allPosts = publishedBlogs;
+                if (!loadMore) {
+                    // Initial load - reset pagination
+                    blogPagination.currentPage = 0;
+                    blogPagination.displayedPosts = [];
+                }
 
-        if (!loadMore) {
-            // Initial load - reset pagination
-            blogPagination.currentPage = 0;
-            blogPagination.displayedPosts = [];
-        }
+                // Calculate posts to display
+                const startIndex = blogPagination.currentPage * blogPagination.postsPerPage;
+                const endIndex = startIndex + blogPagination.postsPerPage;
+                const newPosts = publishedBlogs.slice(startIndex, endIndex);
 
-        // Calculate posts to display
-        const startIndex = blogPagination.currentPage * blogPagination.postsPerPage;
-        const endIndex = startIndex + blogPagination.postsPerPage;
-        const newPosts = publishedBlogs.slice(startIndex, endIndex);
+                // Add new posts to displayed posts
+                blogPagination.displayedPosts = blogPagination.displayedPosts.concat(newPosts);
 
-        // Add new posts to displayed posts
-        blogPagination.displayedPosts = blogPagination.displayedPosts.concat(newPosts);
+                // Render posts
+                if (loadMore) {
+                    // Append new posts to existing content
+                    const newPostsHTML = newPosts.map(blog => createBlogPostHTML(blog)).join('');
+                    postsGrid.insertAdjacentHTML('beforeend', newPostsHTML);
+                } else {
+                    // Replace all content
+                    postsGrid.innerHTML = blogPagination.displayedPosts.map(blog => createBlogPostHTML(blog)).join('');
+                }
 
-        // Render posts
-        if (loadMore) {
-            // Append new posts to existing content
-            const newPostsHTML = newPosts.map(blog => createBlogPostHTML(blog)).join('');
-            postsGrid.insertAdjacentHTML('beforeend', newPostsHTML);
+                // Update pagination state
+                blogPagination.currentPage++;
+
+                // Update Load More button visibility
+                const hasMorePosts = blogPagination.displayedPosts.length < publishedBlogs.length;
+                updateLoadMoreButton(true, hasMorePosts);
+
+                console.log(`Loaded ${newPosts.length} blog posts (${blogPagination.displayedPosts.length}/${publishedBlogs.length} total)`);
+            }).catch(error => {
+                console.error('Error loading blog posts:', error);
+                postsGrid.innerHTML = '<div class="error-message">Unable to load blog posts. Please try again later.</div>';
+                updateLoadMoreButton(false, false);
+            });
         } else {
-            // Replace all content
-            postsGrid.innerHTML = blogPagination.displayedPosts.map(blog => createBlogPostHTML(blog)).join('');
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+
+            // Filter published blogs only and sort by date (newest first)
+            const publishedBlogs = blogs
+                .filter(blog => blog.status === 'published')
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+            if (publishedBlogs.length === 0) {
+                postsGrid.innerHTML = '<div class="no-content">No blog posts available at this time.</div>';
+                updateLoadMoreButton(false, false);
+                return;
+            }
+
+            // Store all posts for pagination
+            blogPagination.allPosts = publishedBlogs;
+
+            if (!loadMore) {
+                // Initial load - reset pagination
+                blogPagination.currentPage = 0;
+                blogPagination.displayedPosts = [];
+            }
+
+            // Calculate posts to display
+            const startIndex = blogPagination.currentPage * blogPagination.postsPerPage;
+            const endIndex = startIndex + blogPagination.postsPerPage;
+            const newPosts = publishedBlogs.slice(startIndex, endIndex);
+
+            // Add new posts to displayed posts
+            blogPagination.displayedPosts = blogPagination.displayedPosts.concat(newPosts);
+
+            // Render posts
+            if (loadMore) {
+                // Append new posts to existing content
+                const newPostsHTML = newPosts.map(blog => createBlogPostHTML(blog)).join('');
+                postsGrid.insertAdjacentHTML('beforeend', newPostsHTML);
+            } else {
+                // Replace all content
+                postsGrid.innerHTML = blogPagination.displayedPosts.map(blog => createBlogPostHTML(blog)).join('');
+            }
+
+            // Update pagination state
+            blogPagination.currentPage++;
+
+            // Update Load More button visibility
+            const hasMorePosts = blogPagination.displayedPosts.length < publishedBlogs.length;
+            updateLoadMoreButton(true, hasMorePosts);
+
+            console.log(`Loaded ${newPosts.length} blog posts (${blogPagination.displayedPosts.length}/${publishedBlogs.length} total)`);
         }
-
-        // Update pagination state
-        blogPagination.currentPage++;
-
-        // Update Load More button visibility
-        const hasMorePosts = blogPagination.displayedPosts.length < publishedBlogs.length;
-        updateLoadMoreButton(true, hasMorePosts);
-
-        console.log(`Loaded ${newPosts.length} blog posts (${blogPagination.displayedPosts.length}/${publishedBlogs.length} total)`);
     } catch (error) {
         console.error('Error loading blog posts:', error);
         postsGrid.innerHTML = '<div class="error-message">Unable to load blog posts. Please try again later.</div>';

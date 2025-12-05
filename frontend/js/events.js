@@ -34,36 +34,73 @@ function loadEvents() {
     }
 
     try {
-        // Get events from localStorage
-        const events = JSON.parse(localStorage.getItem('events') || '[]');
+        // Use DataService to get events from API
+        if (typeof DataService !== 'undefined' && DataService.getPublished) {
+            DataService.getPublished('events').then(events => {
+                // Filter published events only
+                const publishedEvents = events.filter(event => event.status === 'published');
 
-        // Filter published events only
-        const publishedEvents = events.filter(event => event.status === 'published');
+                // Get current date for filtering
+                const now = new Date();
 
-        // Get current date for filtering
-        const now = new Date();
+                // Filter for upcoming events
+                const upcomingEvents = publishedEvents.filter(event => {
+                    try {
+                        return new Date(event.date) >= now;
+                    } catch (e) {
+                        return false;
+                    }
+                });
 
-        // Filter for upcoming events
-        const upcomingEvents = publishedEvents.filter(event => {
-            try {
-                return new Date(event.date) >= now;
-            } catch (e) {
-                return false;
+                // Sort by date (soonest first)
+                upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                if (upcomingEvents.length === 0) {
+                    eventsGrid.innerHTML = '<div class="no-events-message">No events uploaded yet. Please check back later.</div>';
+                    return;
+                }
+
+                // Render events using the updated createEventHTML function
+                eventsGrid.innerHTML = upcomingEvents.map(event => createEventHTML(event)).join('');
+
+                console.log(`Loaded ${upcomingEvents.length} upcoming events`);
+            }).catch(error => {
+                console.error('Error loading events:', error);
+                eventsGrid.innerHTML = '<div class="error-message">Unable to load events. Please try again later.</div>';
+            });
+        } else {
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const events = JSON.parse(localStorage.getItem('events') || '[]');
+
+            // Filter published events only
+            const publishedEvents = events.filter(event => event.status === 'published');
+
+            // Get current date for filtering
+            const now = new Date();
+
+            // Filter for upcoming events
+            const upcomingEvents = publishedEvents.filter(event => {
+                try {
+                    return new Date(event.date) >= now;
+                } catch (e) {
+                    return false;
+                }
+            });
+
+            // Sort by date (soonest first)
+            upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (upcomingEvents.length === 0) {
+                eventsGrid.innerHTML = '<div class="no-events-message">No events uploaded yet. Please check back later.</div>';
+                return;
             }
-        });
 
-        // Sort by date (soonest first)
-        upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+            // Render events using the updated createEventHTML function
+            eventsGrid.innerHTML = upcomingEvents.map(event => createEventHTML(event)).join('');
 
-        if (upcomingEvents.length === 0) {
-            eventsGrid.innerHTML = '<div class="no-events-message">No events uploaded yet. Please check back later.</div>';
-            return;
+            console.log(`Loaded ${upcomingEvents.length} upcoming events`);
         }
-
-        // Render events using the updated createEventHTML function
-        eventsGrid.innerHTML = upcomingEvents.map(event => createEventHTML(event)).join('');
-
-        console.log(`Loaded ${upcomingEvents.length} upcoming events`);
     } catch (error) {
         console.error('Error loading events:', error);
         eventsGrid.innerHTML = '<div class="error-message">Unable to load events. Please try again later.</div>';

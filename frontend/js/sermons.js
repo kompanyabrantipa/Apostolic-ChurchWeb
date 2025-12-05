@@ -29,38 +29,63 @@ document.addEventListener('DOMContentLoaded', function() {
 // All sermons now come from localStorage via admin dashboard
 
 /**
- * Load and display sermons from localStorage
+ * Load and display sermons from API
  */
 function loadSermons() {
     // Try multiple possible selectors to find the container
     const sermonContainer = document.getElementById('sermonContainer') || 
                            document.querySelector('.sermon-container') || 
                            document.querySelector('.content-section #sermonContainer');
-                           
+                            
     if (!sermonContainer) {
         console.warn('Sermon container (#sermonContainer) not found. Skipping sermon loading.');
         return;
     }
     
     try {
-        // Get sermons from localStorage
-        const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
-        
-        // Filter published sermons only
-        const publishedSermons = sermons.filter(sermon => sermon.status === 'published');
-        
-        // Sort by date (newest first)
-        publishedSermons.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-        
-        if (publishedSermons.length === 0) {
-            sermonContainer.innerHTML = '<div class="no-content">No sermons available at this time.</div>';
-            return;
+        // Use DataService to get sermons from API
+        if (typeof DataService !== 'undefined' && DataService.getPublished) {
+            DataService.getPublished('sermons').then(sermons => {
+                // Filter published sermons only
+                const publishedSermons = sermons.filter(sermon => sermon.status === 'published');
+                
+                // Sort by date (newest first)
+                publishedSermons.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                
+                if (publishedSermons.length === 0) {
+                    sermonContainer.innerHTML = '<div class="no-content">No sermons available at this time.</div>';
+                    return;
+                }
+                
+                // Render sermons
+                sermonContainer.innerHTML = publishedSermons.map(sermon => createSermonHTML(sermon)).join('');
+                
+                console.log(`Loaded ${publishedSermons.length} sermons`);
+            }).catch(error => {
+                console.error('Error loading sermons:', error);
+                sermonContainer.innerHTML = '<div class="error-message">Unable to load sermons. Please try again later.</div>';
+            });
+        } else {
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+            
+            // Filter published sermons only
+            const publishedSermons = sermons.filter(sermon => sermon.status === 'published');
+            
+            // Sort by date (newest first)
+            publishedSermons.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+            
+            if (publishedSermons.length === 0) {
+                sermonContainer.innerHTML = '<div class="no-content">No sermons available at this time.</div>';
+                return;
+            }
+            
+            // Render sermons
+            sermonContainer.innerHTML = publishedSermons.map(sermon => createSermonHTML(sermon)).join('');
+            
+            console.log(`Loaded ${publishedSermons.length} sermons`);
         }
-        
-        // Render sermons
-        sermonContainer.innerHTML = publishedSermons.map(sermon => createSermonHTML(sermon)).join('');
-        
-        console.log(`Loaded ${publishedSermons.length} sermons`);
     } catch (error) {
         console.error('Error loading sermons:', error);
         sermonContainer.innerHTML = '<div class="error-message">Unable to load sermons. Please try again later.</div>';

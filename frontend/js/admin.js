@@ -386,31 +386,55 @@ function initBlogManager() {
                             return;
                         }
                     } else {
-                        // Fallback: direct localStorage manipulation
-                        console.warn('DataService not available, using direct localStorage manipulation');
-                        const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
-                        const index = blogs.findIndex(blog => blog.id === blogId);
-                        if (index !== -1) {
-                            blogs[index] = {
-                                ...blogs[index],
-                                title,
-                                summary,
-                                content,
-                                imageUrl,
-                                status,
-                                updatedAt: new Date().toISOString()
-                            };
+                        // Use DataService for updates
+                        if (typeof DataService !== 'undefined' && DataService.update) {
                             try {
-                                localStorage.setItem('blogs', JSON.stringify(blogs));
-                            } catch (error) {
-                                if (error.name === 'QuotaExceededError') {
-                                    showToast('error', 'Storage quota exceeded. Please try with a smaller image or clear browser data.');
+                                const updatedBlog = await DataService.update('blogs', blogId, {
+                                    title,
+                                    summary,
+                                    content,
+                                    imageUrl,
+                                    status
+                                });
+                                
+                                if (updatedBlog) {
+                                    showToast('success', 'Blog post updated successfully');
                                 } else {
-                                    showToast('error', 'Failed to save blog post: ' + error.message);
+                                    showToast('error', 'Failed to update blog post');
+                                    return;
                                 }
+                            } catch (error) {
+                                console.error('Error updating blog:', error);
+                                showToast('error', 'Failed to update blog post: ' + error.message);
                                 return;
                             }
-                            showToast('success', 'Blog post updated successfully');
+                        } else {
+                            // Fallback: direct localStorage manipulation
+                            console.warn('DataService not available, using direct localStorage manipulation');
+                            const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+                            const index = blogs.findIndex(blog => blog.id === blogId);
+                            if (index !== -1) {
+                                blogs[index] = {
+                                    ...blogs[index],
+                                    title,
+                                    summary,
+                                    content,
+                                    imageUrl,
+                                    status,
+                                    updatedAt: new Date().toISOString()
+                                };
+                                try {
+                                    localStorage.setItem('blogs', JSON.stringify(blogs));
+                                } catch (error) {
+                                    if (error.name === 'QuotaExceededError') {
+                                        showToast('error', 'Storage quota exceeded. Please try with a smaller image or clear browser data.');
+                                    } else {
+                                        showToast('error', 'Failed to save blog post: ' + error.message);
+                                    }
+                                    return;
+                                }
+                                showToast('success', 'Blog post updated successfully');
+                            }
                         }
                     }
                 } else {
@@ -490,52 +514,107 @@ function loadBlogTable() {
     if (!tableBody) return;
     
     try {
-        const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
-        
-        if (blogs.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="4" class="empty-table">No blog posts found</td></tr>';
-            return;
+        // Use DataService to get blogs from API
+        if (typeof DataService !== 'undefined' && DataService.getAll) {
+            DataService.getAll('blogs').then(blogs => {
+                if (blogs.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="empty-table">No blog posts found</td></tr>';
+                    return;
+                }
+                
+                // Sort by date (newest first)
+                const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                
+                tableBody.innerHTML = sortedBlogs.map(blog => `
+                    <tr>
+                        <td>${blog.title}</td>
+                        <td>${formatDate(blog.createdAt)}</td>
+                        <td><span class="status-badge ${blog.status}">${blog.status}</span></td>
+                        <td>
+                            <button class="btn-icon view-blog" data-id="${blog.id}" title="View Blog"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon edit-blog" data-id="${blog.id}" title="Edit Blog"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon delete-blog" data-id="${blog.id}" title="Delete Blog"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Add event listeners for view buttons
+                document.querySelectorAll('.view-blog').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const blogId = this.getAttribute('data-id');
+                        viewBlog(blogId);
+                    });
+                });
+
+                // Add event listeners for edit buttons
+                document.querySelectorAll('.edit-blog').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const blogId = this.getAttribute('data-id');
+                        editBlog(blogId);
+                    });
+                });
+
+                // Add event listeners for delete buttons
+                document.querySelectorAll('.delete-blog').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const blogId = this.getAttribute('data-id');
+                        deleteBlog(blogId);
+                    });
+                });
+            }).catch(error => {
+                console.error('Error loading blog table:', error);
+                tableBody.innerHTML = '<tr><td colspan="4" class="error-message">Error loading blog posts</td></tr>';
+            });
+        } else {
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+            
+            if (blogs.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="empty-table">No blog posts found</td></tr>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            
+            tableBody.innerHTML = sortedBlogs.map(blog => `
+                <tr>
+                    <td>${blog.title}</td>
+                    <td>${formatDate(blog.createdAt)}</td>
+                    <td><span class="status-badge ${blog.status}">${blog.status}</span></td>
+                    <td>
+                        <button class="btn-icon view-blog" data-id="${blog.id}" title="View Blog"><i class="fas fa-eye"></i></button>
+                        <button class="btn-icon edit-blog" data-id="${blog.id}" title="Edit Blog"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon delete-blog" data-id="${blog.id}" title="Delete Blog"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Add event listeners for view buttons
+            document.querySelectorAll('.view-blog').forEach(button => {
+                button.addEventListener('click', function() {
+                    const blogId = this.getAttribute('data-id');
+                    viewBlog(blogId);
+                });
+            });
+
+            // Add event listeners for edit buttons
+            document.querySelectorAll('.edit-blog').forEach(button => {
+                button.addEventListener('click', function() {
+                    const blogId = this.getAttribute('data-id');
+                    editBlog(blogId);
+                });
+            });
+
+            // Add event listeners for delete buttons
+            document.querySelectorAll('.delete-blog').forEach(button => {
+                button.addEventListener('click', function() {
+                    const blogId = this.getAttribute('data-id');
+                    deleteBlog(blogId);
+                });
+            });
         }
-        
-        // Sort by date (newest first)
-        const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        
-        tableBody.innerHTML = sortedBlogs.map(blog => `
-            <tr>
-                <td>${blog.title}</td>
-                <td>${formatDate(blog.createdAt)}</td>
-                <td><span class="status-badge ${blog.status}">${blog.status}</span></td>
-                <td>
-                    <button class="btn-icon view-blog" data-id="${blog.id}" title="View Blog"><i class="fas fa-eye"></i></button>
-                    <button class="btn-icon edit-blog" data-id="${blog.id}" title="Edit Blog"><i class="fas fa-edit"></i></button>
-                    <button class="btn-icon delete-blog" data-id="${blog.id}" title="Delete Blog"><i class="fas fa-trash-alt"></i></button>
-                </td>
-            </tr>
-        `).join('');
-        
-        // Add event listeners for view buttons
-        document.querySelectorAll('.view-blog').forEach(button => {
-            button.addEventListener('click', function() {
-                const blogId = this.getAttribute('data-id');
-                viewBlog(blogId);
-            });
-        });
-
-        // Add event listeners for edit buttons
-        document.querySelectorAll('.edit-blog').forEach(button => {
-            button.addEventListener('click', function() {
-                const blogId = this.getAttribute('data-id');
-                editBlog(blogId);
-            });
-        });
-
-        // Add event listeners for delete buttons
-        document.querySelectorAll('.delete-blog').forEach(button => {
-            button.addEventListener('click', function() {
-                const blogId = this.getAttribute('data-id');
-                deleteBlog(blogId);
-            });
-        });
     } catch (error) {
         console.error('Error loading blog table:', error);
         tableBody.innerHTML = '<tr><td colspan="4" class="error-message">Error loading blog posts</td></tr>';
@@ -545,29 +624,60 @@ function loadBlogTable() {
 // Edit blog post
 function editBlog(id) {
     try {
-        const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
-        const blog = blogs.find(blog => blog.id === id);
-        
-        if (!blog) {
-            showToast('error', 'Blog post not found');
-            return;
+        // Use DataService to get blog from API
+        if (typeof DataService !== 'undefined' && DataService.getById) {
+            DataService.getById('blogs', id).then(blog => {
+                if (!blog) {
+                    showToast('error', 'Blog post not found');
+                    return;
+                }
+                
+                // Populate form
+                document.getElementById('blogId').value = blog.id;
+                document.getElementById('blogTitle').value = blog.title;
+                document.getElementById('blogSummary').value = blog.summary || '';
+                document.getElementById('blogImage').value = blog.imageUrl || '';
+                document.getElementById('blogStatus').value = blog.status;
+                document.getElementById('blogFormTitle').textContent = 'Edit Blog Post';
+                
+                // Set TinyMCE content
+                if (tinymce.get('blogContent')) {
+                    tinymce.get('blogContent').setContent(blog.content || '');
+                }
+                
+                // Show modal
+                document.getElementById('blogFormModal').style.display = 'block';
+            }).catch(error => {
+                console.error('Error editing blog:', error);
+                showToast('error', 'Error loading blog post');
+            });
+        } else {
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+            const blog = blogs.find(blog => blog.id === id);
+            
+            if (!blog) {
+                showToast('error', 'Blog post not found');
+                return;
+            }
+            
+            // Populate form
+            document.getElementById('blogId').value = blog.id;
+            document.getElementById('blogTitle').value = blog.title;
+            document.getElementById('blogSummary').value = blog.summary || '';
+            document.getElementById('blogImage').value = blog.imageUrl || '';
+            document.getElementById('blogStatus').value = blog.status;
+            document.getElementById('blogFormTitle').textContent = 'Edit Blog Post';
+            
+            // Set TinyMCE content
+            if (tinymce.get('blogContent')) {
+                tinymce.get('blogContent').setContent(blog.content || '');
+            }
+            
+            // Show modal
+            document.getElementById('blogFormModal').style.display = 'block';
         }
-        
-        // Populate form
-        document.getElementById('blogId').value = blog.id;
-        document.getElementById('blogTitle').value = blog.title;
-        document.getElementById('blogSummary').value = blog.summary || '';
-        document.getElementById('blogImage').value = blog.imageUrl || '';
-        document.getElementById('blogStatus').value = blog.status;
-        document.getElementById('blogFormTitle').textContent = 'Edit Blog Post';
-        
-        // Set TinyMCE content
-        if (tinymce.get('blogContent')) {
-            tinymce.get('blogContent').setContent(blog.content || '');
-        }
-        
-        // Show modal
-        document.getElementById('blogFormModal').style.display = 'block';
     } catch (error) {
         console.error('Error editing blog:', error);
         showToast('error', 'Error loading blog post');
@@ -840,53 +950,109 @@ function loadEventTable() {
     if (!tableBody) return;
     
     try {
-        const events = JSON.parse(localStorage.getItem('events') || '[]');
-        
-        if (events.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No events found</td></tr>';
-            return;
+        // Use DataService to get events from API
+        if (typeof DataService !== 'undefined' && DataService.getAll) {
+            DataService.getAll('events').then(events => {
+                if (events.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No events found</td></tr>';
+                    return;
+                }
+                
+                // Sort by date (upcoming first)
+                const sortedEvents = [...events].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+                
+                tableBody.innerHTML = sortedEvents.map(event => `
+                    <tr>
+                        <td>${event.title}</td>
+                        <td>${formatDate(event.date)}</td>
+                        <td>${event.location || 'N/A'}</td>
+                        <td><span class="status-badge ${event.status}">${event.status}</span></td>
+                        <td>
+                            <button class="btn-icon view-event" data-id="${event.id}" title="View Event"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon edit-event" data-id="${event.id}" title="Edit Event"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon delete-event" data-id="${event.id}" title="Delete Event"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Add event listeners for view buttons
+                document.querySelectorAll('.view-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        viewEvent(eventId);
+                    });
+                });
+
+                // Add event listeners for edit buttons
+                document.querySelectorAll('.edit-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        editEvent(eventId);
+                    });
+                });
+
+                // Add event listeners for delete buttons
+                document.querySelectorAll('.delete-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        deleteEvent(eventId);
+                    });
+                });
+            }).catch(error => {
+                console.error('Error loading event table:', error);
+                tableBody.innerHTML = '<tr><td colspan="5" class="error-message">Error loading events</td></tr>';
+            });
+        } else {
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const events = JSON.parse(localStorage.getItem('events') || '[]');
+            
+            if (events.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No events found</td></tr>';
+                return;
+            }
+            
+            // Sort by date (upcoming first)
+            const sortedEvents = [...events].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+            
+            tableBody.innerHTML = sortedEvents.map(event => `
+                <tr>
+                    <td>${event.title}</td>
+                    <td>${formatDate(event.date)}</td>
+                    <td>${event.location || 'N/A'}</td>
+                    <td><span class="status-badge ${event.status}">${event.status}</span></td>
+                    <td>
+                        <button class="btn-icon view-event" data-id="${event.id}" title="View Event"><i class="fas fa-eye"></i></button>
+                        <button class="btn-icon edit-event" data-id="${event.id}" title="Edit Event"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon delete-event" data-id="${event.id}" title="Delete Event"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Add event listeners for view buttons
+            document.querySelectorAll('.view-event').forEach(button => {
+                button.addEventListener('click', function() {
+                    const eventId = this.getAttribute('data-id');
+                    viewEvent(eventId);
+                });
+            });
+
+            // Add event listeners for edit buttons
+            document.querySelectorAll('.edit-event').forEach(button => {
+                button.addEventListener('click', function() {
+                    const eventId = this.getAttribute('data-id');
+                    editEvent(eventId);
+                });
+            });
+
+            // Add event listeners for delete buttons
+            document.querySelectorAll('.delete-event').forEach(button => {
+                button.addEventListener('click', function() {
+                    const eventId = this.getAttribute('data-id');
+                    deleteEvent(eventId);
+                });
+            });
         }
-        
-        // Sort by date (upcoming first)
-        const sortedEvents = [...events].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
-        
-        tableBody.innerHTML = sortedEvents.map(event => `
-            <tr>
-                <td>${event.title}</td>
-                <td>${formatDate(event.date)}</td>
-                <td>${event.location || 'N/A'}</td>
-                <td><span class="status-badge ${event.status}">${event.status}</span></td>
-                <td>
-                    <button class="btn-icon view-event" data-id="${event.id}" title="View Event"><i class="fas fa-eye"></i></button>
-                    <button class="btn-icon edit-event" data-id="${event.id}" title="Edit Event"><i class="fas fa-edit"></i></button>
-                    <button class="btn-icon delete-event" data-id="${event.id}" title="Delete Event"><i class="fas fa-trash-alt"></i></button>
-                </td>
-            </tr>
-        `).join('');
-        
-        // Add event listeners for view buttons
-        document.querySelectorAll('.view-event').forEach(button => {
-            button.addEventListener('click', function() {
-                const eventId = this.getAttribute('data-id');
-                viewEvent(eventId);
-            });
-        });
-
-        // Add event listeners for edit buttons
-        document.querySelectorAll('.edit-event').forEach(button => {
-            button.addEventListener('click', function() {
-                const eventId = this.getAttribute('data-id');
-                editEvent(eventId);
-            });
-        });
-
-        // Add event listeners for delete buttons
-        document.querySelectorAll('.delete-event').forEach(button => {
-            button.addEventListener('click', function() {
-                const eventId = this.getAttribute('data-id');
-                deleteEvent(eventId);
-            });
-        });
     } catch (error) {
         console.error('Error loading event table:', error);
         tableBody.innerHTML = '<tr><td colspan="5" class="error-message">Error loading events</td></tr>';
@@ -896,47 +1062,96 @@ function loadEventTable() {
 // Edit event
 function editEvent(id) {
     try {
-        const events = JSON.parse(localStorage.getItem('events') || '[]');
-        const event = events.find(event => event.id === id);
-        
-        if (!event) {
-            showToast('error', 'Event not found');
-            return;
-        }
-        
-        // Populate form
-        document.getElementById('eventId').value = event.id;
-        document.getElementById('eventTitle').value = event.title;
-        document.getElementById('eventLocation').value = event.location || '';
-        document.getElementById('eventStatus').value = event.status;
-        document.getElementById('eventFormTitle').textContent = 'Edit Event';
-        
-        // Set date and time
-        if (event.date) {
-            const dateObj = new Date(event.date);
-            if (!isNaN(dateObj.getTime())) {
-                // Set date (YYYY-MM-DD)
-                const dateString = dateObj.toISOString().split('T')[0];
-                document.getElementById('eventDate').value = dateString;
+        // Use DataService to get event from API
+        if (typeof DataService !== 'undefined' && DataService.getById) {
+            DataService.getById('events', id).then(event => {
+                if (!event) {
+                    showToast('error', 'Event not found');
+                    return;
+                }
                 
-                // Set time (HH:MM)
-                const timeString = dateObj.toISOString().split('T')[1].substring(0, 5);
-                document.getElementById('eventTime').value = timeString;
+                // Populate form
+                document.getElementById('eventId').value = event.id;
+                document.getElementById('eventTitle').value = event.title;
+                document.getElementById('eventLocation').value = event.location || '';
+                document.getElementById('eventStatus').value = event.status;
+                document.getElementById('eventFormTitle').textContent = 'Edit Event';
+                
+                // Set date and time
+                if (event.date) {
+                    const dateObj = new Date(event.date);
+                    if (!isNaN(dateObj.getTime())) {
+                        // Set date (YYYY-MM-DD)
+                        const dateString = dateObj.toISOString().split('T')[0];
+                        document.getElementById('eventDate').value = dateString;
+                        
+                        // Set time (HH:MM)
+                        const timeString = dateObj.toISOString().split('T')[1].substring(0, 5);
+                        document.getElementById('eventTime').value = timeString;
+                    }
+                }
+                
+                // Set image URL
+                if (event.imageUrl) {
+                    document.getElementById('eventImage').value = event.imageUrl;
+                }
+                
+                // Set TinyMCE content
+                if (tinymce.get('eventDescription')) {
+                    tinymce.get('eventDescription').setContent(event.description || '');
+                }
+                
+                // Show modal
+                document.getElementById('eventFormModal').style.display = 'block';
+            }).catch(error => {
+                console.error('Error editing event:', error);
+                showToast('error', 'Error loading event');
+            });
+        } else {
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const events = JSON.parse(localStorage.getItem('events') || '[]');
+            const event = events.find(event => event.id === id);
+            
+            if (!event) {
+                showToast('error', 'Event not found');
+                return;
             }
+            
+            // Populate form
+            document.getElementById('eventId').value = event.id;
+            document.getElementById('eventTitle').value = event.title;
+            document.getElementById('eventLocation').value = event.location || '';
+            document.getElementById('eventStatus').value = event.status;
+            document.getElementById('eventFormTitle').textContent = 'Edit Event';
+            
+            // Set date and time
+            if (event.date) {
+                const dateObj = new Date(event.date);
+                if (!isNaN(dateObj.getTime())) {
+                    // Set date (YYYY-MM-DD)
+                    const dateString = dateObj.toISOString().split('T')[0];
+                    document.getElementById('eventDate').value = dateString;
+                    
+                    // Set time (HH:MM)
+                    const timeString = dateObj.toISOString().split('T')[1].substring(0, 5);
+                    document.getElementById('eventTime').value = timeString;
+                }
+            }
+            
+            // Set image URL
+            if (event.imageUrl) {
+                document.getElementById('eventImage').value = event.imageUrl;
+            }
+            
+            // Set TinyMCE content
+            if (tinymce.get('eventDescription')) {
+                tinymce.get('eventDescription').setContent(event.description || '');
+            }
+            
+            // Show modal
+            document.getElementById('eventFormModal').style.display = 'block';
         }
-        
-        // Set image URL
-        if (event.imageUrl) {
-            document.getElementById('eventImage').value = event.imageUrl;
-        }
-        
-        // Set TinyMCE content
-        if (tinymce.get('eventDescription')) {
-            tinymce.get('eventDescription').setContent(event.description || '');
-        }
-        
-        // Show modal
-        document.getElementById('eventFormModal').style.display = 'block';
     } catch (error) {
         console.error('Error editing event:', error);
         showToast('error', 'Error loading event');
@@ -1224,53 +1439,109 @@ function loadSermonTable() {
     if (!tableBody) return;
     
     try {
-        const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
-        
-        if (sermons.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No sermons found</td></tr>';
-            return;
+        // Use DataService to get sermons from API
+        if (typeof DataService !== 'undefined' && DataService.getAll) {
+            DataService.getAll('sermons').then(sermons => {
+                if (sermons.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No sermons found</td></tr>';
+                    return;
+                }
+                
+                // Sort by date (newest first)
+                const sortedSermons = [...sermons].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                
+                tableBody.innerHTML = sortedSermons.map(sermon => `
+                    <tr>
+                        <td>${sermon.title}</td>
+                        <td>${sermon.speaker}</td>
+                        <td>${formatDate(sermon.date)}</td>
+                        <td><span class="status-badge ${sermon.status}">${sermon.status}</span></td>
+                        <td>
+                            <button class="btn-icon view-sermon" data-id="${sermon.id}" title="View Sermon"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon edit-sermon" data-id="${sermon.id}" title="Edit Sermon"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon delete-sermon" data-id="${sermon.id}" title="Delete Sermon"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Add event listeners for view buttons
+                document.querySelectorAll('.view-sermon').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const sermonId = this.getAttribute('data-id');
+                        viewSermon(sermonId);
+                    });
+                });
+
+                // Add event listeners for edit buttons
+                document.querySelectorAll('.edit-sermon').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const sermonId = this.getAttribute('data-id');
+                        editSermon(sermonId);
+                    });
+                });
+
+                // Add event listeners for delete buttons
+                document.querySelectorAll('.delete-sermon').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const sermonId = this.getAttribute('data-id');
+                        deleteSermon(sermonId);
+                    });
+                });
+            }).catch(error => {
+                console.error('Error loading sermon table:', error);
+                tableBody.innerHTML = '<tr><td colspan="5" class="error-message">Error loading sermons</td></tr>';
+            });
+        } else {
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+            
+            if (sermons.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No sermons found</td></tr>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            const sortedSermons = [...sermons].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+            
+            tableBody.innerHTML = sortedSermons.map(sermon => `
+                <tr>
+                    <td>${sermon.title}</td>
+                    <td>${sermon.speaker}</td>
+                    <td>${formatDate(sermon.date)}</td>
+                    <td><span class="status-badge ${sermon.status}">${sermon.status}</span></td>
+                    <td>
+                        <button class="btn-icon view-sermon" data-id="${sermon.id}" title="View Sermon"><i class="fas fa-eye"></i></button>
+                        <button class="btn-icon edit-sermon" data-id="${sermon.id}" title="Edit Sermon"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon delete-sermon" data-id="${sermon.id}" title="Delete Sermon"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Add event listeners for view buttons
+            document.querySelectorAll('.view-sermon').forEach(button => {
+                button.addEventListener('click', function() {
+                    const sermonId = this.getAttribute('data-id');
+                    viewSermon(sermonId);
+                });
+            });
+
+            // Add event listeners for edit buttons
+            document.querySelectorAll('.edit-sermon').forEach(button => {
+                button.addEventListener('click', function() {
+                    const sermonId = this.getAttribute('data-id');
+                    editSermon(sermonId);
+                });
+            });
+
+            // Add event listeners for delete buttons
+            document.querySelectorAll('.delete-sermon').forEach(button => {
+                button.addEventListener('click', function() {
+                    const sermonId = this.getAttribute('data-id');
+                    deleteSermon(sermonId);
+                });
+            });
         }
-        
-        // Sort by date (newest first)
-        const sortedSermons = [...sermons].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-        
-        tableBody.innerHTML = sortedSermons.map(sermon => `
-            <tr>
-                <td>${sermon.title}</td>
-                <td>${sermon.speaker}</td>
-                <td>${formatDate(sermon.date)}</td>
-                <td><span class="status-badge ${sermon.status}">${sermon.status}</span></td>
-                <td>
-                    <button class="btn-icon view-sermon" data-id="${sermon.id}" title="View Sermon"><i class="fas fa-eye"></i></button>
-                    <button class="btn-icon edit-sermon" data-id="${sermon.id}" title="Edit Sermon"><i class="fas fa-edit"></i></button>
-                    <button class="btn-icon delete-sermon" data-id="${sermon.id}" title="Delete Sermon"><i class="fas fa-trash-alt"></i></button>
-                </td>
-            </tr>
-        `).join('');
-        
-        // Add event listeners for view buttons
-        document.querySelectorAll('.view-sermon').forEach(button => {
-            button.addEventListener('click', function() {
-                const sermonId = this.getAttribute('data-id');
-                viewSermon(sermonId);
-            });
-        });
-
-        // Add event listeners for edit buttons
-        document.querySelectorAll('.edit-sermon').forEach(button => {
-            button.addEventListener('click', function() {
-                const sermonId = this.getAttribute('data-id');
-                editSermon(sermonId);
-            });
-        });
-
-        // Add event listeners for delete buttons
-        document.querySelectorAll('.delete-sermon').forEach(button => {
-            button.addEventListener('click', function() {
-                const sermonId = this.getAttribute('data-id');
-                deleteSermon(sermonId);
-            });
-        });
     } catch (error) {
         console.error('Error loading sermon table:', error);
         tableBody.innerHTML = '<tr><td colspan="5" class="error-message">Error loading sermons</td></tr>';
@@ -1280,44 +1551,90 @@ function loadSermonTable() {
 // Edit sermon
 function editSermon(id) {
     try {
-        const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
-        const sermon = sermons.find(sermon => sermon.id === id);
-        
-        if (!sermon) {
-            showToast('error', 'Sermon not found');
-            return;
-        }
-        
-        // Populate form
-        document.getElementById('sermonId').value = sermon.id;
-        document.getElementById('sermonTitle').value = sermon.title;
-        document.getElementById('sermonSpeaker').value = sermon.speaker || '';
+        // Use DataService to get sermon from API
+        if (typeof DataService !== 'undefined' && DataService.getById) {
+            DataService.getById('sermons', id).then(sermon => {
+                if (!sermon) {
+                    showToast('error', 'Sermon not found');
+                    return;
+                }
+                
+                // Populate form
+                document.getElementById('sermonId').value = sermon.id;
+                document.getElementById('sermonTitle').value = sermon.title;
+                document.getElementById('sermonSpeaker').value = sermon.speaker || '';
 
-        // Format date for date input (YYYY-MM-DD)
-        if (sermon.date) {
-            const dateObj = new Date(sermon.date);
-            if (!isNaN(dateObj.getTime())) {
-                const dateString = dateObj.toISOString().split('T')[0];
-                document.getElementById('sermonDate').value = dateString;
-            }
-        }
+                // Format date for date input (YYYY-MM-DD)
+                if (sermon.date) {
+                    const dateObj = new Date(sermon.date);
+                    if (!isNaN(dateObj.getTime())) {
+                        const dateString = dateObj.toISOString().split('T')[0];
+                        document.getElementById('sermonDate').value = dateString;
+                    }
+                }
 
-        // Set TinyMCE content for description
-        if (tinymce.get('sermonDescription')) {
-            tinymce.get('sermonDescription').setContent(sermon.description || '');
+                // Set TinyMCE content for description
+                if (tinymce.get('sermonDescription')) {
+                    tinymce.get('sermonDescription').setContent(sermon.description || '');
+                } else {
+                    // Fallback if TinyMCE is not initialized
+                    document.getElementById('sermonDescription').value = sermon.description || '';
+                }
+
+                document.getElementById('sermonVideoUrl').value = sermon.videoUrl || '';
+                document.getElementById('sermonAudioUrl').value = sermon.audioUrl || '';
+                document.getElementById('sermonThumbnail').value = sermon.thumbnailUrl || '';
+                document.getElementById('sermonStatus').value = sermon.status;
+                document.getElementById('sermonFormTitle').textContent = 'Edit Sermon';
+                
+                // Show modal
+                document.getElementById('sermonFormModal').style.display = 'block';
+            }).catch(error => {
+                console.error('Error editing sermon:', error);
+                showToast('error', 'Error loading sermon');
+            });
         } else {
-            // Fallback if TinyMCE is not initialized
-            document.getElementById('sermonDescription').value = sermon.description || '';
-        }
+            // Fallback to localStorage
+            console.warn('DataService not available, using localStorage fallback');
+            const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+            const sermon = sermons.find(sermon => sermon.id === id);
+            
+            if (!sermon) {
+                showToast('error', 'Sermon not found');
+                return;
+            }
+            
+            // Populate form
+            document.getElementById('sermonId').value = sermon.id;
+            document.getElementById('sermonTitle').value = sermon.title;
+            document.getElementById('sermonSpeaker').value = sermon.speaker || '';
 
-        document.getElementById('sermonVideoUrl').value = sermon.videoUrl || '';
-        document.getElementById('sermonAudioUrl').value = sermon.audioUrl || '';
-        document.getElementById('sermonThumbnail').value = sermon.thumbnailUrl || '';
-        document.getElementById('sermonStatus').value = sermon.status;
-        document.getElementById('sermonFormTitle').textContent = 'Edit Sermon';
-        
-        // Show modal
-        document.getElementById('sermonFormModal').style.display = 'block';
+            // Format date for date input (YYYY-MM-DD)
+            if (sermon.date) {
+                const dateObj = new Date(sermon.date);
+                if (!isNaN(dateObj.getTime())) {
+                    const dateString = dateObj.toISOString().split('T')[0];
+                    document.getElementById('sermonDate').value = dateString;
+                }
+            }
+
+            // Set TinyMCE content for description
+            if (tinymce.get('sermonDescription')) {
+                tinymce.get('sermonDescription').setContent(sermon.description || '');
+            } else {
+                // Fallback if TinyMCE is not initialized
+                document.getElementById('sermonDescription').value = sermon.description || '';
+            }
+
+            document.getElementById('sermonVideoUrl').value = sermon.videoUrl || '';
+            document.getElementById('sermonAudioUrl').value = sermon.audioUrl || '';
+            document.getElementById('sermonThumbnail').value = sermon.thumbnailUrl || '';
+            document.getElementById('sermonStatus').value = sermon.status;
+            document.getElementById('sermonFormTitle').textContent = 'Edit Sermon';
+            
+            // Show modal
+            document.getElementById('sermonFormModal').style.display = 'block';
+        }
     } catch (error) {
         console.error('Error editing sermon:', error);
         showToast('error', 'Error loading sermon');

@@ -7,7 +7,7 @@
 const DataService = {
   // Configuration
   config: {
-    apiBaseUrl: "https://api.apostolicchurchlouisville.org", // API base URL
+    apiBaseUrl: window.Config?.api?.baseUrl || "https://api.apostolicchurchlouisville.org/api", // API base URL
     useApi: true, // Set to false to use localStorage only
     fallbackToLocalStorage: false, // Fallback to localStorage if API fails
     enableSync: true, // Enable real-time sync events
@@ -22,7 +22,8 @@ const DataService = {
     }
 
     try {
-      const response = await fetch(`${this.config.apiBaseUrl}${endpoint}`, {
+      const url = `${this.config.apiBaseUrl}${endpoint}`.replace('//api', '/api'); // Fix double slash if present
+      const response = await fetch(url, {
         credentials: "include", // Include cookies for authentication
         headers: {
           "Content-Type": "application/json",
@@ -43,9 +44,13 @@ const DataService = {
     } catch (error) {
       console.error("API request failed:", error);
 
-      if (this.config.fallbackToLocalStorage) {
-        console.log("Falling back to localStorage...");
-        throw error; // Let the calling method handle localStorage fallback
+      // Only fallback to localStorage on network errors, not on successful API responses
+      if (this.config.fallbackToLocalStorage && (error.name === 'TypeError' || error.message.includes('fetch'))) {
+        console.log("Falling back to localStorage due to network error...");
+        // Let the calling method handle localStorage fallback
+      } else {
+        // Log the error but don't fallback for successful API responses with error status
+        console.error("API request failed with non-network error:", error.message);
       }
 
       throw error;

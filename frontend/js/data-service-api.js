@@ -61,7 +61,15 @@ const DataService = {
     try {
       // Try API first
       if (this.config.useApi) {
-        const response = await this.apiRequest(`/${type}`);
+        // Map content types to their correct API endpoints
+        const endpointMap = {
+          'blogs': '/blog',
+          'events': '/events',
+          'sermons': '/sermons'
+        };
+        
+        const endpoint = endpointMap[type] || `/${type}`;
+        const response = await this.apiRequest(endpoint);
         return response.data || [];
       }
     } catch (error) {
@@ -87,7 +95,15 @@ const DataService = {
     try {
       // Try API first
       if (this.config.useApi) {
-        const response = await this.apiRequest(`/${type}?published=true`);
+        // Map content types to their correct API endpoints
+        const endpointMap = {
+          'blogs': '/blog/public',
+          'events': '/events/public',
+          'sermons': '/sermons/public'
+        };
+        
+        const endpoint = endpointMap[type] || `/${type}?published=true`;
+        const response = await this.apiRequest(endpoint);
         return response.data || [];
       }
     } catch (error) {
@@ -117,7 +133,15 @@ const DataService = {
     try {
       // Try API first
       if (this.config.useApi) {
-        const response = await this.apiRequest(`/${type}/${id}`);
+        // Map content types to their correct API endpoints
+        const endpointMap = {
+          'blogs': '/blog',
+          'events': '/events',
+          'sermons': '/sermons'
+        };
+        
+        const basePath = endpointMap[type] || `/${type}`;
+        const response = await this.apiRequest(`${basePath}/${id}`);
         return response.data || null;
       }
     } catch (error) {
@@ -147,7 +171,15 @@ const DataService = {
     try {
       // Try API first
       if (this.config.useApi) {
-        const response = await this.apiRequest(`/${type}`, {
+        // Map content types to their correct API endpoints
+        const endpointMap = {
+          'blogs': '/blog',
+          'events': '/events',
+          'sermons': '/sermons'
+        };
+        
+        const endpoint = endpointMap[type] || `/${type}`;
+        const response = await this.apiRequest(endpoint, {
           method: "POST",
           body: JSON.stringify(data),
         });
@@ -209,7 +241,15 @@ const DataService = {
     try {
       // Try API first
       if (this.config.useApi) {
-        const response = await this.apiRequest(`/${type}/${id}`, {
+        // Map content types to their correct API endpoints
+        const endpointMap = {
+          'blogs': '/blog',
+          'events': '/events',
+          'sermons': '/sermons'
+        };
+        
+        const basePath = endpointMap[type] || `/${type}`;
+        const response = await this.apiRequest(`${basePath}/${id}`, {
           method: "PUT",
           body: JSON.stringify(data),
         });
@@ -271,7 +311,15 @@ const DataService = {
     try {
       // Try API first
       if (this.config.useApi) {
-        const response = await this.apiRequest(`/${type}/${id}`, {
+        // Map content types to their correct API endpoints
+        const endpointMap = {
+          'blogs': '/blog',
+          'events': '/events',
+          'sermons': '/sermons'
+        };
+        
+        const basePath = endpointMap[type] || `/${type}`;
+        const response = await this.apiRequest(`${basePath}/${id}`, {
           method: "DELETE",
         });
         deletedItem = response.data;

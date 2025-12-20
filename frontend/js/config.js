@@ -4,9 +4,17 @@
  */
 
 // Detect environment
-const isProduction =
-  window.location.hostname !== 'localhost' &&
-  window.location.hostname !== '127.0.0.1';
+// More robust detection: check if we're on localhost or if we're accessing the API on the same host
+const isLocalhost =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname === '[::1]' ||
+  (window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/) && !window.location.hostname.startsWith('192.168.'));
+
+// Also check if we're accessing the local development server
+const isLocalDevelopment = isLocalhost || window.location.port === '3001';
+
+const isProduction = !isLocalDevelopment;
 
 const isDevelopment = !isProduction;
 
@@ -24,7 +32,7 @@ const Config = {
 
   // API Configuration
   api: {
-    baseUrl: isProduction ? 'https://api.apostolicchurchlouisville.org/api' : 'http://localhost:3001/api',
+    baseUrl: isProduction ? 'https://api.apostolicchurchlouisville.org/api' : `http://${window.location.hostname}:3001/api`,
     timeout: 10000
   },
 

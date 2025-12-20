@@ -1,0 +1,40 @@
+2025-12-20 02:42:55 [INFO]: Health Check {"service":"apostolic-church-backend","status":"healthy","environment":"production","https":false,"caching":false,"backups":false}
+2025-12-20 02:42:55 [INFO]: Production services initialized successfully {"service":"apostolic-church-backend"}
+2025-12-20 02:43:35 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/health","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:43:35 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/health","statusCode":200,"duration":"18ms","contentLength":"245","ip":"::1"}
+2025-12-20 02:43:41 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:43:41 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs","statusCode":200,"duration":"27ms","contentLength":"36","ip":"::1"}
+2025-12-20 02:45:28 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/nonexistent","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:45:28 [WARN]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/nonexistent","statusCode":404,"duration":"6ms","contentLength":"52","ip":"::1"}
+2025-12-20 02:46:27 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:46:27 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs","statusCode":200,"duration":"26ms","contentLength":"36","ip":"::1"}
+2025-12-20 02:46:52 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/js/config.js","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:46:52 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/js/config.js","statusCode":200,"duration":"13ms","contentLength":1906,"ip":"::1"}
+2025-12-20 02:47:01 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/dashboard","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:47:01 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/dashboard","statusCode":200,"duration":"15ms","contentLength":23594,"ip":"::1"}
+2025-12-20 02:47:41 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:47:41 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs","statusCode":200,"duration":"9ms","contentLength":"36","ip":"::1"}
+2025-12-20 02:47:58 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/nonexistent-endpoint","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:47:58 [WARN]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/nonexistent-endpoint","statusCode":404,"duration":"4ms","contentLength":"52","ip":"::1"}
+2025-12-20 02:50:32 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blog","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:50:32 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blog","statusCode":301,"duration":"4ms","contentLength":"39","ip":"::1"}
+2025-12-20 02:50:32 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:50:32 [WARN]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/","statusCode":404,"duration":"6ms","contentLength":"52","ip":"::1"}
+2025-12-20 02:50:47 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blog/public","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:50:47 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blog/public","statusCode":301,"duration":"6ms","contentLength":"59","ip":"::1"}
+2025-12-20 02:50:47 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs?published=true","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:50:47 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs?published=true","statusCode":200,"duration":"9ms","contentLength":"36","ip":"::1"}
+2025-12-20 02:51:16 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blog/public","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:51:16 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blog/public","statusCode":301,"duration":"2ms","contentLength":"59","ip":"::1"}
+2025-12-20 02:51:16 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs?published=true","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:51:16 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs?published=true","statusCode":200,"duration":"15ms","contentLength":"36","ip":"::1"}
+2025-12-20 02:55:29 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs/","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:55:29 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs/","statusCode":200,"duration":"10ms","contentLength":"36","ip":"::1"}
+2025-12-20 02:56:07 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs//","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:56:07 [INFO]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/blogs//","statusCode":200,"duration":"8ms","contentLength":"36","ip":"::1"}
+2025-12-20 02:56:21 [INFO]: HTTP Request {"service":"apostolic-church-backend","method":"GET","url":"/api/definitely-not-an-endpoint","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538"}
+2025-12-20 02:56:21 [WARN]: HTTP Response {"service":"apostolic-church-backend","method":"GET","url":"/api/definitely-not-an-endpoint","statusCode":404,"duration":"7ms","contentLength":"52","ip":"::1"}
+2025-12-20 02:58:05 [INFO]: Health Check {"service":"apostolic-church-backend","status":"healthy","environment":"production","https":false,"caching":false,"backups":false}
+2025-12-20 02:58:05 [INFO]: Production services initialized successfully {"service":"apostolic-church-backend"}
+2025-12-20 03:02:02 [INFO]: Health Check {"service":"apostolic-church-backend","status":"healthy","environment":"production","https":false,"caching":false,"backups":false}
+2025-12-20 03:02:02 [INFO]: Production services initialized successfully {"service":"apostolic-church-backend"}

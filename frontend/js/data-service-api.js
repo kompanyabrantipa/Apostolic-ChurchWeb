@@ -28,6 +28,10 @@ const DataService = {
 
     try {
       const url = `${this.config.apiBaseUrl}${endpoint}`.replace('//api', '/api'); // Fix double slash if present
+      
+      // Debug logging
+      console.log(`🔍 API Request: ${options.method || 'GET'} ${url}`);
+      
       // Get authentication token from localStorage or sessionStorage
       const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
       
@@ -41,15 +45,43 @@ const DataService = {
         ...options,
       });
 
+      console.log(`📥 API Response: ${response.status} ${response.statusText} for ${url}`);
+      
+      // Log response headers for debugging
+      console.log('📋 Response Headers:', [...response.headers.entries()]);
+
       if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ message: "Unknown error" }));
+        // Try to parse error response as JSON first
+        const errorText = await response.text();
+        console.log(`❌ Error Response Body: ${errorText.substring(0, 200)}${errorText.length > 200 ? '...' : ''}`);
+        
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (parseError) {
+          // If not JSON, treat as plain text
+          errorData = { message: errorText || "Unknown error" };
+        }
+        
         throw new Error(errorData.message || `HTTP ${response.status}`);
       }
 
-      const data = await response.json();
-      return data;
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      console.log(`📄 Content-Type: ${contentType}`);
+      
+      const textResponse = await response.text();
+      console.log(`📦 Response Body: ${textResponse.substring(0, 200)}${textResponse.length > 200 ? '...' : ''}`);
+      
+      // Try to parse as JSON
+      try {
+        const data = JSON.parse(textResponse);
+        return data;
+      } catch (parseError) {
+        console.error(`❌ Failed to parse JSON response from ${url}`);
+        console.error(`📝 Response was: ${textResponse}`);
+        throw new Error(`Invalid JSON response: ${parseError.message}`);
+      }
     } catch (error) {
       console.error("API request failed:", error);
 
@@ -460,3 +492,6 @@ console.log(
   "💾 localStorage fallback:",
   DataService.config.fallbackToLocalStorage ? "enabled" : "disabled"
 );
+console.log("📍 API Base URL:", DataService.config.apiBaseUrl);
+console.log("⚙️ Full Config:", DataService.config);
+console.log("🌐 Window Config:", window.Config);

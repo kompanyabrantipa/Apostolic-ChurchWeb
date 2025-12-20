@@ -8,7 +8,23 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
+
+// Validate required environment variables
+const requiredEnvVars = [
+  'MONGODB_URI',
+  'JWT_SECRET',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_PUBLISHABLE_KEY'
+];
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars);
+  process.exit(1);
+}
+
+console.log('✅ All required environment variables are present');
 
 // Import MongoDB database and routes
 const { connectDatabase, testConnection, healthCheck, getDatabaseStats } = require('./config/database-mongodb');
@@ -114,21 +130,36 @@ if (process.env.HELMET_ENABLED !== 'false') {
   app.use(helmet(helmetConfig));
 }
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
-  message: {
-    success: false,
-    message: 'Too many requests from this IP, please try again later.'
-  }
+// Request logging middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  
+  // Log request
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl} - IP: ${req.ip || req.connection.remoteAddress}`);
+  
+  // Log response when it's finished
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl} - Status: ${res.statusCode} - Duration: ${duration}ms`);
+  });
+  
+  next();
 });
-app.use('/api/', limiter);
 
+// Rate limiting
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+    // Default allowed origins plus localhost:3001 for admin dashboard
+    const defaultOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
+      'https://apostolicchurchlouisville.org',
+      'https://www.apostolicchurchlouisville.org'
+    ];
+    const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : defaultOrigins;
     
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -140,11 +171,41 @@ const corsOptions = {
     }
   },
   credentials: true, // Allow cookies to be sent
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Cookie',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'X-HTTP-Method-Override',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
+  exposedHeaders: [
+    'Authorization',
+    'Content-Disposition',
+    'Content-Length'
+  ]
 };
 
+// Apply CORS before rate limiter to handle preflight requests correctly
 app.use(cors(corsOptions));
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  }
+});
+app.use('/api/', limiter);
 
 // Request logging middleware (before other middleware)
 if (process.env.ENABLE_ACCESS_LOG !== 'false') {
@@ -156,8 +217,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Serve static files from the parent directory (existing frontend)
-app.use(express.static(path.join(__dirname, '..'), {
+// Serve static files from the frontend directory
+app.use(express.static(path.join(__dirname, '..', '..', 'frontend'), {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
   etag: true,
   lastModified: true
@@ -171,6 +232,17 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // API Routes (using MongoDB routes with caching and invalidation)
+// Backward compatibility routes for legacy frontend
+app.get('/api/events/public', (req, res) => {
+  // Redirect /api/events/public to /api/events?published=true
+  res.redirect(301, `/api/events?published=true`);
+});
+
+app.get('/api/sermons/public', (req, res) => {
+  // Redirect /api/sermons/public to /api/sermons?published=true
+  res.redirect(301, `/api/sermons?published=true`);
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/blogs',
   cacheMiddleware(1800), // 30 minutes cache for blogs
@@ -187,6 +259,20 @@ app.use('/api/sermons',
   invalidateCacheMiddleware(['/api/sermons']),
   sermonRoutes
 );
+
+// Backward compatibility routes for legacy frontend (singular endpoints)
+// These redirect requests from old /api/blog to new /api/blogs
+app.use('/api/blog', (req, res, next) => {
+  // Handle the /public endpoint specifically
+  if (req.url.includes('/public')) {
+    // Redirect /api/blog/public to /api/blogs?published=true
+    return res.redirect(301, `/api/blogs?published=true`);
+  }
+  // Redirect other /api/blog requests to /api/blogs
+  const newPath = req.url.replace(/^\/blog/, '/blogs');
+  res.redirect(301, `/api${newPath}`);
+});
+
 app.use('/api/config', configRoutes);
 app.use('/api/payments', paymentRoutes); // No caching for payment endpoints
 app.use('/api/webhooks', webhookRoutes); // No caching for webhook endpoints
@@ -321,30 +407,49 @@ app.get('/api/performance', async (req, res) => {
 
 // Catch-all handler for frontend routes (SPA support)
 app.get('*', (req, res) => {
-  // Don't serve index.html for API routes
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({
+  try {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({
+        success: false,
+        message: 'API endpoint not found'
+      });
+    }
+    
+    // Serve the appropriate HTML file based on the route
+    let htmlFile = 'index.html';
+    
+    if (req.path.includes('dashboard')) {
+      htmlFile = 'dashboard.html';
+    } else if (req.path.includes('blog')) {
+      htmlFile = 'blog.html';
+    } else if (req.path.includes('events')) {
+      htmlFile = 'events.html';
+    } else if (req.path.includes('sermon')) {
+      htmlFile = 'sermon-archive.html';
+    } else if (req.path.includes('login')) {
+      htmlFile = 'login.html';
+    }
+    
+    const filePath = path.join(__dirname, '..', '..', 'frontend', htmlFile);
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      console.error(`HTML file not found: ${filePath}`);
+      return res.status(404).json({
+        success: false,
+        message: 'Page not found'
+      });
+    }
+    
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error('Catch-all route error:', error);
+    res.status(500).json({
       success: false,
-      message: 'API endpoint not found'
+      message: 'Internal server error'
     });
   }
-  
-  // Serve the appropriate HTML file based on the route
-  let htmlFile = 'index.html';
-  
-  if (req.path.includes('dashboard')) {
-    htmlFile = 'dashboard.html';
-  } else if (req.path.includes('blog')) {
-    htmlFile = 'blog.html';
-  } else if (req.path.includes('events')) {
-    htmlFile = 'events.html';
-  } else if (req.path.includes('sermon')) {
-    htmlFile = 'sermon-archive.html';
-  } else if (req.path.includes('login')) {
-    htmlFile = 'login.html';
-  }
-  
-  res.sendFile(path.join(__dirname, '..', htmlFile));
 });
 
 // Error logging middleware
@@ -378,10 +483,33 @@ app.use((error, req, res, next) => {
     });
   }
   
+  // Database query errors
+  if (error.name === 'MongoServerError' || error.name === 'CastError') {
+    return res.status(400).json({
+      success: false,
+      message: 'Database query error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Bad request'
+    });
+  }
+  
+  // Validation errors
+  if (error.name === 'ValidationError') {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error',
+      errors: Object.values(error.errors).map(err => err.message)
+    });
+  }
+  
   // Default error response
   res.status(500).json({
     success: false,
-    message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
+    message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message,
+    error: process.env.NODE_ENV === 'development' ? {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    } : undefined
   });
 });
 

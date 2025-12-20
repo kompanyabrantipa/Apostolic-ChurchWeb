@@ -6,6 +6,13 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const Stripe = require('stripe');
 
+// Check if we should run this server (only run MongoDB server in production)
+if (process.env.NODE_ENV === 'production' && !process.env.FORCE_LEGACY_SERVER) {
+  console.log('⚠️  Legacy server detected in production environment. MongoDB server should be used instead.');
+  console.log('💡 To force legacy server, set FORCE_LEGACY_SERVER=true');
+  process.exit(0);
+}
+
 // Load environment variables from advanced-server directory
 // This allows us to use the real Stripe keys configured there
 require('dotenv').config({ path: require('path').join(__dirname, 'advanced-server', '.env') });
@@ -66,12 +73,31 @@ const apiLimiter = rateLimit({
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [
     'http://localhost:3000',
+    'http://localhost:3001',
     'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
     'http://localhost:5500',
     'https://apostolicchurchlouisville.org',
     'https://www.apostolicchurchlouisville.org'
   ],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Cookie',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'X-HTTP-Method-Override',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
+  exposedHeaders: [
+    'Authorization',
+    'Content-Disposition',
+    'Content-Length'
+  ]
 }));
 
 // =======================

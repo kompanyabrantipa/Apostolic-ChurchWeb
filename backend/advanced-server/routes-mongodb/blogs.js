@@ -2,11 +2,12 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Blog = require('../models-mongodb/Blog');
 const { verifyToken, optionalAuth } = require('../middleware/auth-mongodb');
+const { logDetailedError, handleDatabaseError, asyncHandler } = require('../utils/error-handler');
 
 const router = express.Router();
 
 // GET /api/blogs - Get all blogs (matches DataService.getAll('blogs'))
-router.get('/', optionalAuth, async (req, res) => {
+router.get('/', optionalAuth, asyncHandler(async (req, res) => {
   try {
     const { status, published } = req.query;
     
@@ -48,15 +49,22 @@ router.get('/', optionalAuth, async (req, res) => {
 
   } catch (error) {
     console.error('Get blogs error:', error);
+    // Log detailed error information for debugging
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: 'Failed to retrieve blogs'
+      message: 'Failed to retrieve blogs',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
-});
+}));
 
 // GET /api/blogs/:id - Get single blog by ID
-router.get('/:id', optionalAuth, async (req, res) => {
+router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     const blog = await Blog.getById(id);
@@ -88,7 +96,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
       message: 'Failed to retrieve blog'
     });
   }
-});
+}));
 
 // POST /api/blogs - Create new blog (matches DataService.create('blogs', data))
 router.post('/', [
@@ -96,9 +104,13 @@ router.post('/', [
   body('title').trim().notEmpty().withMessage('Title is required'),
   body('summary').optional().trim(),
   body('content').optional().trim(),
-  body('imageUrl').optional().isURL().withMessage('Image URL must be valid'),
+  body('imageUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like images/blog.jpg) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Image URL must be a valid URL or relative path'),
   body('status').optional().isIn(['draft', 'published']).withMessage('Status must be draft or published')
-], async (req, res) => {
+], asyncHandler(async (req, res) => {
   try {
     // Check validation errors
     const errors = validationResult(req);
@@ -131,12 +143,18 @@ router.post('/', [
 
   } catch (error) {
     console.error('Create blog error:', error);
+    // Log detailed error information for debugging
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
       message: 'Failed to create blog'
     });
   }
-});
+}));
 
 // PUT /api/blogs/:id - Update blog (matches DataService.update('blogs', id, data))
 router.put('/:id', [
@@ -144,9 +162,13 @@ router.put('/:id', [
   body('title').optional().trim().notEmpty().withMessage('Title cannot be empty'),
   body('summary').optional().trim(),
   body('content').optional().trim(),
-  body('imageUrl').optional().isURL().withMessage('Image URL must be valid'),
+  body('imageUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like images/blog.jpg) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Image URL must be a valid URL or relative path'),
   body('status').optional().isIn(['draft', 'published']).withMessage('Status must be draft or published')
-], async (req, res) => {
+], asyncHandler(async (req, res) => {
   try {
     // Check validation errors
     const errors = validationResult(req);
@@ -202,10 +224,10 @@ router.put('/:id', [
       message: 'Failed to update blog'
     });
   }
-});
+}));
 
 // DELETE /api/blogs/:id - Delete blog (matches DataService.delete('blogs', id))
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyToken, asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -231,10 +253,10 @@ router.delete('/:id', verifyToken, async (req, res) => {
       message: 'Failed to delete blog'
     });
   }
-});
+}));
 
 // GET /api/blogs/stats/count - Get blog count
-router.get('/stats/count', verifyToken, async (req, res) => {
+router.get('/stats/count', verifyToken, asyncHandler(async (req, res) => {
   try {
     const count = await Blog.getCount();
     
@@ -250,10 +272,10 @@ router.get('/stats/count', verifyToken, async (req, res) => {
       message: 'Failed to get blog count'
     });
   }
-});
+}));
 
 // GET /api/blogs/recent/:limit - Get recent blogs
-router.get('/recent/:limit?', optionalAuth, async (req, res) => {
+router.get('/recent/:limit?', optionalAuth, asyncHandler(async (req, res) => {
   try {
     const limit = parseInt(req.params.limit) || 5;
     const blogs = await Blog.getRecent(limit);
@@ -273,6 +295,6 @@ router.get('/recent/:limit?', optionalAuth, async (req, res) => {
       message: 'Failed to get recent blogs'
     });
   }
-});
+}));
 
 module.exports = router;

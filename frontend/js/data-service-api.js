@@ -7,7 +7,7 @@
 const DataService = {
   // Configuration
   config: {
-    apiBaseUrl: window.Config?.api?.baseUrl || "https://api.apostolicchurchlouisville.org/api", // API base URL
+    apiBaseUrl: window.Config?.api?.baseUrl || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3001/api' : 'https://api.apostolicchurchlouisville.org/api'), // API base URL
     useApi: true, // Set to false to use localStorage only
     fallbackToLocalStorage: false, // Fallback to localStorage if API fails
     enableSync: true, // Enable real-time sync events
@@ -21,12 +21,21 @@ const DataService = {
       throw new Error("API disabled, use localStorage fallback");
     }
 
+    // Prevent requests to the root API endpoint which doesn't exist
+    if (endpoint === '/' || endpoint === '') {
+      throw new Error("Invalid API endpoint: Cannot call API root. Use specific resource endpoints like /blogs, /events, or /sermons.");
+    }
+
     try {
       const url = `${this.config.apiBaseUrl}${endpoint}`.replace('//api', '/api'); // Fix double slash if present
+      // Get authentication token from localStorage or sessionStorage
+      const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+      
       const response = await fetch(url, {
         credentials: "include", // Include cookies for authentication
         headers: {
           "Content-Type": "application/json",
+          ...(token && { 'Authorization': `Bearer ${token}` }), // Add Bearer token if available
           ...options.headers,
         },
         ...options,
@@ -51,6 +60,12 @@ const DataService = {
       } else {
         // Log the error but don't fallback for successful API responses with error status
         console.error("API request failed with non-network error:", error.message);
+        // Log additional error details for debugging
+        console.error("Error details:", {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
       }
 
       throw error;
@@ -62,33 +77,22 @@ const DataService = {
    * @param {string} type - Data type (blogs, events, sermons)
    * @returns {Array} Array of items
    */
-  async getAll(type) {
-    try {
-      // Try API first
-      if (this.config.useApi) {
-        // Map content types to their correct API endpoints
-        const endpointMap = {
-          'blogs': '/blog',
-          'events': '/events',
-          'sermons': '/sermons'
-        };
-        
-        const endpoint = endpointMap[type] || `/${type}`;
-        const response = await this.apiRequest(endpoint);
-        return response.data || [];
-      }
-    } catch (error) {
-      console.warn("API getAll failed, using localStorage:", error.message);
+  getAll: async function(type) {
+    if (this.config.useApi) {
+      // Map content types to their correct API endpoints
+      const endpointMap = {
+        'blogs': '/blogs',
+        'events': '/events',
+        'sermons': '/sermons'
+      };
+      
+      const endpoint = endpointMap[type] || `/${type}`;
+      const response = await this.apiRequest(endpoint);
+      return response.data || [];
     }
-
-    // Fallback to localStorage
-    try {
-      const items = JSON.parse(localStorage.getItem(type) || "[]");
-      return items;
-    } catch (error) {
-      console.error("localStorage getAll failed:", error);
-      return [];
-    }
+    
+    // If API is disabled, fallback to localStorage
+    throw new Error("API disabled");
   },
 
   /**
@@ -102,29 +106,36 @@ const DataService = {
       if (this.config.useApi) {
         // Map content types to their correct API endpoints
         const endpointMap = {
-          'blogs': '/blog/public',
-          'events': '/events/public',
-          'sermons': '/sermons/public'
+          'blogs': '/blogs?published=true',
+          'events': '/events?published=true',
+          'sermons': '/sermons?published=true'
         };
         
         const endpoint = endpointMap[type] || `/${type}?published=true`;
         const response = await this.apiRequest(endpoint);
         return response.data || [];
       }
+      
+      // If API is disabled, fallback to localStorage
+      throw new Error("API disabled");
     } catch (error) {
-      console.warn(
-        "API getPublished failed, using localStorage:",
-        error.message
-      );
-    }
-
-    // Fallback to localStorage
-    try {
-      const items = JSON.parse(localStorage.getItem(type) || "[]");
-      return items.filter((item) => item.status === "published");
-    } catch (error) {
-      console.error("localStorage getPublished failed:", error);
-      return [];
+      // Only fallback to localStorage if configured to do so or if API is disabled
+      if (this.config.fallbackToLocalStorage || !this.config.useApi) {
+        console.warn(
+          "API getPublished failed, using localStorage:",
+          error.message
+        );
+        try {
+          const items = JSON.parse(localStorage.getItem(type) || "[]");
+          return items.filter((item) => item.status === "published");
+        } catch (localStorageError) {
+          console.error("localStorage getPublished failed:", localStorageError);
+          return [];
+        }
+      } else {
+        // Re-throw the error if we're not supposed to fallback
+        throw error;
+      }
     }
   },
 
@@ -140,7 +151,7 @@ const DataService = {
       if (this.config.useApi) {
         // Map content types to their correct API endpoints
         const endpointMap = {
-          'blogs': '/blog',
+          'blogs': '/blogs',
           'events': '/events',
           'sermons': '/sermons'
         };
@@ -149,17 +160,24 @@ const DataService = {
         const response = await this.apiRequest(`${basePath}/${id}`);
         return response.data || null;
       }
+      
+      // If API is disabled, fallback to localStorage
+      throw new Error("API disabled");
     } catch (error) {
-      console.warn("API getById failed, using localStorage:", error.message);
-    }
-
-    // Fallback to localStorage
-    try {
-      const items = JSON.parse(localStorage.getItem(type) || "[]");
-      return items.find((item) => item.id === id) || null;
-    } catch (error) {
-      console.error("localStorage getById failed:", error);
-      return null;
+      // Only fallback to localStorage if configured to do so or if API is disabled
+      if (this.config.fallbackToLocalStorage || !this.config.useApi) {
+        console.warn("API getById failed, using localStorage:", error.message);
+        try {
+          const items = JSON.parse(localStorage.getItem(type) || "[]");
+          return items.find((item) => item.id === id) || null;
+        } catch (localStorageError) {
+          console.error("localStorage getById failed:", localStorageError);
+          return null;
+        }
+      } else {
+        // Re-throw the error if we're not supposed to fallback
+        throw error;
+      }
     }
   },
 
@@ -178,7 +196,7 @@ const DataService = {
       if (this.config.useApi) {
         // Map content types to their correct API endpoints
         const endpointMap = {
-          'blogs': '/blog',
+          'blogs': '/blogs',
           'events': '/events',
           'sermons': '/sermons'
         };
@@ -196,7 +214,8 @@ const DataService = {
     }
 
     // Fallback to localStorage or dual-write
-    if (!createdItem || this.config.fallbackToLocalStorage) {
+    // When API is enabled, completely disable localStorage fallback for create/update/delete
+    if ((!createdItem && !this.config.useApi) || this.config.fallbackToLocalStorage) {
       try {
         const items = JSON.parse(localStorage.getItem(type) || "[]");
 
@@ -248,7 +267,7 @@ const DataService = {
       if (this.config.useApi) {
         // Map content types to their correct API endpoints
         const endpointMap = {
-          'blogs': '/blog',
+          'blogs': '/blogs',
           'events': '/events',
           'sermons': '/sermons'
         };
@@ -266,7 +285,8 @@ const DataService = {
     }
 
     // Fallback to localStorage or dual-write
-    if (!updatedItem || this.config.fallbackToLocalStorage) {
+    // When API is enabled, completely disable localStorage fallback for create/update/delete
+    if ((!updatedItem && !this.config.useApi) || this.config.fallbackToLocalStorage) {
       try {
         const items = JSON.parse(localStorage.getItem(type) || "[]");
         const index = items.findIndex((item) => item.id === id);
@@ -318,7 +338,7 @@ const DataService = {
       if (this.config.useApi) {
         // Map content types to their correct API endpoints
         const endpointMap = {
-          'blogs': '/blog',
+          'blogs': '/blogs',
           'events': '/events',
           'sermons': '/sermons'
         };
@@ -335,7 +355,8 @@ const DataService = {
     }
 
     // Fallback to localStorage or dual-write
-    if (!deletedItem || this.config.fallbackToLocalStorage) {
+    // When API is enabled, completely disable localStorage fallback for create/update/delete
+    if ((!deletedItem && !this.config.useApi) || this.config.fallbackToLocalStorage) {
       try {
         const items = JSON.parse(localStorage.getItem(type) || "[]");
         const index = items.findIndex((item) => item.id === id);

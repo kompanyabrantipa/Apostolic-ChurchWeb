@@ -48,9 +48,16 @@ router.get('/', optionalAuth, async (req, res) => {
 
   } catch (error) {
     console.error('Get sermons error:', error);
+    // Log detailed error information for debugging
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: 'Failed to retrieve sermons'
+      message: 'Failed to retrieve sermons',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 });
@@ -97,9 +104,21 @@ router.post('/', [
   body('speaker').trim().notEmpty().withMessage('Speaker is required'),
   body('date').isISO8601().withMessage('Date must be a valid ISO date'),
   body('description').optional().trim(),
-  body('videoUrl').optional().isURL().withMessage('Video URL must be valid'),
-  body('audioUrl').optional().isURL().withMessage('Audio URL must be valid'),
-  body('thumbnailUrl').optional().isURL().withMessage('Thumbnail URL must be valid'),
+  body('videoUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like videos/sermon.mp4) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Video URL must be a valid URL or relative path'),
+  body('audioUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like audio/sermon.mp3) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Audio URL must be a valid URL or relative path'),
+  body('thumbnailUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like images/thumbnail.jpg) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Thumbnail URL must be a valid URL or relative path'),
   body('status').optional().isIn(['draft', 'published']).withMessage('Status must be draft or published')
 ], async (req, res) => {
   try {
@@ -145,12 +164,24 @@ router.post('/', [
 router.put('/:id', [
   verifyToken,
   body('title').optional().trim().notEmpty().withMessage('Title cannot be empty'),
-  body('speaker').optional().trim().notEmpty().withMessage('Speaker cannot be empty'),
+  body('speaker').optional().trim().notEmpty().withMessage('Speaker is required'),
   body('date').optional().isISO8601().withMessage('Date must be a valid ISO date'),
   body('description').optional().trim(),
-  body('videoUrl').optional().isURL().withMessage('Video URL must be valid'),
-  body('audioUrl').optional().isURL().withMessage('Audio URL must be valid'),
-  body('thumbnailUrl').optional().isURL().withMessage('Thumbnail URL must be valid'),
+  body('videoUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like videos/sermon.mp4) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Video URL must be a valid URL or relative path'),
+  body('audioUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like audio/sermon.mp3) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Audio URL must be a valid URL or relative path'),
+  body('thumbnailUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like images/thumbnail.jpg) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Thumbnail URL must be a valid URL or relative path'),
   body('status').optional().isIn(['draft', 'published']).withMessage('Status must be draft or published')
 ], async (req, res) => {
   try {

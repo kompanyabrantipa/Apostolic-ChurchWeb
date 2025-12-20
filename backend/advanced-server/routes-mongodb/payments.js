@@ -9,14 +9,30 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Use different Stripe secret keys for dev vs production
 const stripeSecretKey = isProduction
-  ? process.env.STRIPE_SECRET_KEY_LIVE   
-  : process.env.STRIPE_SECRET_KEY_TEST; 
+  ? (process.env.STRIPE_SECRET_KEY_LIVE || process.env.STRIPE_SECRET_KEY)   
+  : (process.env.STRIPE_SECRET_KEY_TEST || process.env.STRIPE_SECRET_KEY);
 
-if (!stripeSecretKey) {
-  throw new Error('❌ Missing Stripe secret key in environment variables.');
+// Only initialize Stripe if the secret key exists
+let stripe = null;
+if (stripeSecretKey) {
+  try {
+    stripe = Stripe(stripeSecretKey);
+  } catch (error) {
+    console.warn('⚠️ Stripe initialization failed:', error.message);
+  }
 }
 
-const stripe = Stripe(stripeSecretKey);
+/**
+ * @route   GET /api/payments/health
+ * @desc    Health check for payments service
+ * @access  Public
+ */
+router.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Payments service is running'
+  });
+});
 
 /**
  * @route   POST /api/payments/create-payment-intent
@@ -35,6 +51,14 @@ router.post(
     body('metadata.donor_name').optional().isString().withMessage('Donor name must be a string')
   ],
   async (req, res) => {
+    // Only proceed if Stripe is initialized
+    if (!stripe) {
+      return res.status(503).json({
+        success: false,
+        message: 'Stripe service is not available'
+      });
+    }
+
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -101,6 +125,14 @@ router.post(
   '/confirm-payment',
   [body('payment_intent_id').isString().notEmpty()],
   async (req, res) => {
+    // Only proceed if Stripe is initialized
+    if (!stripe) {
+      return res.status(503).json({
+        success: false,
+        message: 'Stripe service is not available'
+      });
+    }
+
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -133,6 +165,14 @@ router.post(
  * @route   GET /api/payments/test
  */
 router.get('/test', async (req, res) => {
+  // Only proceed if Stripe is initialized
+  if (!stripe) {
+    return res.status(503).json({
+      success: false,
+      message: 'Stripe service is not available'
+    });
+  }
+
   try {
     const testPaymentIntent = await stripe.paymentIntents.create({
       amount: 100,

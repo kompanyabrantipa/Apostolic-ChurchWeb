@@ -97,7 +97,11 @@ router.post('/', [
   body('date').isISO8601().withMessage('Date must be a valid ISO date'),
   body('location').optional().trim(),
   body('description').optional().trim(),
-  body('imageUrl').optional().isURL().withMessage('Image URL must be valid'),
+  body('imageUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like images/event.jpg) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Image URL must be a valid URL or relative path'),
   body('status').optional().isIn(['draft', 'published']).withMessage('Status must be draft or published')
 ], async (req, res) => {
   try {
@@ -144,7 +148,11 @@ router.put('/:id', [
   body('date').optional().isISO8601().withMessage('Date must be a valid ISO date'),
   body('location').optional().trim(),
   body('description').optional().trim(),
-  body('imageUrl').optional().isURL().withMessage('Image URL must be valid'),
+  body('imageUrl').optional().custom((value) => {
+    if (!value || value === '') return true; // Allow empty strings
+    // Allow relative paths (like images/event.jpg) or full URLs
+    return /^(https?:\/\/.+|[^\/\s]+\/.*|[^\/\s]+\.[a-zA-Z]{2,4})$/.test(value) || value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }).withMessage('Image URL must be a valid URL or relative path'),
   body('status').optional().isIn(['draft', 'published']).withMessage('Status must be draft or published')
 ], async (req, res) => {
   try {

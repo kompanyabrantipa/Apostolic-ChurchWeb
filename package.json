@@ -2,7 +2,7 @@
   "name": "apostolic-church-admin",
   "version": "1.0.0",
   "description": "Admin dashboard for Apostolic Church International website",
-  "main": "backend/server.js",
+  "main": "backend/advanced-server/server-mongodb.js",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "compression": "^1.8.1",
@@ -24,8 +24,8 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "node backend/server.js",
+    "start": "node backend/advanced-server/server-mongodb.js",
+    "dev": "node backend/advanced-server/server-mongodb.js",
     "seed-admin": "node backend/seedAdmin.js",
     "start-advanced": "node backend/advanced-server/server.js",
     "start-mongodb": "node backend/advanced-server/server-mongodb.js"

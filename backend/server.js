@@ -173,7 +173,17 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 app.use(cookieParser());
 
 // Serve static files
-app.use(express.static(path.join(__dirname, '../frontend')));
+const frontendPath = path.join(__dirname, '../frontend');
+app.use(express.static(frontendPath, {
+  setHeaders: function (res, path) {
+    // Ensure JavaScript files have the correct content type
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
+app.use('/js', express.static(path.join(__dirname, '../frontend/js')));
+app.use('/css', express.static(path.join(__dirname, '../frontend/css')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
@@ -315,6 +325,20 @@ app.use((err, req, res, next) => {
     message: 'Something went wrong on the server',
     error: process.env.NODE_ENV === 'production' ? null : err.message,
   });
+});
+
+// Catch-all for unmatched routes (must be last)
+app.use((req, res) => {
+  // Don't serve HTML for API or JS requests
+  if (req.path.startsWith('/api/') || req.path.startsWith('/js/')) {
+    return res.status(404).json({
+      success: false,
+      message: 'Endpoint not found'
+    });
+  }
+  
+  // For other requests, serve the main index.html (SPA support)
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // =======================

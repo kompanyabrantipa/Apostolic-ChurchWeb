@@ -9,7 +9,7 @@ const DataService = {
   config: {
     apiBaseUrl: window.Config?.api?.baseUrl || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3001/api' : 'https://api.apostolicchurchlouisville.org/api'), // API base URL
     useApi: true, // Set to false to use localStorage only
-    fallbackToLocalStorage: false, // Fallback to localStorage if API fails
+    fallbackToLocalStorage: window.Config?.environment === 'production' ? false : true, // Fallback to localStorage if API fails (disabled in production)
     enableSync: true, // Enable real-time sync events
   },
 
@@ -21,34 +21,58 @@ const DataService = {
       throw new Error("API disabled, use localStorage fallback");
     }
 
+    // Validate API base URL
+    if (!this.config.apiBaseUrl || typeof this.config.apiBaseUrl !== 'string') {
+      throw new Error("Invalid API base URL configuration");
+    }
+
     // Prevent requests to the root API endpoint which doesn't exist
     if (endpoint === '/' || endpoint === '') {
       throw new Error("Invalid API endpoint: Cannot call API root. Use specific resource endpoints like /blogs, /events, or /sermons.");
     }
 
     try {
-      const url = `${this.config.apiBaseUrl}${endpoint}`.replace('//api', '/api'); // Fix double slash if present
+      let url = `${this.config.apiBaseUrl}${endpoint}`;
+      
+      // Fix double slash if present
+      if (url.includes('//api')) {
+        url = url.replace('//api', '/api');
+      }
       
       // Debug logging
-      console.log(`🔍 API Request: ${options.method || 'GET'} ${url}`);
+      if (window.Config?.debug?.enabled) {
+        console.log(`🔍 API Request: ${options.method || 'GET'} ${url}`);
+      }
       
       // Get authentication token from localStorage or sessionStorage
       const token = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
       
-      const response = await fetch(url, {
+      // Add timeout to fetch requests for better production reliability
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), window.Config?.api?.timeout || 10000);
+      
+      const fetchOptions = {
         credentials: "include", // Include cookies for authentication
         headers: {
           "Content-Type": "application/json",
           ...(token && { 'Authorization': `Bearer ${token}` }), // Add Bearer token if available
           ...options.headers,
         },
+        signal: controller.signal,
         ...options,
-      });
+      };
+      
+      const response = await fetch(url, fetchOptions);
+      clearTimeout(timeoutId);
 
-      console.log(`📥 API Response: ${response.status} ${response.statusText} for ${url}`);
+      if (window.Config?.debug?.enabled) {
+        console.log(`📥 API Response: ${response.status} ${response.statusText} for ${url}`);
+      }
       
       // Log response headers for debugging
-      console.log('📋 Response Headers:', [...response.headers.entries()]);
+      if (window.Config?.debug?.enabled) {
+        console.log('📋 Response Headers:', [...response.headers.entries()]);
+      }
 
       if (!response.ok) {
         // Try to parse error response as JSON first
@@ -70,8 +94,20 @@ const DataService = {
       const contentType = response.headers.get('content-type');
       console.log(`📄 Content-Type: ${contentType}`);
       
+      // Check content type before processing
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(`Invalid content type: ${contentType}. Expected application/json.`);
+      }
+      
       const textResponse = await response.text();
-      console.log(`📦 Response Body: ${textResponse.substring(0, 200)}${textResponse.length > 200 ? '...' : ''}`);
+      
+      // Log response body for debugging (limit size in production)
+      if (window.Config?.debug?.enabled) {
+        console.log(`📦 Response Body: ${textResponse.substring(0, 200)}${textResponse.length > 200 ? '...' : ''}`);
+      } else if (textResponse.length > 10000) {
+        // In production, only log first 1000 chars of large responses
+        console.log(`📦 Response Body (truncated): ${textResponse.substring(0, 1000)}...`);
+      }
       
       // Try to parse as JSON
       try {
@@ -85,8 +121,14 @@ const DataService = {
     } catch (error) {
       console.error("API request failed:", error);
 
+      // Handle timeout and abort errors specifically
+      if (error.name === 'AbortError') {
+        console.warn("API request timed out or was aborted");
+        error = new Error("Request timed out. Please check your connection and try again.");
+      }
+
       // Only fallback to localStorage on network errors, not on successful API responses
-      if (this.config.fallbackToLocalStorage && (error.name === 'TypeError' || error.message.includes('fetch'))) {
+      if (this.config.fallbackToLocalStorage && (error.name === 'TypeError' || error.message.includes('fetch') || error.name === 'AbortError')) {
         console.log("Falling back to localStorage due to network error...");
         // Let the calling method handle localStorage fallback
       } else {
@@ -277,7 +319,11 @@ const DataService = {
 
     // Trigger sync events
     if (this.config.enableSync && createdItem) {
-      this.triggerSync(type, "create", createdItem);
+      try {
+        this.triggerSync(type, "create", createdItem);
+      } catch (syncError) {
+        console.warn("Sync event trigger failed:", syncError.message);
+      }
     }
 
     return createdItem;
@@ -349,7 +395,11 @@ const DataService = {
 
     // Trigger sync events
     if (this.config.enableSync && updatedItem) {
-      this.triggerSync(type, "update", updatedItem);
+      try {
+        this.triggerSync(type, "update", updatedItem);
+      } catch (syncError) {
+        console.warn("Sync event trigger failed:", syncError.message);
+      }
     }
 
     return updatedItem;
@@ -414,7 +464,11 @@ const DataService = {
 
     // Trigger sync events
     if (this.config.enableSync && deletedItem) {
-      this.triggerSync(type, "delete", deletedItem);
+      try {
+        this.triggerSync(type, "delete", deletedItem);
+      } catch (syncError) {
+        console.warn("Sync event trigger failed:", syncError.message);
+      }
     }
 
     return !!deletedItem;
@@ -446,9 +500,12 @@ const DataService = {
         })
       );
 
-      console.log(`🔄 Sync event triggered: ${action} ${type}`, item);
+      if (window.Config?.debug?.enabled) {
+        console.log(`🔄 Sync event triggered: ${action} ${type}`, item);
+      }
     } catch (error) {
       console.error("Failed to trigger sync event:", error);
+      // Don't throw error to prevent crashing the application
     }
   },
 
@@ -484,6 +541,19 @@ const DataService = {
     return { ...this.config };
   },
 };
+
+// Attach DataService to window object for global access
+// This ensures it's available for both module and non-module usage
+(function() {
+  if (typeof window !== 'undefined') {
+    window.DataService = DataService;
+  }
+  
+  // Export for module usage
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = DataService;
+  }
+})();
 
 // Initialize DataService
 console.log("🔧 Enhanced DataService with API integration loaded");

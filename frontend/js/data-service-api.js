@@ -9,7 +9,7 @@ const DataService = {
   config: {
     apiBaseUrl: window.Config?.api?.baseUrl || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3001/api' : 'https://api.apostolicchurchlouisville.org/api'), // API base URL
     useApi: true, // Set to false to use localStorage only
-    fallbackToLocalStorage: window.Config?.environment === 'production' ? false : true, // Fallback to localStorage if API fails (disabled in production)
+    fallbackToLocalStorage: (window.Config?.environment === 'production' ? false : true) || true, // Fallback to localStorage if API fails (disabled in production)
     enableSync: true, // Enable real-time sync events
   },
 
@@ -121,12 +121,18 @@ const DataService = {
         const errorText = await response.text();
         console.log(`❌ Error Response Body: ${errorText.substring(0, 200)}${errorText.length > 200 ? '...' : ''}`);
         
+        // Check if error response is HTML (common for 404 errors)
+        if (errorText.trim().startsWith('<!DOCTYPE html') || errorText.trim().startsWith('<html')) {
+          // For HTML error responses, provide a cleaner error message
+          throw new Error(`HTTP ${response.status}: ${response.statusText}. The requested API endpoint may not exist or the server is misconfigured.`);
+        }
+        
         let errorData;
         try {
           errorData = JSON.parse(errorText);
         } catch (parseError) {
           // If not JSON, treat as plain text
-          errorData = { message: errorText || "Unknown error" };
+          errorData = { message: errorText.substring(0, 200) || "Unknown error" };
         }
         
         throw new Error(errorData.message || `HTTP ${response.status}`);

@@ -90,7 +90,8 @@ async function createPaymentIntent(amount, currency = "usd", metadata = {}) {
 }
 
 async function makeServerRequest(endpoint, data) {
-  const response = await fetch(`${window.Config.api.baseUrl}/payments${endpoint}`, {
+  const baseUrl = window.Config?.api?.baseUrl || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3001/api' : 'https://api.apostolicchurchlouisville.org/api');
+  const response = await fetch(`${baseUrl}/payments${endpoint}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

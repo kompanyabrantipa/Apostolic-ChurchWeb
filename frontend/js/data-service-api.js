@@ -25,6 +25,20 @@ const DataService = {
     if (!this.config.apiBaseUrl || typeof this.config.apiBaseUrl !== 'string') {
       throw new Error("Invalid API base URL configuration");
     }
+    
+    // Validate that API base URL has proper protocol in production
+    if (window.Config?.environment === 'production') {
+      if (!this.config.apiBaseUrl.startsWith('https://')) {
+        console.warn('⚠️ Production API URL should use HTTPS:', this.config.apiBaseUrl);
+      }
+      
+      // Check if API URL matches expected production pattern
+      const expectedPattern = /^https:\/\/api\.[^.]+\.[^/]+\/api$/;
+      if (!expectedPattern.test(this.config.apiBaseUrl)) {
+        console.warn('⚠️ Production API URL may be incorrectly configured. Expected pattern: https://api.domain.tld/api');
+        console.warn('📍 Current API URL:', this.config.apiBaseUrl);
+      }
+    }
 
     // Prevent requests to the root API endpoint which doesn't exist
     if (endpoint === '/' || endpoint === '') {
@@ -32,11 +46,39 @@ const DataService = {
     }
 
     try {
-      let url = `${this.config.apiBaseUrl}${endpoint}`;
+      // Ensure API base URL doesn't end with a slash
+      let baseUrl = this.config.apiBaseUrl;
+      if (baseUrl.endsWith('/')) {
+        baseUrl = baseUrl.slice(0, -1);
+      }
       
-      // Fix double slash if present
-      if (url.includes('//api')) {
-        url = url.replace('//api', '/api');
+      // Ensure endpoint starts with a slash
+      let normalizedEndpoint = endpoint;
+      if (!endpoint.startsWith('/')) {
+        normalizedEndpoint = '/' + endpoint;
+      }
+      
+      // Construct the full URL
+      let url = `${baseUrl}${normalizedEndpoint}`;
+      
+      // Fix double slash if present (but preserve protocol)
+      if (url.includes('://')) {
+        // Split by protocol
+        const parts = url.split('://');
+        const protocol = parts[0];
+        const rest = parts[1].replace(/\/\/+/g, '/');
+        url = protocol + '://' + rest;
+      } else {
+        // Handle relative URLs
+        url = url.replace(/\/\/+/g, '/');
+      }
+      
+      // Ensure we have the proper protocol
+      if (url.startsWith('//')) {
+        url = window.location.protocol + url;
+      } else if (url.startsWith('/')) {
+        // Handle relative URLs
+        url = window.location.origin + url;
       }
       
       // Debug logging
@@ -96,7 +138,29 @@ const DataService = {
       
       // Check content type before processing
       if (!contentType || !contentType.includes('application/json')) {
-        throw new Error(`Invalid content type: ${contentType}. Expected application/json.`);
+        // In production, if we get HTML instead of JSON, it's likely a routing issue
+        if (contentType && contentType.includes('text/html')) {
+          console.error(`🚨 API routing error: Received HTML instead of JSON from ${url}`);
+          console.error(`🚨 This usually indicates the API endpoint is not properly configured or the server is returning a fallback page.`);
+                
+          // Provide specific guidance based on environment
+          if (window.Config?.environment === 'production') {
+            console.error(`🔧 PRODUCTION TROUBLESHOOTING:`);
+            console.error(`   1. Verify the API server is running at: ${this.config.apiBaseUrl}`);
+            console.error(`   2. Check DNS records for api.${window.location.hostname}`);
+            console.error(`   3. Verify SSL certificate is valid for the API domain`);
+            console.error(`   4. Check server routing configuration`);
+          } else {
+            console.error(`🔧 DEVELOPMENT TROUBLESHOOTING:`);
+            console.error(`   1. Verify the backend server is running on port 3001`);
+            console.error(`   2. Check that API routes are properly configured`);
+            console.error(`   3. Verify the API base URL is correct: ${this.config.apiBaseUrl}`);
+          }
+                
+          throw new Error(`API routing error: Server returned HTML instead of JSON. Please check API configuration.`);
+        } else {
+          throw new Error(`Invalid content type: ${contentType}. Expected application/json.`);
+        }
       }
       
       const textResponse = await response.text();
@@ -107,6 +171,35 @@ const DataService = {
       } else if (textResponse.length > 10000) {
         // In production, only log first 1000 chars of large responses
         console.log(`📦 Response Body (truncated): ${textResponse.substring(0, 1000)}...`);
+      }
+      
+      // Check if response is HTML instead of JSON (common in production misconfigurations)
+      if (textResponse.trim().startsWith('<!DOCTYPE html') || textResponse.trim().startsWith('<html') || 
+          (contentType && contentType.includes('text/html'))) {
+        console.error(`🚨 Critical Error: Received HTML document instead of JSON from API endpoint ${url}`);
+        console.error(`🚨 This indicates the API endpoint is not properly configured or is returning a fallback page.`);
+        console.error(`🚨 Response preview: ${textResponse.substring(0, 200)}...`);
+        
+        // Provide specific guidance based on environment
+        if (window.Config?.environment === 'production') {
+          console.error(`🔧 PRODUCTION TROUBLESHOOTING:`);
+          console.error(`   1. Verify the API server is running at: ${this.config.apiBaseUrl}`);
+          console.error(`   2. Check DNS records for api.${window.location.hostname}`);
+          console.error(`   3. Verify SSL certificate is valid for the API domain`);
+          console.error(`   4. Check server routing configuration`);
+        } else {
+          console.error(`🔧 DEVELOPMENT TROUBLESHOOTING:`);
+          console.error(`   1. Verify the backend server is running on port 3001`);
+          console.error(`   2. Check that API routes are properly configured`);
+          console.error(`   3. Verify the API base URL is correct: ${this.config.apiBaseUrl}`);
+        }
+        
+        // In production, provide more helpful error message
+        if (window.Config?.environment === 'production') {
+          throw new Error(`API configuration error: Server returned an HTML page instead of JSON data. This usually indicates the API server is not properly configured for production deployment.`);
+        } else {
+          throw new Error(`Invalid response: Received HTML instead of JSON. Check that the API server is running and properly configured.`);
+        }
       }
       
       // Try to parse as JSON
@@ -127,8 +220,31 @@ const DataService = {
         error = new Error("Request timed out. Please check your connection and try again.");
       }
 
+      // Handle HTML response errors (production routing issues)
+      if (error.message.includes('API routing error') || error.message.includes('HTML instead of JSON')) {
+        // In production, if we're getting HTML, try to determine the correct API URL
+        if (window.Config?.environment === 'production') {
+          console.warn("Attempting to determine correct API URL...");
+          // Try alternative API URL patterns that are common in production deployments
+          const alternativeUrls = [
+            window.location.origin + '/api',  // Same domain API
+            window.location.origin + '/backend/api',  // Backend subdirectory
+            'https://api.' + window.location.hostname + '/api',  // Subdomain API
+            'https://' + window.location.hostname + '/api'  // Root domain API
+          ];
+          
+          for (const altUrl of alternativeUrls) {
+            if (altUrl !== this.config.apiBaseUrl) {
+              console.warn(`Try alternative API URL: ${altUrl}`);
+              // We could potentially retry with alternative URLs here
+              break;
+            }
+          }
+        }
+      }
+
       // Only fallback to localStorage on network errors, not on successful API responses
-      if (this.config.fallbackToLocalStorage && (error.name === 'TypeError' || error.message.includes('fetch') || error.name === 'AbortError')) {
+      if (this.config.fallbackToLocalStorage && (error.name === 'TypeError' || error.message.includes('fetch') || error.name === 'AbortError' || error.message.includes('HTML instead of JSON'))) {
         console.log("Falling back to localStorage due to network error...");
         // Let the calling method handle localStorage fallback
       } else {
@@ -540,13 +656,75 @@ const DataService = {
   getConfig() {
     return { ...this.config };
   },
+  
+  /**
+   * Test API connectivity
+   * @returns {Promise<boolean>} True if API is reachable, false otherwise
+   */
+  async testConnectivity() {
+    try {
+      // Test a simple endpoint that should always exist
+      const testEndpoints = ['/health', '/blogs', '/events', '/sermons'];
+      
+      for (const endpoint of testEndpoints) {
+        try {
+          const url = `${this.config.apiBaseUrl}${endpoint}`;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          
+          const contentType = response.headers.get('content-type');
+          
+          // If we get a valid JSON response or a proper 404, the API is working
+          if ((response.ok && contentType && contentType.includes('application/json')) || 
+              (response.status === 404 && contentType && contentType.includes('application/json'))) {
+            if (window.Config?.debug?.enabled) {
+              console.log(`✅ API connectivity test passed for ${endpoint}`);
+            }
+            return true;
+          }
+          
+          // If we get HTML, the API is misconfigured
+          if (contentType && contentType.includes('text/html')) {
+            console.warn(`⚠️ API returned HTML for ${endpoint} - possible misconfiguration`);
+            continue;
+          }
+        } catch (testError) {
+          // Continue to next endpoint
+          continue;
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('API connectivity test failed:', error.message);
+      return false;
+    }
+  },
 };
 
 // Attach DataService to window object for global access
 // This ensures it's available for both module and non-module usage
-(function() {
+(async function() {
   if (typeof window !== 'undefined') {
     window.DataService = DataService;
+    
+    // Run diagnostics in development mode
+    if (window.Config?.debug?.enabled) {
+      try {
+        const isConnected = await DataService.testConnectivity();
+        if (!isConnected) {
+          console.warn('⚠️ API connectivity test failed - check API configuration');
+        }
+      } catch (error) {
+        console.warn('Diagnostics failed:', error.message);
+      }
+    }
   }
   
   // Export for module usage

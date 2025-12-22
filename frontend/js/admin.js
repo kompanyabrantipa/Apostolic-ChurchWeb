@@ -122,20 +122,39 @@ async function loadContentCounts() {
         // Otherwise, fall back to localStorage for backward compatibility
         if (DataService.config.useApi) {
             // Fetch counts from API endpoints
-            const blogs = await DataService.getAll('blogs');
-            const events = await DataService.getAll('events');
-            const sermons = await DataService.getAll('sermons');
-            
-            // Update dashboard stats
-            const blogCount = document.getElementById('blogCount');
-            const eventCount = document.getElementById('eventCount');
-            const sermonCount = document.getElementById('sermonCount');
-            
-            if (blogCount) blogCount.textContent = blogs.length;
-            if (eventCount) eventCount.textContent = events.length;
-            if (sermonCount) sermonCount.textContent = sermons.length;
-            
-            console.log(`Stats loaded from API: ${blogs.length} blogs, ${events.length} events, ${sermons.length} sermons`);
+            try {
+                const blogs = await DataService.getAll('blogs');
+                const events = await DataService.getAll('events');
+                const sermons = await DataService.getAll('sermons');
+                
+                // Update dashboard stats
+                const blogCount = document.getElementById('blogCount');
+                const eventCount = document.getElementById('eventCount');
+                const sermonCount = document.getElementById('sermonCount');
+                
+                if (blogCount) blogCount.textContent = blogs.length;
+                if (eventCount) eventCount.textContent = events.length;
+                if (sermonCount) sermonCount.textContent = sermons.length;
+                
+                console.log(`Stats loaded from API: ${blogs.length} blogs, ${events.length} events, ${sermons.length} sermons`);
+            } catch (apiError) {
+                console.error('API request failed, falling back to localStorage:', apiError);
+                // Fallback to localStorage if API fails
+                const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+                const events = JSON.parse(localStorage.getItem('events') || '[]');
+                const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+                
+                // Update dashboard stats
+                const blogCount = document.getElementById('blogCount');
+                const eventCount = document.getElementById('eventCount');
+                const sermonCount = document.getElementById('sermonCount');
+                
+                if (blogCount) blogCount.textContent = blogs.length;
+                if (eventCount) eventCount.textContent = events.length;
+                if (sermonCount) sermonCount.textContent = sermons.length;
+                
+                console.log(`Stats loaded from localStorage (API fallback): ${blogs.length} blogs, ${events.length} events, ${sermons.length} sermons`);
+            }
         } else {
             // Get counts from localStorage (backward compatibility)
             const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
@@ -166,53 +185,104 @@ async function loadRecentContent() {
         // When API mode is enabled, fetch recent content from the API
         // Otherwise, fall back to localStorage for backward compatibility
         if (DataService.config.useApi) {
-            // Fetch recent content from API endpoints
-            const blogs = await DataService.getAll('blogs');
-            const events = await DataService.getAll('events');
-            
-            // Sort by date (newest first)
-            const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 3);
-            const sortedEvents = [...events].filter(event => new Date(event.date) >= new Date()).sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 3);
-            
-            // Update recent blog posts
-            const recentBlogPosts = document.getElementById('recentBlogPosts');
-            if (recentBlogPosts) {
-                if (sortedBlogs.length > 0) {
-                    recentBlogPosts.innerHTML = sortedBlogs.map(blog => `
-                        <div class="recent-item">
-                            <h4>${blog.title}</h4>
-                            <p>${blog.summary || ''}</p>
-                            <div class="item-meta">
-                                <span>${formatDate(blog.createdAt)}</span>
-                                <span class="status-badge ${blog.status}">${blog.status}</span>
+            try {
+                // Fetch recent content from API endpoints
+                const blogs = await DataService.getAll('blogs');
+                const events = await DataService.getAll('events');
+                
+                // Sort by date (newest first)
+                const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 3);
+                const sortedEvents = [...events].filter(event => new Date(event.date) >= new Date()).sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 3);
+                
+                // Update recent blog posts
+                const recentBlogPosts = document.getElementById('recentBlogPosts');
+                if (recentBlogPosts) {
+                    if (sortedBlogs.length > 0) {
+                        recentBlogPosts.innerHTML = sortedBlogs.map(blog => `
+                            <div class="recent-item">
+                                <h4>${blog.title}</h4>
+                                <p>${blog.summary || ''}</p>
+                                <div class="item-meta">
+                                    <span>${formatDate(blog.createdAt)}</span>
+                                    <span class="status-badge ${blog.status}">${blog.status}</span>
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
-                } else {
-                    recentBlogPosts.innerHTML = '<p class="no-content">No recent blog posts</p>';
+                        `).join('');
+                    } else {
+                        recentBlogPosts.innerHTML = '<p class="no-content">No recent blog posts</p>';
+                    }
                 }
-            }
-            
-            // Update recent events
-            const recentEvents = document.getElementById('upcomingEvents');
-            if (recentEvents) {
-                if (sortedEvents.length > 0) {
-                    recentEvents.innerHTML = sortedEvents.map(event => `
-                        <div class="recent-item">
-                            <h4>${event.title}</h4>
-                            <p>${event.location || ''}</p>
-                            <div class="item-meta">
-                                <span>${formatDate(event.date)}</span>
-                                <span class="status-badge ${event.status}">${event.status}</span>
+                
+                // Update recent events
+                const recentEvents = document.getElementById('upcomingEvents');
+                if (recentEvents) {
+                    if (sortedEvents.length > 0) {
+                        recentEvents.innerHTML = sortedEvents.map(event => `
+                            <div class="recent-item">
+                                <h4>${event.title}</h4>
+                                <p>${event.location || ''}</p>
+                                <div class="item-meta">
+                                    <span>${formatDate(event.date)}</span>
+                                    <span class="status-badge ${event.status}">${event.status}</span>
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
-                } else {
-                    recentEvents.innerHTML = '<p class="no-content">No upcoming events</p>';
+                        `).join('');
+                    } else {
+                        recentEvents.innerHTML = '<p class="no-content">No upcoming events</p>';
+                    }
                 }
+                
+                console.log(`Recent content loaded from API: ${sortedBlogs.length} blogs, ${sortedEvents.length} events`);
+            } catch (apiError) {
+                console.error('API request failed, falling back to localStorage:', apiError);
+                // Fallback to localStorage if API fails
+                const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+                const events = JSON.parse(localStorage.getItem('events') || '[]');
+                
+                // Sort by date (newest first)
+                const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 3);
+                const sortedEvents = [...events].filter(event => new Date(event.date) >= new Date()).sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 3);
+                
+                // Update recent blog posts
+                const recentBlogPosts = document.getElementById('recentBlogPosts');
+                if (recentBlogPosts) {
+                    if (sortedBlogs.length > 0) {
+                        recentBlogPosts.innerHTML = sortedBlogs.map(blog => `
+                            <div class="recent-item">
+                                <h4>${blog.title}</h4>
+                                <p>${blog.summary || ''}</p>
+                                <div class="item-meta">
+                                    <span>${formatDate(blog.createdAt)}</span>
+                                    <span class="status-badge ${blog.status}">${blog.status}</span>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        recentBlogPosts.innerHTML = '<p class="empty-message">No blog posts found</p>';
+                    }
+                }
+                
+                // Update upcoming events
+                const upcomingEvents = document.getElementById('upcomingEvents');
+                if (upcomingEvents) {
+                    if (sortedEvents.length > 0) {
+                        upcomingEvents.innerHTML = sortedEvents.map(event => `
+                            <div class="recent-item">
+                                <h4>${event.title}</h4>
+                                <p>${event.location || ''}</p>
+                                <div class="item-meta">
+                                    <span>${formatDate(event.date)}</span>
+                                    <span class="status-badge ${event.status}">${event.status}</span>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        upcomingEvents.innerHTML = '<p class="empty-message">No upcoming events found</p>';
+                    }
+                }
+                
+                console.log(`Recent content loaded from localStorage (API fallback): ${sortedBlogs.length} blogs, ${sortedEvents.length} events`);
             }
-            
-            console.log(`Recent content loaded from API: ${sortedBlogs.length} blogs, ${sortedEvents.length} events`);
         } else {
             // Get content from localStorage (backward compatibility)
             const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
@@ -657,6 +727,65 @@ function loadBlogTable() {
                 });
             }).catch(error => {
                 console.error('Error loading blog table:', error);
+                
+                // If the error is related to HTML response, try localStorage fallback
+                if (error.message && (error.message.includes('HTML instead of JSON') || error.message.includes('API routing error'))) {
+                    console.log('API returned HTML, falling back to localStorage...');
+                    try {
+                        // Fallback to localStorage
+                        const blogs = JSON.parse(localStorage.getItem('blogs') || '[]');
+                        
+                        if (blogs.length === 0) {
+                            tableBody.innerHTML = '<tr><td colspan="4" class="empty-table">No blog posts found</td></tr>';
+                            return;
+                        }
+                        
+                        // Sort by date (newest first)
+                        const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                        
+                        tableBody.innerHTML = sortedBlogs.map(blog => `
+                            <tr>
+                                <td>${blog.title}</td>
+                                <td>${formatDate(blog.createdAt)}</td>
+                                <td><span class="status-badge ${blog.status}">${blog.status}</span></td>
+                                <td>
+                                    <button class="btn-icon view-blog" data-id="${blog.id}" title="View Blog"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon edit-blog" data-id="${blog.id}" title="Edit Blog"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete-blog" data-id="${blog.id}" title="Delete Blog"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                        `).join('');
+                        
+                        // Add event listeners for view buttons
+                        document.querySelectorAll('.view-blog').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const blogId = this.getAttribute('data-id');
+                                viewBlog(blogId);
+                            });
+                        });
+
+                        // Add event listeners for edit buttons
+                        document.querySelectorAll('.edit-blog').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const blogId = this.getAttribute('data-id');
+                                editBlog(blogId);
+                            });
+                        });
+
+                        // Add event listeners for delete buttons
+                        document.querySelectorAll('.delete-blog').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const blogId = this.getAttribute('data-id');
+                                deleteBlog(blogId);
+                            });
+                        });
+                        
+                        return;
+                    } catch (fallbackError) {
+                        console.error('LocalStorage fallback also failed:', fallbackError);
+                    }
+                }
+                
                 tableBody.innerHTML = '<tr><td colspan="4" class="error-message">Error loading blog posts</td></tr>';
             });
         } else {
@@ -1112,6 +1241,66 @@ function loadEventTable() {
                 });
             }).catch(error => {
                 console.error('Error loading event table:', error);
+                
+                // If the error is related to HTML response, try localStorage fallback
+                if (error.message && (error.message.includes('HTML instead of JSON') || error.message.includes('API routing error'))) {
+                    console.log('API returned HTML, falling back to localStorage...');
+                    try {
+                        // Fallback to localStorage
+                        const events = JSON.parse(localStorage.getItem('events') || '[]');
+                        
+                        if (events.length === 0) {
+                            tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No events found</td></tr>';
+                            return;
+                        }
+                        
+                        // Sort by date (upcoming first)
+                        const sortedEvents = [...events].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+                        
+                        tableBody.innerHTML = sortedEvents.map(event => `
+                            <tr>
+                                <td>${event.title}</td>
+                                <td>${formatDate(event.date)}</td>
+                                <td>${event.location || 'N/A'}</td>
+                                <td><span class="status-badge ${event.status}">${event.status}</span></td>
+                                <td>
+                                    <button class="btn-icon view-event" data-id="${event.id}" title="View Event"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon edit-event" data-id="${event.id}" title="Edit Event"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete-event" data-id="${event.id}" title="Delete Event"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                        `).join('');
+                        
+                        // Add event listeners for view buttons
+                        document.querySelectorAll('.view-event').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const eventId = this.getAttribute('data-id');
+                                viewEvent(eventId);
+                            });
+                        });
+
+                        // Add event listeners for edit buttons
+                        document.querySelectorAll('.edit-event').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const eventId = this.getAttribute('data-id');
+                                editEvent(eventId);
+                            });
+                        });
+
+                        // Add event listeners for delete buttons
+                        document.querySelectorAll('.delete-event').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const eventId = this.getAttribute('data-id');
+                                deleteEvent(eventId);
+                            });
+                        });
+                        
+                        return;
+                    } catch (fallbackError) {
+                        console.error('LocalStorage fallback also failed:', fallbackError);
+                    }
+                }
+                
                 tableBody.innerHTML = '<tr><td colspan="5" class="error-message">Error loading events</td></tr>';
             });
         } else {
@@ -1601,6 +1790,66 @@ function loadSermonTable() {
                 });
             }).catch(error => {
                 console.error('Error loading sermon table:', error);
+                
+                // If the error is related to HTML response, try localStorage fallback
+                if (error.message && (error.message.includes('HTML instead of JSON') || error.message.includes('API routing error'))) {
+                    console.log('API returned HTML, falling back to localStorage...');
+                    try {
+                        // Fallback to localStorage
+                        const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+                        
+                        if (sermons.length === 0) {
+                            tableBody.innerHTML = '<tr><td colspan="5" class="empty-table">No sermons found</td></tr>';
+                            return;
+                        }
+                        
+                        // Sort by date (newest first)
+                        const sortedSermons = [...sermons].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                        
+                        tableBody.innerHTML = sortedSermons.map(sermon => `
+                            <tr>
+                                <td>${sermon.title}</td>
+                                <td>${sermon.speaker}</td>
+                                <td>${formatDate(sermon.date)}</td>
+                                <td><span class="status-badge ${sermon.status}">${sermon.status}</span></td>
+                                <td>
+                                    <button class="btn-icon view-sermon" data-id="${sermon.id}" title="View Sermon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon edit-sermon" data-id="${sermon.id}" title="Edit Sermon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete-sermon" data-id="${sermon.id}" title="Delete Sermon"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                        `).join('');
+                        
+                        // Add event listeners for view buttons
+                        document.querySelectorAll('.view-sermon').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const sermonId = this.getAttribute('data-id');
+                                viewSermon(sermonId);
+                            });
+                        });
+
+                        // Add event listeners for edit buttons
+                        document.querySelectorAll('.edit-sermon').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const sermonId = this.getAttribute('data-id');
+                                editSermon(sermonId);
+                            });
+                        });
+
+                        // Add event listeners for delete buttons
+                        document.querySelectorAll('.delete-sermon').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const sermonId = this.getAttribute('data-id');
+                                deleteSermon(sermonId);
+                            });
+                        });
+                        
+                        return;
+                    } catch (fallbackError) {
+                        console.error('LocalStorage fallback also failed:', fallbackError);
+                    }
+                }
+                
                 tableBody.innerHTML = '<tr><td colspan="5" class="error-message">Error loading sermons</td></tr>';
             });
         } else {

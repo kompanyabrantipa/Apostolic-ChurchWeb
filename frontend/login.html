@@ -104,8 +104,14 @@
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
                 submitButton.disabled = true;
                 
+                // Define API base URL based on environment
+                const API_BASE =
+                    window.location.hostname === 'localhost'
+                        ? 'http://localhost:3001'
+                        : 'https://api.apostolicchurchlouisville.org';
+                            
                 // Send login request
-                fetch('/api/auth/login', {
+                fetch(`${API_BASE}/api/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

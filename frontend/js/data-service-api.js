@@ -35,7 +35,7 @@ const DataService = {
             };
 
             // Add authentication token if available
-            const authToken = localStorage.getItem('adminToken') || localStorage.getItem('sessionToken');
+            const authToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
             if (authToken) {
                 // Ensure Authorization header is properly set, overriding any existing value
                 requestOptions.headers = {

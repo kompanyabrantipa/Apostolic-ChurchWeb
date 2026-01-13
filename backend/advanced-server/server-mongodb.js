@@ -260,18 +260,7 @@ app.use('/api/sermons',
   sermonRoutes
 );
 
-// Backward compatibility routes for legacy frontend (singular endpoints)
-// These redirect requests from old /api/blog to new /api/blogs
-app.use('/api/blog', (req, res, next) => {
-  // Handle the /public endpoint specifically
-  if (req.url.includes('/public')) {
-    // Redirect /api/blog/public to /api/blogs?published=true
-    return res.redirect(301, `/api/blogs?published=true`);
-  }
-  // Redirect other /api/blog requests to /api/blogs
-  const newPath = req.url.replace(/^\/blog/, '/blogs');
-  res.redirect(301, `/api${newPath}`);
-});
+
 
 app.use('/api/config', configRoutes);
 app.use('/api/payments', paymentRoutes); // No caching for payment endpoints

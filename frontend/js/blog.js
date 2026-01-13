@@ -247,6 +247,9 @@ function createBlogPostHTML(blog) {
 function createBlogMediaDisplay(imageUrl, title, category) {
     // Use uploaded image if available, otherwise use default placeholder
     const mediaUrl = imageUrl || 'images/blog-placeholder.jpg';
+    
+    // Static badge text for all blog posts
+    const badgeText = 'BLOG';
 
     // Check if it's a video file (though blogs typically use images)
     const videoExtensions = ['.mp4', '.webm', '.ogg', '.avi', '.mov'];
@@ -259,14 +262,14 @@ function createBlogMediaDisplay(imageUrl, title, category) {
                 <video src="${mediaUrl}" class="media-thumb" controls preload="metadata">
                     Your browser does not support the video tag.
                 </video>
-                <span class="category-badge">${category}</span>
+                <span class="category-badge">${badgeText}</span>
             </div>
         `;
     } else {
         return `
             <div class="card-media post-image">
                 <img src="${mediaUrl}" alt="${title}" class="media-thumb" loading="lazy" />
-                <span class="category-badge">${category}</span>
+                <span class="category-badge">${badgeText}</span>
             </div>
         `;
     }

@@ -63,6 +63,59 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
   }
 }));
 
+// GET /api/blogs/public - Get published blogs (matches DataService.getPublished('blogs'))
+router.get('/public', asyncHandler(async (req, res) => {
+  try {
+    const blogs = await Blog.getPublished();
+    
+    // Convert to JSON format matching localStorage structure
+    const blogsData = blogs.map(blog => blog.toJSON());
+    
+    res.status(200).json({
+      success: true,
+      data: blogsData
+    });
+  } catch (error) {
+    console.error('Get published blogs error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch published blogs'
+    });
+  }
+}));
+
+// GET /api/blogs/public/:id - Get single published blog by ID
+router.get('/public/:id', asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const blog = await Blog.getById(id);
+
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: 'Blog not found'
+      });
+    }
+
+    // Only return if the blog is published
+    if (blog.status !== 'published') {
+      return res.status(404).json({
+        success: false,
+        message: 'Blog not found'
+      });
+    }
+
+    res.json(blog.toJSON());
+
+  } catch (error) {
+    console.error('Get published blog by ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve published blog'
+    });
+  }
+}));
+
 // GET /api/blogs/:id - Get single blog by ID
 router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
   try {

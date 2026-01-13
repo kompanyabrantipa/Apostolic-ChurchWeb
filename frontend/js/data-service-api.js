@@ -10,6 +10,37 @@ const DataService = {
             ? 'http://' + window.location.hostname + ':3001/api' 
             : 'https://api.apostolicchurchlouisville.org/api'
     },
+    
+    // One-time startup self-check
+    _initialized: false,
+    _performSelfCheck: function() {
+        if (this._initialized) return;
+        this._initialized = true;
+        
+        console.log('[DataService] Initializing with configuration:');
+        console.log('- API Base URL:', this.config.apiBaseUrl);
+        console.log('- API Enabled:', this.config.useApi);
+        console.log('- Fallback Enabled:', this.config.fallbackToLocalStorage);
+        console.log('- Sync Enabled:', this.config.enableSync);
+        
+        // Check endpoint mappings
+        const mappings = {
+            'blog': this.getBackendEndpoint('blog'),
+            'blogs': this.getBackendEndpoint('blogs'),
+            'event': this.getBackendEndpoint('event'),
+            'events': this.getBackendEndpoint('events'),
+            'sermon': this.getBackendEndpoint('sermon'),
+            'sermons': this.getBackendEndpoint('sermons')
+        };
+        
+        console.log('- Endpoint mappings:', mappings);
+        
+        // Log warning if any mapping is missing
+        const hasMissingMapping = Object.values(mappings).some(value => value === null);
+        if (hasMissingMapping) {
+            console.warn('[DataService] Warning: Some endpoint mappings are missing');
+        }
+    },
 
     /**
      * API request handler with error handling and fallback
@@ -17,7 +48,55 @@ const DataService = {
      * @param {Object} options - Request options
      * @returns {Promise} API response
      */
+    // Map frontend type names to backend endpoint names
+    getBackendEndpoint: function(type) {
+        if (typeof type !== 'string' || !type.trim()) {
+            console.warn('Invalid type passed to getBackendEndpoint:', type);
+            return null;
+        }
+        
+        // Normalize type (trim + lowercase)
+        const normalizedType = type.trim().toLowerCase();
+        
+        // Explicitly map all valid frontend types to backend endpoints
+        const endpointMap = {
+            'blog': 'blogs',
+            'blogs': 'blogs',
+            'event': 'events',
+            'events': 'events',
+            'sermon': 'sermons',
+            'sermons': 'sermons'
+        };
+        
+        const mappedEndpoint = endpointMap[normalizedType];
+        
+        if (!mappedEndpoint) {
+            console.error('[DataService] Unknown content type mapped:', type, '->', normalizedType);
+            return null;
+        }
+        
+        return mappedEndpoint;
+    },
+    
     apiRequest: async function(endpoint, options = {}) {
+        // Strict validation at the very top - blocks requests where endpoint is undefined, null, '', or '/'
+        if (endpoint === undefined || endpoint === null || endpoint === '' || endpoint === '/') {
+            console.error('[DataService] Blocked invalid API endpoint');
+            throw new Error('Invalid API endpoint provided');
+        }
+        
+        // Additional defensive guard: prevent ALL invalid API calls
+        if (typeof endpoint !== 'string' || !endpoint.trim() || endpoint === '/api/' || endpoint === '/api') {
+            console.error('[DataService] BLOCKED invalid API endpoint:', endpoint);
+            throw new Error('Invalid API endpoint: ' + (endpoint || 'empty'));
+        }
+        
+        // Additional check to ensure endpoint starts with /
+        if (!endpoint.startsWith('/')) {
+            console.error('[DataService] BLOCKED invalid API endpoint (does not start with /):', endpoint);
+            throw new Error('Invalid API endpoint format: ' + endpoint);
+        }
+        
         if (!this.config.useApi) {
             throw new Error('API mode is disabled');
         }
@@ -144,11 +223,49 @@ const DataService = {
      * @returns {Array} Array of items
      */
     async getAll(type) {
+        // Strict validation guard: ensure type is a non-empty string
+        if (typeof type !== 'string' || !type.trim()) {
+            console.warn('DataService.getAll called with invalid type:', type, '– skipping API call');
+            return [];
+        }
+        
+        const backendEndpoint = this.getBackendEndpoint(type);
+        
+        // Check if the resolved endpoint is falsy, undefined, or an empty string
+        if (!backendEndpoint || backendEndpoint === '' || backendEndpoint === '/' || backendEndpoint === 'api/' || backendEndpoint === '/api/') {
+            console.error('[DataService] Invalid or missing endpoint for getAll(), skipping API request');
+            // Use fallback only if enabled
+            if (this.config.fallbackToLocalStorage) {
+                // Check if we're in production by checking for localhost
+                const isProduction = !(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
+                if (isProduction) {
+                    // In production, throw error instead of falling back
+                    throw new Error('API failed and fallback disabled in production');
+                } else {
+                    // In development, allow fallback with warning
+                    console.warn('API getAll failed for type "' + type + '", using localStorage fallback');
+                    return JSON.parse(localStorage.getItem(type) || '[]');
+                }
+            } else {
+                throw new Error('API disabled and no fallback available');
+            }
+        }
+        
         if (this.config.useApi) {
             try {
-                const response = await this.apiRequest('/' + type);
+                const backendEndpoint = this.getBackendEndpoint(type);
+                if (!backendEndpoint) {
+                    console.error('[DataService] BLOCKED API call due to invalid backend endpoint for type:', type);
+                    throw new Error('Invalid backend endpoint for type: ' + type);
+                }
+                const endpoint = '/' + backendEndpoint;
+                const response = await this.apiRequest(endpoint);
                 return response.data || [];
             } catch (error) {
+                // Only use localStorage fallback for actual API failures, not for invalid endpoints
+                if (error.message.includes('Invalid API endpoint') || error.message.includes('Invalid backend endpoint')) {
+                    throw error; // Don't use fallback for invalid endpoints
+                }
                 if (this.config.fallbackToLocalStorage) {
                     console.warn('API getAll failed, using localStorage:', error.message);
                     return JSON.parse(localStorage.getItem(type) || '[]');
@@ -169,11 +286,42 @@ const DataService = {
      * @returns {Object|null} Item or null if not found
      */
     async getById(type, id) {
+        const backendEndpoint = this.getBackendEndpoint(type);
+        if (!backendEndpoint) {
+            console.log('[DataService] Invalid backend endpoint for type', type);
+            // Use fallback only if enabled
+            if (this.config.fallbackToLocalStorage) {
+                // Check if we're in production by checking for localhost
+                const isProduction = !(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
+                if (isProduction) {
+                    // In production, throw error instead of falling back
+                    throw new Error('API failed and fallback disabled in production');
+                } else {
+                    // In development, allow fallback with warning
+                    console.warn('API getById failed for type "' + type + '", using localStorage fallback');
+                    const items = JSON.parse(localStorage.getItem(type) || '[]');
+                    return items.find(item => item.id === id) || null;
+                }
+            } else {
+                throw new Error('API disabled and no fallback available');
+            }
+        }
+        
         if (this.config.useApi) {
             try {
-                const response = await this.apiRequest('/' + type + '/' + id);
+                const backendEndpoint = this.getBackendEndpoint(type);
+                if (!backendEndpoint) {
+                    console.error('[DataService] BLOCKED API call due to invalid backend endpoint for type:', type);
+                    throw new Error('Invalid backend endpoint for type: ' + type);
+                }
+                const endpoint = '/' + backendEndpoint + '/' + id;
+                const response = await this.apiRequest(endpoint);
                 return response.data || null;
             } catch (error) {
+                // Only use localStorage fallback for actual API failures, not for invalid endpoints
+                if (error.message.includes('Invalid API endpoint') || error.message.includes('Invalid backend endpoint')) {
+                    throw error; // Don't use fallback for invalid endpoints
+                }
                 if (this.config.fallbackToLocalStorage) {
                     console.warn('API getById failed, using localStorage:', error.message);
                     const items = JSON.parse(localStorage.getItem(type) || '[]');
@@ -196,9 +344,35 @@ const DataService = {
      * @returns {Object} Created item
      */
     async create(type, data) {
+        const backendEndpoint = this.getBackendEndpoint(type);
+        if (!backendEndpoint) {
+            console.log('[DataService] Invalid backend endpoint for type', type);
+            // Use fallback only if enabled
+            if (this.config.fallbackToLocalStorage) {
+                // Check if we're in production by checking for localhost
+                const isProduction = !(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
+                if (isProduction) {
+                    // In production, throw error instead of falling back
+                    throw new Error('API failed and fallback disabled in production');
+                } else {
+                    // In development, allow fallback with warning
+                    console.warn('API create failed for type "' + type + '", using localStorage fallback');
+                    return this.createLocalStorage(type, data);
+                }
+            } else {
+                throw new Error('API disabled and no fallback available');
+            }
+        }
+        
         if (this.config.useApi) {
             try {
-                const response = await this.apiRequest('/' + type, {
+                const backendEndpoint = this.getBackendEndpoint(type);
+                if (!backendEndpoint) {
+                    console.error('[DataService] BLOCKED API call due to invalid backend endpoint for type:', type);
+                    throw new Error('Invalid backend endpoint for type: ' + type);
+                }
+                const endpoint = '/' + backendEndpoint;
+                const response = await this.apiRequest(endpoint, {
                     method: 'POST',
                     body: JSON.stringify(data)
                 });
@@ -211,6 +385,10 @@ const DataService = {
                 
                 return newItem;
             } catch (error) {
+                // Only use localStorage fallback for actual API failures, not for invalid endpoints
+                if (error.message.includes('Invalid API endpoint') || error.message.includes('Invalid backend endpoint')) {
+                    throw error; // Don't use fallback for invalid endpoints
+                }
                 if (this.config.fallbackToLocalStorage) {
                     console.warn('API create failed, using localStorage:', error.message);
                     // Fallback to localStorage implementation
@@ -254,9 +432,35 @@ const DataService = {
      * @returns {Object|null} Updated item or null if not found
      */
     async update(type, id, data) {
+        const backendEndpoint = this.getBackendEndpoint(type);
+        if (!backendEndpoint) {
+            console.log('[DataService] Invalid backend endpoint for type', type);
+            // Use fallback only if enabled
+            if (this.config.fallbackToLocalStorage) {
+                // Check if we're in production by checking for localhost
+                const isProduction = !(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
+                if (isProduction) {
+                    // In production, throw error instead of falling back
+                    throw new Error('API failed and fallback disabled in production');
+                } else {
+                    // In development, allow fallback with warning
+                    console.warn('API update failed for type "' + type + '", using localStorage fallback');
+                    return this.updateLocalStorage(type, id, data);
+                }
+            } else {
+                throw new Error('API disabled and no fallback available');
+            }
+        }
+        
         if (this.config.useApi) {
             try {
-                const response = await this.apiRequest('/' + type + '/' + id, {
+                const backendEndpoint = this.getBackendEndpoint(type);
+                if (!backendEndpoint) {
+                    console.error('[DataService] BLOCKED API call due to invalid backend endpoint for type:', type);
+                    throw new Error('Invalid backend endpoint for type: ' + type);
+                }
+                const endpoint = '/' + backendEndpoint + '/' + id;
+                const response = await this.apiRequest(endpoint, {
                     method: 'PUT',
                     body: JSON.stringify(data)
                 });
@@ -269,6 +473,10 @@ const DataService = {
                 
                 return updatedItem;
             } catch (error) {
+                // Only use localStorage fallback for actual API failures, not for invalid endpoints
+                if (error.message.includes('Invalid API endpoint') || error.message.includes('Invalid backend endpoint')) {
+                    throw error; // Don't use fallback for invalid endpoints
+                }
                 if (this.config.fallbackToLocalStorage) {
                     console.warn('API update failed, using localStorage:', error.message);
                     // Fallback to localStorage implementation
@@ -318,9 +526,35 @@ const DataService = {
      * @returns {boolean} True if deleted, false if not found
      */
     async delete(type, id) {
+        const backendEndpoint = this.getBackendEndpoint(type);
+        if (!backendEndpoint) {
+            console.log('[DataService] Invalid backend endpoint for type', type);
+            // Use fallback only if enabled
+            if (this.config.fallbackToLocalStorage) {
+                // Check if we're in production by checking for localhost
+                const isProduction = !(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
+                if (isProduction) {
+                    // In production, throw error instead of falling back
+                    throw new Error('API failed and fallback disabled in production');
+                } else {
+                    // In development, allow fallback with warning
+                    console.warn('API delete failed for type "' + type + '", using localStorage fallback');
+                    return this.deleteLocalStorage(type, id);
+                }
+            } else {
+                throw new Error('API disabled and no fallback available');
+            }
+        }
+        
         if (this.config.useApi) {
             try {
-                const response = await this.apiRequest('/' + type + '/' + id, {
+                const backendEndpoint = this.getBackendEndpoint(type);
+                if (!backendEndpoint) {
+                    console.error('[DataService] BLOCKED API call due to invalid backend endpoint for type:', type);
+                    throw new Error('Invalid backend endpoint for type: ' + type);
+                }
+                const endpoint = '/' + backendEndpoint + '/' + id;
+                const response = await this.apiRequest(endpoint, {
                     method: 'DELETE'
                 });
                 
@@ -333,6 +567,10 @@ const DataService = {
                 }
                 return false;
             } catch (error) {
+                // Only use localStorage fallback for actual API failures, not for invalid endpoints
+                if (error.message.includes('Invalid API endpoint') || error.message.includes('Invalid backend endpoint')) {
+                    throw error; // Don't use fallback for invalid endpoints
+                }
                 if (this.config.fallbackToLocalStorage) {
                     console.warn('API delete failed, using localStorage:', error.message);
                     // Fallback to localStorage implementation
@@ -376,11 +614,42 @@ const DataService = {
      * @returns {Array} Array of published items
      */
     async getPublished(type) {
+        const backendEndpoint = this.getBackendEndpoint(type);
+        if (!backendEndpoint) {
+            console.log('[DataService] Invalid backend endpoint for type', type);
+            // Use fallback only if enabled
+            if (this.config.fallbackToLocalStorage) {
+                // Check if we're in production by checking for localhost
+                const isProduction = !(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
+                if (isProduction) {
+                    // In production, throw error instead of falling back
+                    throw new Error('API failed and fallback disabled in production');
+                } else {
+                    // In development, allow fallback with warning
+                    console.warn('API getPublished failed for type "' + type + '", using localStorage fallback');
+                    const items = JSON.parse(localStorage.getItem(type) || '[]');
+                    return items.filter(item => item.status === 'published');
+                }
+            } else {
+                throw new Error('API disabled and no fallback available');
+            }
+        }
+        
         if (this.config.useApi) {
             try {
-                const response = await this.apiRequest('/' + type + '?published=true');
+                const backendEndpoint = this.getBackendEndpoint(type);
+                if (!backendEndpoint) {
+                    console.error('[DataService] BLOCKED API call due to invalid backend endpoint for type:', type);
+                    throw new Error('Invalid backend endpoint for type: ' + type);
+                }
+                const endpoint = '/' + backendEndpoint + '/public';
+                const response = await this.apiRequest(endpoint);
                 return response.data || [];
             } catch (error) {
+                // Only use localStorage fallback for actual API failures, not for invalid endpoints
+                if (error.message.includes('Invalid API endpoint') || error.message.includes('Invalid backend endpoint')) {
+                    throw error; // Don't use fallback for invalid endpoints
+                }
                 if (this.config.fallbackToLocalStorage) {
                     console.warn('API getPublished failed, using localStorage:', error.message);
                     const items = JSON.parse(localStorage.getItem(type) || '[]');
@@ -439,5 +708,10 @@ const DataService = {
 
 // Make DataService globally available
 window.DataService = DataService;
+
+// Perform startup self-check
+if (DataService._performSelfCheck) {
+    DataService._performSelfCheck();
+}
 
 console.log('DataService API initialized with API support and localStorage fallback');

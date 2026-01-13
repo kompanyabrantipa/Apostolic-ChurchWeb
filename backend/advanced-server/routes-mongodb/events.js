@@ -55,6 +55,59 @@ router.get('/', optionalAuth, async (req, res) => {
   }
 });
 
+// GET /api/events/public - Get published events (matches DataService.getPublished('events'))
+router.get('/public', async (req, res) => {
+  try {
+    const events = await Event.getPublished();
+    
+    // Convert to JSON format matching localStorage structure
+    const eventsData = events.map(event => event.toJSON());
+    
+    res.status(200).json({
+      success: true,
+      data: eventsData
+    });
+  } catch (error) {
+    console.error('Get published events error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch published events'
+    });
+  }
+});
+
+// GET /api/events/public/:id - Get single published event by ID
+router.get('/public/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.getById(id);
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    // Only return if the event is published
+    if (event.status !== 'published') {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    res.json(event.toJSON());
+
+  } catch (error) {
+    console.error('Get published event by ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve published event'
+    });
+  }
+});
+
 // GET /api/events/:id - Get single event by ID
 router.get('/:id', optionalAuth, async (req, res) => {
   try {

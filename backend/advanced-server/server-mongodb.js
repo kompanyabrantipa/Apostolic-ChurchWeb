@@ -233,6 +233,16 @@ if (process.env.NODE_ENV === 'production') {
 
 // API Routes (using MongoDB routes with caching and invalidation)
 // Backward compatibility routes for legacy frontend
+app.get('/api/blog', (req, res) => {
+  // Redirect /api/blog to /api/blogs for backward compatibility
+  res.redirect(301, `/api/blogs`);
+});
+
+app.get('/api/blog/:id', (req, res) => {
+  // Redirect /api/blog/:id to /api/blogs/:id for backward compatibility
+  res.redirect(301, `/api/blogs/${req.params.id}`);
+});
+
 app.get('/api/events/public', (req, res) => {
   // Redirect /api/events/public to /api/events?published=true
   res.redirect(301, `/api/events?published=true`);
@@ -660,3 +670,42 @@ process.on('SIGINT', async () => {
 
 // Start the server
 startServer();
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Application will continue running despite unhandled rejections
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1); // Exit process after logging
+});
+
+// Start periodic cleanup of expired refresh tokens
+function startRefreshTokenCleanupJob() {
+  // Run cleanup immediately on startup
+  cleanupExpiredRefreshTokens();
+  
+  // Schedule cleanup to run every 12 hours
+  setInterval(cleanupExpiredRefreshTokens, 12 * 60 * 60 * 1000); // 12 hours
+  
+  console.log('🔄 Refresh token cleanup job scheduled (every 12 hours)');
+}
+
+// Cleanup function to remove expired refresh tokens
+async function cleanupExpiredRefreshTokens() {
+  try {
+    const RefreshToken = require('./models-mongodb/RefreshToken');
+    const deletedCount = await RefreshToken.cleanExpiredTokens();
+    
+    if (deletedCount > 0) {
+      console.log(`🧹 Cleaned up ${deletedCount} expired or revoked refresh tokens`);
+      logger.info(`Cleaned up ${deletedCount} expired or revoked refresh tokens`);
+    }
+  } catch (error) {
+    console.error('❌ Error cleaning up expired refresh tokens:', error.message);
+    logger.error('Error cleaning up expired refresh tokens', { error: error.message });
+  }
+}

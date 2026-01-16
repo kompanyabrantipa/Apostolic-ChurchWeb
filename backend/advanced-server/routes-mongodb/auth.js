@@ -1,7 +1,8 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models-mongodb/User');
-const { generateToken, verifyToken } = require('../middleware/auth-mongodb');
+const RefreshToken = require('../models-mongodb/RefreshToken');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../middleware/auth-mongodb');
 
 const router = express.Router();
 
@@ -43,27 +44,45 @@ router.post('/login', [
       });
     }
 
-    // Generate JWT token
-    const token = generateToken({
+    // Generate access token
+    const accessToken = generateAccessToken({
       id: user._id.toString(),
       username: user.username,
       role: user.role
     });
 
-    // Set HTTP-only cookie for security
-    res.cookie('authToken', token, {
+    // Generate refresh token
+    const refreshTokenObj = generateRefreshToken({
+      id: user._id.toString(),
+      username: user.username,
+      role: user.role
+    });
+
+    // Store refresh token in database
+    await RefreshToken.createToken({
+      id: refreshTokenObj.id,
+      userId: user._id.toString(),
+      token: refreshTokenObj.token,
+      expiresAt: refreshTokenObj.expiresAt,
+      userAgent: req.get('User-Agent') || '',
+      ip: req.ip || ''
+    });
+
+    // Set refresh token as HTTP-only cookie for security
+    res.cookie('refreshToken', refreshTokenObj.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
-    // Return success response matching existing auth pattern
+    // Return success response with access token
     res.json({
       success: true,
       message: 'Login successful',
       user: user.toJSON(),
-      token // Also return token for potential Bearer auth usage
+      accessToken, // Provide access token for Authorization header usage
+      refreshToken: refreshTokenObj.token // Provide refresh token for client storage (though primarily in cookie)
     });
 
   } catch (error) {
@@ -76,10 +95,18 @@ router.post('/login', [
 });
 
 // Logout endpoint
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
   try {
-    // Clear the auth cookie
-    res.clearCookie('authToken');
+    // Get refresh token from cookie
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (refreshToken) {
+      // Revoke the refresh token
+      await RefreshToken.revokeToken(refreshToken);
+    }
+
+    // Clear the auth cookies
+    res.clearCookie('refreshToken');
     
     res.json({
       success: true,
@@ -94,11 +121,129 @@ router.post('/logout', (req, res) => {
   }
 });
 
-// Verify token endpoint - for auth-guard.js integration
-router.get('/verify', verifyToken, async (req, res) => {
+// Refresh token endpoint
+router.post('/refresh-token', async (req, res) => {
   try {
+    // Get refresh token from cookie
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'No refresh token provided'
+      });
+    }
+
+    try {
+      // Verify the refresh token and get user
+      const user = await verifyRefreshToken(refreshToken);
+
+      // Generate new access token
+      const newAccessToken = generateAccessToken({
+        id: user._id.toString(),
+        username: user.username,
+        role: user.role
+      });
+
+      // Optionally generate a new refresh token (rotate refresh tokens)
+      const newRefreshTokenObj = generateRefreshToken({
+        id: user._id.toString(),
+        username: user.username,
+        role: user.role
+      });
+
+      // Store new refresh token in database
+      await RefreshToken.createToken({
+        id: newRefreshTokenObj.id,
+        userId: user._id.toString(),
+        token: newRefreshTokenObj.token,
+        expiresAt: newRefreshTokenObj.expiresAt,
+        userAgent: req.get('User-Agent') || '',
+        ip: req.ip || ''
+      });
+
+      // Revoke old refresh token
+      await RefreshToken.revokeToken(refreshToken);
+
+      // Set new refresh token as HTTP-only cookie
+      res.cookie('refreshToken', newRefreshTokenObj.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      res.json({
+        success: true,
+        message: 'Token refreshed successfully',
+        accessToken: newAccessToken
+      });
+
+    } catch (error) {
+      // Invalid refresh token - clear the cookie and return error
+      res.clearCookie('refreshToken');
+      
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired refresh token'
+      });
+    }
+
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Token refresh failed'
+    });
+  }
+});
+
+// Verify token endpoint - for auth-guard.js integration
+router.get('/verify', async (req, res) => {
+  try {
+    // Get access token from Authorization header
+    let token = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Access token required for verification'
+      });
+    }
+
+    // Verify the access token
+    let decoded;
+    try {
+      const jwt = require('jsonwebtoken');
+      const { JWT_SECRET } = require('../middleware/auth-mongodb');
+      decoded = jwt.verify(token, JWT_SECRET);
+
+      if (decoded.type !== 'access') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token type'
+        });
+      }
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired'
+        });
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token'
+        });
+      }
+    }
+
     // Get user from MongoDB to ensure they still exist
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(decoded.id);
     
     if (!user) {
       return res.status(401).json({
@@ -107,7 +252,7 @@ router.get('/verify', verifyToken, async (req, res) => {
       });
     }
 
-    // If we reach here, token is valid (verifyToken middleware passed)
+    // If we reach here, token is valid
     res.json({
       success: true,
       message: 'Token is valid',
@@ -123,9 +268,50 @@ router.get('/verify', verifyToken, async (req, res) => {
 });
 
 // Get current user info
-router.get('/me', verifyToken, async (req, res) => {
+router.get('/me', async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    // Get access token from Authorization header
+    let token = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Access token required'
+      });
+    }
+
+    // Verify the access token
+    let decoded;
+    try {
+      const jwt = require('jsonwebtoken');
+      const { JWT_SECRET } = require('../middleware/auth-mongodb');
+      decoded = jwt.verify(token, JWT_SECRET);
+
+      if (decoded.type !== 'access') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token type'
+        });
+      }
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired'
+        });
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token'
+        });
+      }
+    }
+
+    const user = await User.findById(decoded.id);
     
     if (!user) {
       return res.status(404).json({
@@ -148,24 +334,51 @@ router.get('/me', verifyToken, async (req, res) => {
 });
 
 // Change password endpoint
-router.post('/change-password', [
-  verifyToken,
-  body('currentPassword').notEmpty().withMessage('Current password is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters long')
-], async (req, res) => {
+router.post('/change-password', async (req, res) => {
   try {
-    // Check validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
+    // Get access token from Authorization header
+    let token = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+
+    if (!token) {
+      return res.status(401).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: 'Access token required'
       });
     }
 
+    // Verify the access token
+    let decoded;
+    try {
+      const jwt = require('jsonwebtoken');
+      const { JWT_SECRET } = require('../middleware/auth-mongodb');
+      decoded = jwt.verify(token, JWT_SECRET);
+
+      if (decoded.type !== 'access') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token type'
+        });
+      }
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired'
+        });
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token'
+        });
+      }
+    }
+
     const { currentPassword, newPassword } = req.body;
-    const userId = req.user.id;
+    const userId = decoded.id;
 
     // Get current user from MongoDB
     const user = await User.findById(userId);
@@ -205,28 +418,54 @@ router.post('/change-password', [
 });
 
 // Create user endpoint (admin only)
-router.post('/create-user', [
-  verifyToken,
-  body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-  body('role').optional().isIn(['admin', 'editor', 'viewer']).withMessage('Invalid role')
-], async (req, res) => {
+router.post('/create-user', async (req, res) => {
   try {
-    // Check if user is admin
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({
+    // Get access token from Authorization header
+    let token = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+
+    if (!token) {
+      return res.status(401).json({
         success: false,
-        message: 'Admin access required'
+        message: 'Access token required'
       });
     }
 
-    // Check validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
+    // Verify the access token
+    let decoded;
+    try {
+      const jwt = require('jsonwebtoken');
+      const { JWT_SECRET } = require('../middleware/auth-mongodb');
+      decoded = jwt.verify(token, JWT_SECRET);
+
+      if (decoded.type !== 'access') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token type'
+        });
+      }
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired'
+        });
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token'
+        });
+      }
+    }
+
+    // Check if user is admin
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.array()
+        message: 'Admin access required'
       });
     }
 

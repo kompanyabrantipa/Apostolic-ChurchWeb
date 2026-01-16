@@ -124,12 +124,43 @@ const DataService = {
             }
 
             // Make the API request
-            const response = await fetch(this.config.apiBaseUrl + endpoint, requestOptions);
+            let response = await fetch(this.config.apiBaseUrl + endpoint, requestOptions);
 
             // Check if response is ok
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || 'API request failed: ' + response.status + ' ' + response.statusText);
+                
+                // Check if it's a 401 Unauthorized error (token expired)
+                if (response.status === 401) {
+                    // Try to refresh the token
+                    const refreshTokenSuccess = await this.refreshToken();
+                    
+                    if (refreshTokenSuccess) {
+                        // Retry the original request with the new token
+                        const newAuthToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+                        if (newAuthToken) {
+                            requestOptions.headers = {
+                                ...requestOptions.headers,
+                                'Authorization': 'Bearer ' + newAuthToken
+                            };
+                        }
+                        
+                        // Make the request again with the new token
+                        response = await fetch(this.config.apiBaseUrl + endpoint, requestOptions);
+                        
+                        if (!response.ok) {
+                            const retryErrorData = await response.json().catch(() => ({}));
+                            throw new Error(retryErrorData.message || 'API request failed after token refresh: ' + response.status + ' ' + response.statusText);
+                        }
+                    } else {
+                        // Token refresh failed, redirect to login
+                        this.logoutAndRedirect();
+                        throw new Error('Token refresh failed, user redirected to login');
+                    }
+                } else {
+                    // If not a 401 error, throw the original error
+                    throw new Error(errorData.message || 'API request failed: ' + response.status + ' ' + response.statusText);
+                }
             }
 
             // Parse and return response
@@ -703,6 +734,54 @@ const DataService = {
         } catch (error) {
             console.error('Error triggering sync:', error);
         }
+    },
+    
+    /**
+     * Refresh authentication token
+     * @returns {Promise<boolean>} True if refresh was successful, false otherwise
+     */
+    async refreshToken() {
+        try {
+            const response = await fetch(`${this.config.apiBaseUrl}/auth/refresh-token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include' // Include cookies for authentication
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.accessToken) {
+                    // Store the new access token
+                    if (localStorage.getItem('adminToken')) {
+                        localStorage.setItem('adminToken', data.accessToken);
+                    } else if (sessionStorage.getItem('adminToken')) {
+                        sessionStorage.setItem('adminToken', data.accessToken);
+                    }
+                    return true;
+                }
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('Token refresh failed:', errorData.message || 'Unknown error');
+            }
+        } catch (error) {
+            console.error('Token refresh network error:', error);
+        }
+        
+        return false;
+    },
+    
+    /**
+     * Logout user and redirect to login page
+     */
+    logoutAndRedirect() {
+        // Clear stored tokens
+        localStorage.removeItem('adminToken');
+        sessionStorage.removeItem('adminToken');
+        
+        // Redirect to login page
+        window.location.href = '/login';
     }
 };
 
